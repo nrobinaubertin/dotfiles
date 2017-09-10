@@ -115,12 +115,50 @@ then
     alias gl='git log --pretty=medium --abbrev-commit --date=relative'
     alias gs='git status -sb'
 
+    # get stats of a git repo
+    git-stats() {
+        for author in $(git log --pretty="%ce" | sort | uniq)
+        do
+            echo -e "\033[1;37m$author\033[0m:"
+            git log --shortstat --author "$author" -i 2> /dev/null \
+                | grep -E 'files? changed' \
+                | awk 'BEGIN{commits=0;inserted=0;deleted=0} \
+                    {commits+=1; if($5!~"^insertion") { deleted+=$4 } \
+                    else { inserted+=$4; deleted+=$6 } } END \
+                    {print "\033[1;34m↑↑\033[0m", commits \
+                    "\n\033[1;32m++\033[0m", inserted, \
+                    "\n\033[1;31m--\033[0m", deleted, "\033[0m"}'
+        done
+        
+        echo "Lines in HEAD by author :"
+        git ls-tree -r -z --name-only HEAD -- "$1" | xargs -0 -n1 git blame --line-porcelain HEAD | grep  "^author " | sort | uniq -c | sort -nr | grep "author"
+    }
+
+    # get number of commit last week/day for each author
+    git-pulse() {
+        if [ "$1" == "today" ]
+        then
+            age=$(( $(date +%s) - (60 * 60* 24) ))
+        else
+            age=$(( $(date +%s) - (60 * 60* 24 * 7) ))
+        fi
+        for name in $(git log --pretty="%ce" | sort | uniq)
+        do
+            count=$(git rev-list --no-merges --author="$name" --max-age="$age" --count --all)
+            if [ "$count" -gt 0 ]
+            then
+                echo "$count $name"
+            fi
+        done
+    }
+
     if [ -n "$(which git-forest 2>/dev/null)" ]
     then
         alias gf='git-forest --all | less'
     else
         alias gf='git log --graph --abbrev-commit --decorate --format=format:"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)" --all'
     fi
+
     if [ -n "$(which diff-so-fancy 2>/dev/null)" ]
     then
         gd() {
