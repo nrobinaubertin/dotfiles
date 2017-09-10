@@ -1,0 +1,159 @@
+#!/bin/bash
+
+# TODO
+# use colors effectively
+# remove fortune ?
+
+# Text Reset
+RCol='\033[0m'    
+Cya='\033[0;36m';                      
+BGre='\033[1;32m';
+
+printAsciiArt() {
+echo -e "
+${Cya}                ._,.                           ${RCol}
+${Cya}          '..-..pf.                            ${RCol}
+${Cya}         -L   ..#'                             ${RCol}
+${Cya}       .+_L  .']#                              ${RCol}
+${Cya}       ,'j' .+.j'                 -'.__..,.,p. ${RCol}
+${Cya}      _~ #..<..0.                 .J-.''..._f. ${RCol}
+${Cya}     .7..#_.. _f.                .....-..,'4'  ${RCol}
+${Cya}     ;' ,#j.  T'      ..         ..J....,'.j'  ${RCol}
+${Cya}    .' ..'^.,-0.,,,,yMMMMM,.    ,-.J...+'.j@   ${RCol}
+${Cya}   .'.'...' .yMMMMM0M@^='''g.. .'..J..'.'.jH   ${RCol}
+${Cya}   j' .'1'  q'^)@@#'^'.''='BNg_...,]_)'...0-   ${RCol}
+${Cya}  .T ...I. j'    .'..+,_.'3#MMM0MggCBf....F.   ${RCol}
+${Cya}  j/.+'.{..+       '^~'-^~~''''''''?'''''1'    ${RCol}
+${Cya}  .... .y.}                  '.._-:'_...jf     ${RCol}
+${Cya}  g-.  .Lg'                 ..,..'-....,'.     ${RCol}
+${Cya} .'.   .Y^                  .....',].._f       ${RCol}
+${Cya} ......-f.                 .-,,.,.-:--&'       ${RCol}
+${Cya}                           .'...'..'_J'        ${RCol}
+${Cya}                           .~......'#'         ${RCol}
+${Cya}                           '..,,.,_]'          ${RCol}
+${Cya}                           .L..'..''.          ${RCol}
+"
+}
+
+# get uptime
+getUptime() {
+    ups=$(cut -d. -f1 < /proc/uptime)
+    upm=$(( ups / 60 ))
+    uph=$(( upm / 60 ))
+    upd=$(( uph / 24 ))
+    if [ "$upm" != 0 ]; then ups=$(( ups - upm*60 )); fi
+    if [ "$uph" != 0 ]; then upm=$(( upm - uph*60 )); fi
+    if [ "$upd" != 0 ]; then uph=$(( uph - upd*24 )); fi
+    if [ "$ups" -lt 10 ]; then ups="0$ups"; fi
+    if [ "$upm" -lt 10 ]; then upm="0$upm"; fi
+    if [ "$uph" -lt 10 ]; then uph="0$uph"; fi
+
+    if [ "$upd" != 0 ]
+    then
+        if [ "$upd" -le 9 ]
+        then
+            echo "${RCol}$upd day, $uph:$upm:$ups"
+        else
+            echo "${RCol}$upd days, $uph:$upm:$ups"
+        fi
+    else
+        echo -e "${RCol}$uph:$upm:$ups"
+    fi
+}
+
+printStorage() {
+    echo -e "${BGre}Filesystem\tSize\tAvailable${RCol}"
+    for index in {1..10}
+    do
+        mydev_data=$(df -h | sort | grep -E "^/dev/" | sed -n "${index}p" | sed -r 's/\s+/ /g')
+        mydev_name=$(echo -n "$mydev_data" | cut -d' ' -f1)
+        mydev_size=$(echo -n "$mydev_data" | cut -d' ' -f2)
+        mydev_avail=$(echo -n "$mydev_data" | cut -d' ' -f4)
+        if [[ -n $mydev_name ]] && [[ -n $mydev_size ]] && [[ -n $mydev_avail ]]
+        then
+            printf "%s\t%s\t%s\n" "${mydev_name}" "${mydev_size}" "${mydev_avail}"
+        fi
+    done
+}
+
+printHeader() {
+    echo "----------"
+    date
+    if [[ -n $(which fortune) ]]
+    then
+        fortune -sn 70
+    fi
+    echo "----------"
+}
+
+printInfos() {
+
+    # details
+    machine=$(</proc/sys/kernel/hostname)
+    #arch=$(uname -m)
+    #mykernel=$(uname -r)
+    read -r arch mykernel <<<"$(uname -mr)"
+    mycpu=$(grep -m1 "model name" /proc/cpuinfo | awk -F": " '{print $2}')
+    #myshell=$(ps -p `ps -p $$ -o ppid=` | sed -n '2p' | sed -r 's/.*\s(.*)$/\1/')
+    myshell=$SHELL
+    #mymem=$(free -h --si | sed -n '2p' | sed -r 's/\s+/ /g' | cut -d' ' -f2)
+    mymem=$(free -h --si | head -n2 | tail -n1 | awk '{print $2}')
+    myip=$(ip route show | tail -n1 | sed -r 's/.*src(.*)/\1/' | cut -d' ' -f2)
+    #mypackages=$(pacman -Q | wc -l)
+    myterm=$TERM
+    mycols=$(tput cols)
+    mylines=$(tput lines)
+
+    echo -e "${BGre}Machine:${RCol} ${machine}"
+    echo -e "${BGre}Architecture:${RCol} ${arch}"
+    echo -e "${BGre}Kernel:${RCol} ${mykernel}"
+    echo -e "${BGre}CPU:${RCol} ${mycpu}"
+    echo -e "${BGre}Memory:${RCol} ${mymem}"
+    echo -e "${BGre}Uptime:${RCol} $(getUptime)"
+    echo -e "${BGre}Shell:${RCol} ${myshell}"
+    echo -e "${BGre}Terminal:${RCol} ${myterm}"
+    if [[ -n ${myip} ]]
+    then
+        echo -e "${BGre}IP:${RCol} ${myip}"
+    fi
+    echo -e "${BGre}Geometry:${RCol} ${mycols}x${mylines}"
+    #echo -e "${BGre}Packages:${RCol} ${mypackages}"
+}
+
+printFull() {
+
+    ascii_art=$(printAsciiArt)
+    infos=$(printInfos)
+    storage=$(printStorage)
+    
+    printHeader
+    paste <(printf "%s\n\n" "$ascii_art") <(printf "\n\n\n\n\n%s\n\n%s\n\n" "$infos" "$storage")
+}
+
+printSmall() {
+    printHeader
+    echo ""
+    printInfos
+    echo ""
+    printStorage
+}
+
+printGreeting() {
+    if [ "$(tput cols)" -gt 85 ] && [ "$(tput lines)" -gt 25 ]
+    then
+        printFull
+        exit 0
+    fi
+    if [ "$(tput cols)" -gt 35 ] && [ "$(tput lines)" -gt 25 ]
+    then
+        printSmall
+        exit 0
+    fi
+    if [ "$(tput cols)" -gt 30 ] && [ "$(tput lines)" -gt 20 ]
+    then
+        printInfos
+        exit 0
+    fi
+}
+
+printGreeting

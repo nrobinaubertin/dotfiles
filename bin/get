@@ -1,0 +1,144 @@
+#!/bin/sh
+
+if [ "$1" = "power" ]
+then
+    power="$(cat /sys/class/power_supply/BAT1/capacity)"
+    if [ -n "$power" ]
+    then
+        printf "%s%%" "${power}"
+    else
+        printf "AC/DC"
+    fi
+    exit
+fi
+
+if [ "$1" = "date" ]
+then
+    currentDate="$(date +"%F")"
+    if [ -n "$currentDate" ]
+    then
+        printf "%s" "$currentDate"
+    fi
+    exit
+fi
+
+if [ "$1" = "time" ]
+then
+    currentTime="$(date +"%R")"
+    if [ -n "$currentTime" ]
+    then
+        printf "%s" "$currentTime"
+    fi
+    exit
+fi
+
+if [ "$1" = "cpu" ]
+then
+    cpu="$(awk '{ print $1 }' /proc/loadavg)"
+    if [ -n "$cpu" ]
+    then
+        printf "%s" "$cpu"
+    fi
+    exit
+fi
+
+if [ "$1" = "latency" ]
+then
+    
+    # LDN (France)
+    latency="$(ping -W 1 -c 3 -l 3 80.67.188.188 2>/dev/null | tail -n1 | awk '{print $4}' | tr '/' ' ' | cut -d'.' -f1)"
+
+    if [ -n "$latency" ]
+    then
+        # DNS.WATCH (Germany)
+        latency="$(ping -W 1 -c 3 -l 3 84.200.70.40 2>/dev/null | tail -n1 | awk '{print $4}' | tr '/' ' ' | cut -d'.' -f1)"
+    fi
+
+    if [ -n "$latency" ]
+    then
+        printf "%s" "${latency}ms"
+    fi
+    exit
+fi
+
+if [ "$1" = "heat" ]
+then
+    heat="$(awk '{ print $1/1000 }' /sys/class/thermal/thermal_zone0/temp)"
+    if [ -n "$heat" ]
+    then
+        printf "%s" "${heat}°C"
+    fi
+    exit
+fi
+
+if [ "$1" = "ip" ]
+then
+    if [ -n "$(which dig 2>/dev/null)" ]
+    then
+        ip="$(dig +short +keepopen myip.opendns.com @resolver1.opendns.com)"
+    fi
+    if [ -z "$ip" ] && [ -n "$(which curl 2>/dev/null)" ]
+    then
+        ip="$(curl -s http://whatismyip.akamai.com/)"
+        #ip="$(curl -s https://4.ifcfg.me/)"
+    fi
+    if [ -n "$ip" ]
+    then
+        printf "%s" "$ip"
+    fi
+    exit
+fi
+
+if [ "$1" = "ram" ]
+then
+    mem_total=$(grep -E "^MemTotal:" < /proc/meminfo | awk '{print $2}')
+    swap_total=$(grep -E "^SwapTotal:" < /proc/meminfo | awk '{print $2}')
+    mem_free=$(grep -E "^MemFree:" < /proc/meminfo | awk '{print $2}')
+    swap_free=$(grep -E "^SwapFree:" < /proc/meminfo | awk '{print $2}')
+    mem_buffers=$(grep -E "^Buffers:" < /proc/meminfo | awk '{print $2}')
+    mem_cached=$(grep -E "^Cached:" < /proc/meminfo | awk '{print $2}')
+    mem_reclaimable=$(grep -E "^SReclaimable:" < /proc/meminfo | awk '{print $2}')
+    kb=$(( mem_total + swap_total - mem_free - swap_free - mem_buffers - mem_cached - mem_reclaimable ))
+    mb=$(( kb / 1024 ))
+    gb=$(( kb / 1024 / 1024 ))
+    if [ -n "$kb" ]
+    then
+        if [ "$gb" -gt 0 ]
+        then
+            r=$(( (mb - gb * 1024) / 100 ))
+            printf "%s.%s GB" "$gb" "$r";
+            exit
+        fi
+        printf "%s MB" "$mb";
+    fi
+    exit
+fi
+
+if [ "$1" = "uptime" ]
+then
+    uptime=""
+    total_seconds=$(cut -d. -f1 < /proc/uptime)
+    days=$(( total_seconds / 60 / 60 / 24 ))
+    hours=$(( total_seconds / 60 / 60 % 24 ))
+    minutes=$(( total_seconds / 60 % 60 ))
+    if [ $days -gt 0 ]
+    then
+        uptime="${uptime}${days}d "
+    fi
+    if [ $hours -gt 0 ]
+    then
+        uptime="${uptime}${hours}h "
+    fi
+    uptime="${uptime}${minutes}m"
+    if [ -n "$uptime" ]
+    then
+        printf "%s" "$uptime"
+    fi
+    exit
+fi
+
+if [ "$1" = "dot" ]
+then
+    printf "\xE2\x80\xA2"
+    exit
+fi
