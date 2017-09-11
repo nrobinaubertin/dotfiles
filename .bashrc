@@ -178,6 +178,11 @@ then
     alias rr='trash-put'
 fi
 
+if [ -n "$(which wifi-menu 2>/dev/null)" ]
+then
+    alias wifi='sudo wifi-menu'
+fi
+
 if [ -n "$(which curl 2>/dev/null)" ]
 then
     ww() {
