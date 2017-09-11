@@ -103,9 +103,7 @@ bind '"\033[C": forward-char'
 bind '"\033[D": backward-char'
 
 # some aliases
-alias cd..='cd ..'
 alias :q='exit'
-alias cls='clear'
 alias tmux='tmux -2'
 alias todo='nvim ${HOME}/.TODO'
 
@@ -252,7 +250,10 @@ md5dirsum() {
 }
 
 gruvbox
-start_tmux
+if [ -z "$(pgrep tmux)" ]
+then
+    start_tmux
+fi
 
 # Greetings
 if [ -n "$(which greeting 2>/dev/null)" ]
