@@ -115,40 +115,61 @@ then
 
     # get stats of a git repo
     git-stats() {
-        for author in $(git log --pretty="%ce" | sort | uniq)
-        do
-            echo -e "\033[1;37m$author\033[0m:"
-            git log --shortstat --author "$author" -i 2> /dev/null \
-                | grep -E 'files? changed' \
-                | awk 'BEGIN{commits=0;inserted=0;deleted=0} \
-                    {commits+=1; if($5!~"^insertion") { deleted+=$4 } \
-                    else { inserted+=$4; deleted+=$6 } } END \
-                    {print "\033[1;34m↑↑\033[0m", commits \
-                    "\n\033[1;32m++\033[0m", inserted, \
-                    "\n\033[1;31m--\033[0m", deleted, "\033[0m"}'
-        done
+
+        # stats="author\t\033[1;34m↑↑\033[0m\t\033[1;32m++\033[0m\t\033[1;31m--\033[0m\n"
+        (
+            printf "author,commits,inserted,deleted\n"
+            for author in $(git log --pretty="%ce" | sort | uniq)
+            do
+                stat=$(git log --shortstat --author "$author" -i 2> /dev/null | grep -E 'files? changed' | awk 'BEGIN{commits=0;inserted=0;deleted=0} {commits+=1; if($5!~"^insertion") { deleted+=$4 } else { inserted+=$4; deleted+=$6 } } END {print commits, ",", inserted, ",", deleted }')
+                printf "%s,%s\n" "$author" "$stat"
+            done
+        ) | column -t -s ','
         
-        echo "Lines in HEAD by author :"
-        git ls-tree -r -z --name-only HEAD -- "$1" | xargs -0 -n1 git blame --line-porcelain HEAD | grep  "^author " | sort | uniq -c | sort -nr | grep "author"
+        # echo "Lines in HEAD by author :"
+        # git ls-tree -r -z --name-only HEAD -- "$1" | xargs -0 -n1 git blame --line-porcelain HEAD | grep  "^author " | sort | uniq -c | sort -nr | grep "author"
     }
 
     # get number of commit last week/day for each author
     git-pulse() {
         if [ "$1" == "today" ]
         then
-            age=$(( $(date +%s) - (60 * 60* 24) ))
+            age=$(( $(date +%s) - (60 * 60 * 24) ))
         else
-            age=$(( $(date +%s) - (60 * 60* 24 * 7) ))
+            age=$(( $(date +%s) - (60 * 60 * 24 * 7) ))
         fi
-        for name in $(git log --pretty="%ce" | sort | uniq)
-        do
-            count=$(git rev-list --no-merges --author="$name" --max-age="$age" --count --all)
-            if [ "$count" -gt 0 ]
-            then
-                echo "$count $name"
-            fi
-        done
+        (
+            echo -e "commits,additions,deletions,author\n"
+            for name in $(git log --pretty="%ce" | sort | uniq)
+            do
+                count=$(git rev-list --no-merges --author="$name" --max-age="$age" --count --all)
+                if [ "$count" -gt 0 ]
+                then
+                    added="0"
+                    deleted="0"
+                    for commit in $(git rev-list --no-merges --author="$name" --max-age="$age" --all)
+                    do
+                        if [ -n "$commit" ]
+                        then
+                            to_add=$(git diff --shortstat "$commit"^ "$commit" | cut -d" " -f5)
+                            if [ -n "$to_add" ]
+                            then
+                                added=$(( added + to_add ))
+                            fi
+                            to_delete=$(git diff --shortstat "$commit"^ "$commit" | cut -d" " -f7)
+                            if [ -n "$to_delete" ]
+                            then
+                                deleted=$(( deleted + to_delete ))
+                            fi
+                        fi
+                    done
+                    echo -e "$count,$added,$deleted,$name\n"
+                fi
+            done
+        ) | column -t -s ','
     }
+
+    alias gp='git-pulse'
 
     if [ -n "$(which git-forest 2>/dev/null)" ]
     then
