@@ -116,18 +116,17 @@ then
     # get stats of a git repo
     git-stats() {
 
-        # stats="author\t\033[1;34m↑↑\033[0m\t\033[1;32m++\033[0m\t\033[1;31m--\033[0m\n"
         (
-            printf "author,commits,inserted,deleted\n"
+        head=$(git ls-files | while read -r f; do git blame --line-porcelain "$f" | grep '^author-mail '; done | sort -f | uniq -ic | sort -n | tr -d '<>' | awk '{print $1, $3}')
+            printf "head,commits,inserted,deleted,author\n"
             for author in $(git log --pretty="%ce" | sort | uniq)
             do
-                stat=$(git log --shortstat --author "$author" -i 2> /dev/null | grep -E 'files? changed' | awk 'BEGIN{commits=0;inserted=0;deleted=0} {commits+=1; if($5!~"^insertion") { deleted+=$4 } else { inserted+=$4; deleted+=$6 } } END {print commits, ",", inserted, ",", deleted }')
-                printf "%s,%s\n" "$author" "$stat"
+                head_author=$(echo "$head" | grep "$author" | cut -d' ' -f1)
+                stat=$(git log --shortstat --author "$author" -i 2> /dev/null | grep -E 'files? changed' | awk 'BEGIN{commits=0;inserted=0;deleted=0} {commits+=1; if($5!~"^insertion") { deleted+=$4 } else { inserted+=$4; deleted+=$6 } } END {print commits, ",", inserted, ",", deleted}')
+                printf "%s,%s,%s\n" "$head_author" "$stat" "$author"
             done
         ) | column -t -s ','
         
-        # echo "Lines in HEAD by author :"
-        # git ls-tree -r -z --name-only HEAD -- "$1" | xargs -0 -n1 git blame --line-porcelain HEAD | grep  "^author " | sort | uniq -c | sort -nr | grep "author"
     }
 
     # get number of commit last week/day for each author
