@@ -13,12 +13,13 @@ set noshowmode
 set background=dark
 set fillchars=vert:\ ,stl:\ ,stlnc:\ 
 set laststatus=2
+"set colorcolumn=120
 
 " ignore some files
 set wildignore+=*/.git/*,*.swp,*.orig
 
 "Remap leader Key
-let mapleader=","
+let mapleader=" "
 
 " I need the 'Ç' sometimes...
 inoremap çç Ç
@@ -37,14 +38,6 @@ noremap <C-Right> :wincmd l<CR>
 inoremap <C-Right> <Esc>:wincmd l<CR>i
 tnoremap <C-Right> <C-\><C-n>:wincmd l<CR>i
 
-" resize windows
-nnoremap <silent> <Leader>> :exe "vertical resize " . (winwidth(0) * 3/2)<CR>
-inoremap <silent> <Leader>> :exe "vertical resize " . (winwidth(0) * 3/2)<CR>i
-tnoremap <silent> <Leader>> :exe "vertical resize " . (winwidth(0) * 3/2)<CR>i
-nnoremap <silent> <Leader>< :exe "vertical resize " . (winwidth(0) * 2/3)<CR>
-inoremap <silent> <Leader>< :exe "vertical resize " . (winwidth(0) * 2/3)<CR>i
-tnoremap <silent> <Leader>< :exe "vertical resize " . (winwidth(0) * 2/3)<CR>i
-
 "" Tabs commands
 noremap <C-k> :tabnext<CR>
 nnoremap <C-k> :tabnext<CR>
@@ -59,7 +52,7 @@ tnoremap <C-j> <C-\><C-n>:tabprevious<CR>i
 cnoremap w!! %!sudo tee >/dev/null %
 
 " space bar un-highlights search
-:noremap <silent> <Space> :silent noh<Bar>echo<CR>
+nnoremap <silent> <Leader> <Space> :silent noh<Bar>echo<CR>
 
 " update plugins
 command Update execute "PlugUpgrade | PlugUpdate"
@@ -77,12 +70,12 @@ Plug 'sheerun/vim-polyglot'
 Plug 'tpope/vim-fugitive'
 Plug 'w0rp/ale'
 Plug 'xuyuanp/nerdtree-git-plugin', { 'on': 'NERDTreeToggle' }
-
+" testing
 Plug 'amadeus/vim-mjml'
 call plug#end()
 
 " NERDTree options
-map <C-n> :NERDTreeToggle<CR>
+noremap <C-n> :NERDTreeToggle<CR>
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
@@ -91,9 +84,9 @@ autocmd FileType nerdtree noremap <buffer> <C-j> :tabprevious<CR>
 
 " fzf
 let $FZF_DEFAULT_COMMAND = 'find . 2>/dev/null'
-noremap <Leader>b :Buffers<CR>
-noremap <Leader>h :History<CR>
-noremap <Leader>f :FZF<CR>
+nnoremap <Leader>b :Buffers<CR>
+nnoremap <Leader>h :History<CR>
+nnoremap <Leader>f :FZF<CR>
 "noremap <Leader>d :exe ':FZF ' . expand('<cword>')<CR>
 if executable('rg')
     set grepprg=rg\ --vimgrep
@@ -109,3 +102,8 @@ let g:signify_sign_change = '~'
 
 " gruvbox
 colors gruvbox
+
+" ale
+let g:ale_lint_on_insert_leave = 1
+let g:ale_lint_on_text_changed = 'never'
+let g:ale_maximum_file_size = 16384
