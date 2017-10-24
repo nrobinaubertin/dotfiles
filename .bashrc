@@ -76,7 +76,7 @@ fi
 complete -cf sudo
 
 # open man in neovim
-command -v nvim > /dev/null 2>&1 && export MANPAGER="nvim '+set ft=man' -"
+export MANPAGER="less"
 
 # set pager conf
 export LESS_TERMCAP_mb=$'\033[01;31m'
@@ -112,10 +112,10 @@ if [ -n "$(which git 2>/dev/null)" ]
 then
     alias gl='git log --pretty=medium --abbrev-commit --date=relative'
     alias gs='git status -sb'
+    alias gf='git fetch -p --all'
 
     # get stats of a git repo
     git-stats() {
-
         (
         head=$(git ls-files | while read -r f; do git blame --line-porcelain "$f" | grep '^author-mail '; done | sort -f | uniq -ic | sort -n | tr -d '<>' | awk '{print $1, $3}')
             printf "head,commits,inserted,deleted,author\n"
@@ -126,17 +126,24 @@ then
                 printf "%s,%s,%s\n" "$head_author" "$stat" "$author"
             done
         ) | column -t -s ','
-        
     }
 
     # get number of commit last week/day for each author
     git-pulse() {
-        if [ "$1" == "today" ]
-        then
-            age=$(( $(date +%s) - (60 * 60 * 24) ))
-        else
-            age=$(( $(date +%s) - (60 * 60 * 24 * 7) ))
-        fi
+        case "$1" in
+            "day")
+                age=$(( $(date +%s) - (60 * 60 * 24) ))
+                ;;
+            "week")
+                age=$(( $(date +%s) - (60 * 60 * 24 * 7) ))
+                ;;
+            "month")
+                age=$(( $(date +%s) - (60 * 60 * 24 * 30) ))
+                ;;
+            *)
+                age=$(( $(date +%s) - (60 * 60 * 24 * 7) ))
+                ;;
+        esac
         (
             echo -e "commits,additions,deletions,author\n"
             for name in $(git log --pretty="%ce" | sort | uniq)
@@ -150,19 +157,21 @@ then
                     do
                         if [ -n "$commit" ]
                         then
-                            to_add=$(git diff --shortstat "$commit"^ "$commit" | cut -d" " -f5)
+                            to_add=$(git diff --shortstat "$commit"^ "$commit" 2>/dev/null | cut -d" " -f5)
                             if [ -n "$to_add" ]
                             then
                                 added=$(( added + to_add ))
                             fi
-                            to_delete=$(git diff --shortstat "$commit"^ "$commit" | cut -d" " -f7)
+                            to_delete=$(git diff --shortstat "$commit"^ "$commit" 2>/dev/null | cut -d" " -f7)
                             if [ -n "$to_delete" ]
                             then
                                 deleted=$(( deleted + to_delete ))
                             fi
                         fi
                     done
-                    echo -e "$count,$added,$deleted,$name\n"
+                    m_added=$(( added / count ))
+                    m_deleted=$(( deleted / count ))
+                    echo -e "$count,($m_added) $added,($m_deleted) $deleted,$name\n"
                 fi
             done
         ) | column -t -s ','
@@ -172,9 +181,9 @@ then
 
     if [ -n "$(which git-forest 2>/dev/null)" ]
     then
-        alias gf='git-forest --all | less'
+        alias gg='git-forest --all | less'
     else
-        alias gf='git log --graph --abbrev-commit --decorate --format=format:"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)" --all'
+        alias gg='git log --graph --abbrev-commit --decorate --format=format:"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)" --all'
     fi
 
     if [ -n "$(which diff-so-fancy 2>/dev/null)" ]
@@ -231,6 +240,8 @@ then
     alias play="mpv --no-video --loop-playlist"
 fi
 
+# TODO: find a more reliable function that proposes all bluetooth devices
+# probably a separated script
 if [ -n "$(which bluetoothctl 2>/dev/null)" ]
 then
     connectAudioFunction() {
@@ -249,8 +260,20 @@ connect 10:4F:A8:BB:0B:1C
 EOF
     }
 
-    # alias bt="connectAudioFunction > /dev/null && connectAudioFunction > /dev/null"
     alias bt="connectAudioFunction > /dev/null"
+fi
+
+if [ -n "$(which rg 2>/dev/null)"  ]
+then
+    # TODO: find a better name
+    getTODOs() {
+        todo=$(rg -c TODO "$1" | cut -d':' -f2 | awk '{s+=$1}END{print s}')
+        xxx=$(rg -c XXX "$1" | cut -d':' -f2 | awk '{s+=$1}END{print s}')
+        fixme=$(rg -c FIXME "$1" | cut -d':' -f2 | awk '{s+=$1}END{print s}')
+        echo "TODO: $todo"
+        echo "XXX: $xxx"
+        echo "FIXME: $fixme"
+    }
 fi
 
 # go to the root of the git repository
