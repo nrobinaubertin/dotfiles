@@ -244,23 +244,24 @@ fi
 # probably a separated script
 if [ -n "$(which bluetoothctl 2>/dev/null)" ]
 then
-    connectAudioFunction() {
-rfkill unblock bluetooth
-bluetoothctl << EOF
-power off
-EOF
-sleep 1
-bluetoothctl << EOF
-power on
-agent on
-EOF
-sleep 1
-bluetoothctl << EOF
-connect 10:4F:A8:BB:0B:1C
-EOF
+    bt() {
+        if [ "$1" == "on" ]
+        then
+            (
+                sudo rfkill unblock bluetooth
+                echo "power off" | bluetoothctl
+                sleep 1
+                echo "power on" | bluetoothctl
+                echo "agent on" | bluetoothctl
+                sleep 1
+                echo "connect 10:4F:A8:BB:0B:1C" | bluetoothctl
+            ) >/dev/null 2>/dev/null
+        else
+            (
+                echo "power off" | bluetoothctl
+            ) >/dev/null 2>/dev/null
+        fi
     }
-
-    alias bt="connectAudioFunction > /dev/null"
 fi
 
 if [ -n "$(which rg 2>/dev/null)"  ]
