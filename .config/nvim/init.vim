@@ -87,10 +87,13 @@ let $FZF_DEFAULT_COMMAND = 'find . 2>/dev/null'
 nnoremap <Leader>b :Buffers<CR>
 nnoremap <Leader>h :History<CR>
 nnoremap <Leader>f :FZF<CR>
-"noremap <Leader>d :exe ':FZF ' . expand('<cword>')<CR>
+
+" search related stuff
+map <Leader>s :execute " grep -srnw --binary-files=without-match --exclude-dir=.git --exclude-from=exclude.list . -e " . expand("<cword>") . " " <bar> cwindow<CR><CR><CR>
 if executable('rg')
     set grepprg=rg\ --vimgrep
     let $FZF_DEFAULT_COMMAND = 'rg . --files --color=never --hidden --glob "!.git/*" 2>/dev/null'
+    map <Leader>s :execute ' grep . --hidden --glob "!.git/*" -e <cword> ' <bar> cwindow<CR><CR><CR>
 endif
 
 " lightline
