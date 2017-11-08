@@ -21,8 +21,11 @@ set wildignore+=*/.git/*,*.swp,*.orig
 "Remap leader Key
 let mapleader=" "
 
-" I need the 'Ç' sometimes...
+" The french keyboard is awesome
 inoremap çç Ç
+inoremap àà À
+inoremap éé É
+inoremap êê Ê
 
 "" Windows commands
 noremap <C-Up> :wincmd k<CR>
