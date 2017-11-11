@@ -21,7 +21,7 @@ start_tmux() {
     # If not running interactively, do not do anything
     [[ $- != *i* ]] && return
     # If tmux exists on the system, attach or create session
-    if [[ -z "$TMUX" ]] && [[ -n $(which tmux) ]] 
+    if [[ -z "$TMUX" ]] && [[ -n $(command -v tmux) ]] 
     then
         t=$(tmux has-session 2>&1)
         if [[ -z "$t" ]]
@@ -67,7 +67,7 @@ shopt -s globstar &> /dev/null
 [ -d "${HOME}/.cargo/bin" ] && export PATH="${PATH}:${HOME}/.cargo/bin"
 [ -f "${HOME}/.fzf.bash" ] && source "${HOME}/.fzf.bash"
 
-if [ -n "$(which nvim)" ]
+if [ -n "$(command -v nvim)" ]
 then
     export EDITOR="/usr/bin/nvim"
 fi
@@ -108,7 +108,7 @@ alias tmux='tmux -2'
 alias todo='nvim ${HOME}/.TODO'
 
 # git aliases
-if [ -n "$(which git 2>/dev/null)" ]
+if [ -n "$(command -v git 2>/dev/null)" ]
 then
     alias gl='git log --pretty=medium --abbrev-commit --date=relative'
     alias gs='git status -sb'
@@ -145,7 +145,7 @@ then
                 ;;
         esac
         (
-            echo -e "commits,additions,deletions,author\n"
+            echo -e "commits,files,additions,deletions,author\n"
             for name in $(git log --pretty="%ce" | sort | uniq)
             do
                 count=$(git rev-list --no-merges --author="$name" --max-age="$age" --count --all)
@@ -153,10 +153,16 @@ then
                 then
                     added="0"
                     deleted="0"
+                    files="0"
                     for commit in $(git rev-list --no-merges --author="$name" --max-age="$age" --all)
                     do
                         if [ -n "$commit" ]
                         then
+                            to_files=$(git diff --shortstat "$commit"^ "$commit" 2>/dev/null | cut -d" " -f2)
+                            if [ -n "$to_files" ]
+                            then
+                                files=$(( files + to_files ))
+                            fi
                             to_add=$(git diff --shortstat "$commit"^ "$commit" 2>/dev/null | cut -d" " -f5)
                             if [ -n "$to_add" ]
                             then
@@ -171,7 +177,8 @@ then
                     done
                     m_added=$(( added / count ))
                     m_deleted=$(( deleted / count ))
-                    echo -e "$count,($m_added) $added,($m_deleted) $deleted,$name\n"
+                    m_files=$(( files / count ))
+                    echo -e "$count,($m_files) $files, ($m_added) $added,($m_deleted) $deleted,$name\n"
                 fi
             done
         ) | column -t -s ','
@@ -179,14 +186,14 @@ then
 
     alias gp='git-pulse'
 
-    if [ -n "$(which git-forest 2>/dev/null)" ]
+    if [ -n "$(command -v git-forest 2>/dev/null)" ]
     then
         alias gg='git-forest --all | less'
     else
         alias gg='git log --graph --abbrev-commit --decorate --format=format:"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)" --all'
     fi
 
-    if [ -n "$(which diff-so-fancy 2>/dev/null)" ]
+    if [ -n "$(command -v diff-so-fancy 2>/dev/null)" ]
     then
         gd() {
             if [ -z "$1" ]
@@ -202,24 +209,24 @@ then
     fi
 fi
 
-if [ -n "$(which trash-put 2>/dev/null)" ]
+if [ -n "$(command -v trash-put 2>/dev/null)" ]
 then
     alias rr='trash-put'
 fi
 
-if [ -n "$(which wifi-menu 2>/dev/null)" ]
+if [ -n "$(command -v wifi-menu 2>/dev/null)" ]
 then
     alias wifi='sudo wifi-menu'
 fi
 
-if [ -n "$(which curl 2>/dev/null)" ]
+if [ -n "$(command -v curl 2>/dev/null)" ]
 then
     ww() {
         curl -s "wttr.in/$1"
     }
 fi
 
-if [ -n "$(which exa 2>/dev/null)" ]
+if [ -n "$(command -v exa 2>/dev/null)" ]
 then
     alias ll='exa -gl --git'
     alias lla='exa -agl --git'
@@ -230,19 +237,19 @@ else
     alias llt='ls -lhbt --color'
 fi
 
-if [ -n "$(which youtube-dl 2>/dev/null)" ]
+if [ -n "$(command -v youtube-dl 2>/dev/null)" ]
 then
     alias ytmp3='youtube-dl --extract-audio --audio-quality 3 --audio-format mp3'
 fi
 
-if [ -n "$(which mpv 2>/dev/null)" ]
+if [ -n "$(command -v mpv 2>/dev/null)" ]
 then
     alias play="mpv --no-video --loop-playlist"
 fi
 
 # TODO: find a more reliable function that proposes all bluetooth devices
 # probably a separated script
-if [ -n "$(which bluetoothctl 2>/dev/null)" ]
+if [ -n "$(command -v bluetoothctl 2>/dev/null)" ]
 then
     bt() {
         if [ "$1" == "on" ]
@@ -264,7 +271,7 @@ then
     }
 fi
 
-if [ -n "$(which rg 2>/dev/null)"  ]
+if [ -n "$(command -v rg 2>/dev/null)"  ]
 then
     # TODO: find a better name
     getTODOs() {
@@ -305,7 +312,7 @@ then
 fi
 
 # Greetings
-if [ -n "$(which greeting 2>/dev/null)" ]
+if [ -n "$(command -v greeting 2>/dev/null)" ]
 then
     greeting 2>/dev/null
 fi

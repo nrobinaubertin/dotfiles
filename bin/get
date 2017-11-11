@@ -73,11 +73,11 @@ fi
 
 if [ "$1" = "ip" ]
 then
-    if [ -n "$(which dig 2>/dev/null)" ]
+    if [ -n "$(command -v dig 2>/dev/null)" ]
     then
         ip="$(dig +short +keepopen myip.opendns.com @resolver1.opendns.com)"
     fi
-    if [ -z "$ip" ] && [ -n "$(which curl 2>/dev/null)" ]
+    if [ -z "$ip" ] && [ -n "$(command -v curl 2>/dev/null)" ]
     then
         ip="$(curl -s http://whatismyip.akamai.com/)"
         #ip="$(curl -s https://4.ifcfg.me/)"

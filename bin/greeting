@@ -79,7 +79,7 @@ printStorage() {
 printHeader() {
     echo "----------"
     date
-    if [[ -n $(which fortune) ]]
+    if [[ -n $(command -v fortune) ]]
     then
         fortune -sn 70
     fi
