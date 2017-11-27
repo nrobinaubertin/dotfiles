@@ -106,6 +106,7 @@ bind '"\033[D": backward-char'
 alias :q='exit'
 alias tmux='tmux -2'
 alias todo='nvim ${HOME}/.TODO'
+alias grep='grep --color=always'
 
 # git aliases
 if [ -n "$(command -v git 2>/dev/null)" ]
