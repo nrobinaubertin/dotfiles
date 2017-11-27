@@ -13,6 +13,7 @@ set noshowmode
 set background=dark
 set fillchars=vert:\ ,stl:\ ,stlnc:\ 
 set laststatus=2
+set shell=/bin/bash
 "set colorcolumn=120
 
 " ignore some files
@@ -53,6 +54,13 @@ tnoremap <C-j> <C-\><C-n>:tabprevious<CR>i
 
 " force writing with sudo
 cnoremap w!! %!sudo tee >/dev/null %
+
+" super vim search
+fun! SuperSearch(search, location)
+    execute ":tabe | noautocmd vim " . a:search . " " . a:location
+    execute ":e"
+endfun
+command -nargs=+ SuperSearch call SuperSearch(<f-args>)
 
 " space bar un-highlights search
 nnoremap <silent> <Leader> <Space> :silent noh<Bar>echo<CR>
@@ -113,3 +121,16 @@ colors gruvbox
 let g:ale_lint_on_insert_leave = 1
 let g:ale_lint_on_text_changed = 'never'
 let g:ale_maximum_file_size = 16384
+
+" load phpstan and phpcs phar
+if !filereadable(expand("$HOME/.config/nvim/bin/phpstan"))
+    echo system("mkdir -p $HOME/.config/nvim/bin")
+    echo system("wget -q -O $HOME/.config/nvim/bin/phpstan https://github.com/phpstan/phpstan/releases/download/0.8.5/phpstan.phar")
+endif
+if !filereadable(expand("$HOME/.config/nvim/bin/phpcs"))
+    echo system("mkdir -p $HOME/.config/nvim/bin")
+    echo system("wget -q -O $HOME/.config/nvim/bin/phpcs https://github.com/squizlabs/PHP_CodeSniffer/releases/download/3.1.1/phpcs.phar")
+endif
+let g:ale_php_phpstan_executable = expand("$HOME/.config/nvim/bin/phpstan")
+let g:ale_php_phpcs_executable = expand("$HOME/.config/nvim/bin/phpcs")
+let g:ale_php_phpcs_standard = 'PSR2'
