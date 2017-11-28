@@ -68,6 +68,10 @@ nnoremap <silent> <Leader> <Space> :silent noh<Bar>echo<CR>
 " update plugins
 command Update execute "PlugUpgrade | PlugUpdate"
 
+if !filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
+    echo system("curl -fLo $HOME/.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim")
+endif
+
 " vim-plug
 call plug#begin('~/.config/nvim/plugged')
 Plug 'itchyny/lightline.vim'
