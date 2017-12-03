@@ -54,13 +54,27 @@ tnoremap <C-j> <C-\><C-n>:tabprevious<CR>i
 
 " force writing with sudo
 cnoremap w!! %!sudo tee >/dev/null %
+    
+if executable('rg')
+    set grepprg=rg\ --vimgrep
+    set grepformat^=%f:%l:%c:%m
+endif
 
 " super vim search
-fun! SuperSearch(search, location)
-    execute ":tabe | noautocmd vim " . a:search . " " . a:location
-    execute ":e"
-endfun
+function! SuperSearch(...)
+    let search = a:1
+    let location = a:0 > 1 ? a:2 : '.'
+    execute 'tabe'
+    if executable('rg')
+        execute 'silent grep --hidden --glob "!.git/*" ' . search . ' ' . location
+    else
+        execute 'silent grep -srnw --binary-files=without-match --exclude-dir=.git ' . search . ' ' . location
+    endif
+    execute "cwindow"
+    execute "cc"
+endfunction
 command -nargs=+ SuperSearch call SuperSearch(<f-args>)
+map <Leader>s :execute SuperSearch(expand("<cword>"))<CR>
 
 " space bar un-highlights search
 nnoremap <silent> <Leader> <Space> :silent noh<Bar>echo<CR>
@@ -102,13 +116,8 @@ let $FZF_DEFAULT_COMMAND = 'find . 2>/dev/null'
 nnoremap <Leader>b :Buffers<CR>
 nnoremap <Leader>h :History<CR>
 nnoremap <Leader>f :FZF<CR>
-
-" search related stuff
-map <Leader>s :execute " grep -srnw --binary-files=without-match --exclude-dir=.git --exclude-from=exclude.list . -e " . expand("<cword>") . " " <bar> cwindow<CR><CR><CR>
 if executable('rg')
-    set grepprg=rg\ --vimgrep
     let $FZF_DEFAULT_COMMAND = 'rg . --files --color=never --hidden --glob "!.git/*" 2>/dev/null'
-    map <Leader>s :execute ' grep . --hidden --glob "!.git/*" -e <cword> ' <bar> cwindow<CR><CR><CR>
 endif
 
 " lightline
