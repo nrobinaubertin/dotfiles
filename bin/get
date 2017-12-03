@@ -50,6 +50,12 @@ then
 
     if [ -n "$latency" ]
     then
+        # QUAD9
+        latency="$(ping -W 1 -c 3 -l 3 9.9.9.9 2>/dev/null | tail -n1 | awk '{print $4}' | tr '/' ' ' | cut -d'.' -f1)"
+    fi
+
+    if [ -n "$latency" ]
+    then
         # DNS.WATCH (Germany)
         latency="$(ping -W 1 -c 3 -l 3 84.200.70.40 2>/dev/null | tail -n1 | awk '{print $4}' | tr '/' ' ' | cut -d'.' -f1)"
     fi
