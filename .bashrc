@@ -111,6 +111,16 @@ alias grep='grep --color=always'
 # git aliases
 if [ -n "$(command -v git 2>/dev/null)" ]
 then
+
+    # git autocompletion file
+    if ! [ -f "${HOME}/.local/share/git/git-completion.bash" ]
+    then
+        mkdir -p "${HOME}/.local/share/git/"
+        curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o "${HOME}/.local/share/git/git-completion.bash" 2>/dev/null
+        chmod +x "${HOME}/.local/share/git/git-completion.bash"
+    fi
+    source "${HOME}/.local/share/git/git-completion.bash" 2>/dev/null
+
     alias gl='git log --pretty=medium --abbrev-commit --date=relative'
     alias gs='git status -sb'
     alias gf='git fetch -p --all'
