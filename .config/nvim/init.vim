@@ -2,6 +2,7 @@ set nu
 set showcmd
 set ruler
 set showmatch
+set mouse=
 set mat=2
 set novisualbell
 set noerrorbells
@@ -29,28 +30,32 @@ inoremap éé É
 inoremap êê Ê
 
 "" Windows commands
-noremap <C-Up> :wincmd k<CR>
+nnoremap <C-Up> :wincmd k<CR>
 inoremap <C-Up> <Esc>:wincmd k<CR>i
 tnoremap <C-Up> <C-\><C-n>:wincmd k<CR>i
-noremap <C-Down> :wincmd j<CR>
+nnoremap <C-Down> :wincmd j<CR>
 inoremap <C-Down> <Esc>:wincmd j<CR>i
 tnoremap <C-Down> <C-\><C-n>:wincmd j<CR>i
-noremap <C-Left> :wincmd h<CR>
+nnoremap <C-Left> :wincmd h<CR>
 inoremap <C-Left> <Esc>:wincmd h<CR>i
 tnoremap <C-Left> <C-\><C-n>:wincmd h<CR>i
-noremap <C-Right> :wincmd l<CR>
+nnoremap <C-Right> :wincmd l<CR>
 inoremap <C-Right> <Esc>:wincmd l<CR>i
 tnoremap <C-Right> <C-\><C-n>:wincmd l<CR>i
 
 "" Tabs commands
-noremap <C-k> :tabnext<CR>
 nnoremap <C-k> :tabnext<CR>
 inoremap <C-k> <Esc>:tabnext<CR>i
 tnoremap <C-k> <C-\><C-n>:tabnext<CR>i
-noremap <C-j> :tabprevious<CR>
 nnoremap <C-j> :tabprevious<CR>
 inoremap <C-j> <Esc>:tabprevious<CR>i
 tnoremap <C-j> <C-\><C-n>:tabprevious<CR>i
+nnoremap <A-j> :tabmove -1<CR>
+nnoremap <A-k> :tabmove +1<CR>
+inoremap <A-j> :tabmove -1<CR>i
+inoremap <A-k> :tabmove +1<CR>i
+tnoremap <A-j> :tabmove -1<CR>i
+tnoremap <A-k> :tabmove +1<CR>i
 
 " force writing with sudo
 cnoremap w!! %!sudo tee >/dev/null %
@@ -64,14 +69,19 @@ endif
 function! SuperSearch(...)
     let search = a:1
     let location = a:0 > 1 ? a:2 : '.'
-    execute 'tabe'
+    tabe
     if executable('rg')
         execute 'silent grep --hidden --glob "!.git/*" ' . search . ' ' . location
     else
         execute 'silent grep -srnw --binary-files=without-match --exclude-dir=.git ' . search . ' ' . location
     endif
-    execute "cwindow"
-    execute "cc"
+    try
+        cwindow
+        cc
+    catch /E42/
+        echo "Nothing found"
+        quit
+    endtry
 endfunction
 command -nargs=+ SuperSearch call SuperSearch(<f-args>)
 map <Leader>s :execute SuperSearch(expand("<cword>"))<CR>
