@@ -35,22 +35,22 @@ start_tmux() {
 gruvbox() {
     # if we are in a tty
     if [ "$TERM" = "linux" ]; then
-        echo -en "\e]P0282828" #black
-        echo -en "\e]P1cc241d" #red
-        echo -en "\e]P298971a" #green
-        echo -en "\e]P3d79921" #yellow
-        echo -en "\e]P4458588" #blue
-        echo -en "\e]P5b16286" #purple
-        echo -en "\e]P6689d6a" #aqua
-        echo -en "\e]P7a89984" #grey
-        echo -en "\e]P8928374" #boldgrey
-        echo -en "\e]P9fb4934" #boldred
-        echo -en "\e]PAb8bb26" #boldgreen
-        echo -en "\e]PBfabd2f" #boldyellow
-        echo -en "\e]PC83a598" #boldblue
-        echo -en "\e]PDd3869b" #boldpurple
-        echo -en "\e]PE8ec07c" #boldaqua
-        echo -en "\e]PFebdbb2" #fg
+        echo -en "\\e]P0282828" #black
+        echo -en "\\e]P1cc241d" #red
+        echo -en "\\e]P298971a" #green
+        echo -en "\\e]P3d79921" #yellow
+        echo -en "\\e]P4458588" #blue
+        echo -en "\\e]P5b16286" #purple
+        echo -en "\\e]P6689d6a" #aqua
+        echo -en "\\e]P7a89984" #grey
+        echo -en "\\e]P8928374" #boldgrey
+        echo -en "\\e]P9fb4934" #boldred
+        echo -en "\\e]PAb8bb26" #boldgreen
+        echo -en "\\e]PBfabd2f" #boldyellow
+        echo -en "\\e]PC83a598" #boldblue
+        echo -en "\\e]PDd3869b" #boldpurple
+        echo -en "\\e]PE8ec07c" #boldaqua
+        echo -en "\\e]PFebdbb2" #fg
         clear #for background artifacting
     fi
 }
@@ -66,11 +66,7 @@ shopt -s globstar &> /dev/null
 [ -d "${HOME}/.yarn/bin" ] && export PATH="${PATH}:${HOME}/.yarn/bin"
 [ -d "${HOME}/.cargo/bin" ] && export PATH="${PATH}:${HOME}/.cargo/bin"
 [ -f "${HOME}/.fzf.bash" ] && source "${HOME}/.fzf.bash"
-
-if [ -n "$(command -v nvim)" ]
-then
-    export EDITOR="/usr/bin/nvim"
-fi
+[ -n "$(command -v nvim)" ] && export EDITOR="/usr/bin/nvim"
 
 # completion with sudo
 complete -cf sudo
@@ -109,12 +105,9 @@ alias todo='nvim ${HOME}/.TODO'
 alias grep='grep --color=always'
 
 # git aliases
-if [ -n "$(command -v git 2>/dev/null)" ]
-then
-
+if [ -n "$(command -v git 2>/dev/null)" ]; then
     # git autocompletion file
-    if ! [ -f "${HOME}/.local/share/git/git-completion.bash" ]
-    then
+    if ! [ -f "${HOME}/.local/share/git/git-completion.bash" ]; then
         mkdir -p "${HOME}/.local/share/git/"
         curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o "${HOME}/.local/share/git/git-completion.bash" 2>/dev/null
         chmod +x "${HOME}/.local/share/git/git-completion.bash"
@@ -129,12 +122,12 @@ then
     git-stats() {
         (
         head=$(git ls-files | while read -r f; do git blame --line-porcelain "$f" | grep '^author-mail '; done | sort -f | uniq -ic | sort -n | tr -d '<>' | awk '{print $1, $3}')
-            printf "head,commits,inserted,deleted,author\n"
+            printf "head,commits,inserted,deleted,author\\n"
             for author in $(git log --pretty="%ce" | sort | uniq)
             do
                 head_author=$(echo "$head" | grep "$author" | cut -d' ' -f1)
                 stat=$(git log --shortstat --author "$author" -i 2> /dev/null | grep -E 'files? changed' | awk 'BEGIN{commits=0;inserted=0;deleted=0} {commits+=1; if($5!~"^insertion") { deleted+=$4 } else { inserted+=$4; deleted+=$6 } } END {print commits, ",", inserted, ",", deleted}')
-                printf "%s,%s,%s\n" "$head_author" "$stat" "$author"
+                printf "%s,%s,%s\\n" "$head_author" "$stat" "$author"
             done
         ) | column -t -s ','
     }
@@ -156,32 +149,27 @@ then
                 ;;
         esac
         (
-            echo -e "commits,files,additions,deletions,author\n"
+            printf "commits,files,additions,deletions,author\\n"
             for name in $(git log --pretty="%ce" | sort | uniq)
             do
                 count=$(git rev-list --no-merges --author="$name" --max-age="$age" --count --all)
-                if [ "$count" -gt 0 ]
-                then
+                if [ "$count" -gt 0 ]; then
                     added="0"
                     deleted="0"
                     files="0"
                     for commit in $(git rev-list --no-merges --author="$name" --max-age="$age" --all)
                     do
-                        if [ -n "$commit" ]
-                        then
+                        if [ -n "$commit" ]; then
                             to_files=$(git diff --shortstat "$commit"^ "$commit" 2>/dev/null | cut -d" " -f2)
-                            if [ -n "$to_files" ]
-                            then
+                            if [ -n "$to_files" ]; then
                                 files=$(( files + to_files ))
                             fi
                             to_add=$(git diff --shortstat "$commit"^ "$commit" 2>/dev/null | cut -d" " -f5)
-                            if [ -n "$to_add" ]
-                            then
+                            if [ -n "$to_add" ]; then
                                 added=$(( added + to_add ))
                             fi
                             to_delete=$(git diff --shortstat "$commit"^ "$commit" 2>/dev/null | cut -d" " -f7)
-                            if [ -n "$to_delete" ]
-                            then
+                            if [ -n "$to_delete" ]; then
                                 deleted=$(( deleted + to_delete ))
                             fi
                         fi
@@ -189,7 +177,7 @@ then
                     m_added=$(( added / count ))
                     m_deleted=$(( deleted / count ))
                     m_files=$(( files / count ))
-                    echo -e "$count,($m_files) $files, ($m_added) $added,($m_deleted) $deleted,$name\n"
+                    printf "%s,(%s) %s, (%s) %s,(%s) %s,%s\\n" "$count" "$m_files" "$files" "$m_added" "$added" "$m_deleted" "$deleted" "$name"
                 fi
             done
         ) | column -t -s ','
@@ -197,15 +185,13 @@ then
 
     alias gp='git-pulse'
 
-    if [ -n "$(command -v git-forest 2>/dev/null)" ]
-    then
+    if [ -n "$(command -v git-forest 2>/dev/null)" ]; then
         alias gg='git-forest --all | less'
     else
         alias gg='git log --graph --abbrev-commit --decorate --format=format:"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)" --all'
     fi
 
-    if [ -n "$(command -v diff-so-fancy 2>/dev/null)" ]
-    then
+    if [ -n "$(command -v diff-so-fancy 2>/dev/null)" ]; then
         gd() {
             if [ -z "$1" ]
             then
@@ -220,25 +206,17 @@ then
     fi
 fi
 
-if [ -n "$(command -v trash-put 2>/dev/null)" ]
-then
-    alias rr='trash-put'
-fi
+[ -n "$(command -v trash-put 2>/dev/null)" ] && alias rr='trash-put'
 
-if [ -n "$(command -v wifi-menu 2>/dev/null)" ]
-then
-    alias wifi='sudo wifi-menu'
-fi
+[ -n "$(command -v wifi-menu 2>/dev/null)" ] && alias wifi='sudo wifi-menu'
 
-if [ -n "$(command -v curl 2>/dev/null)" ]
-then
+if [ -n "$(command -v curl 2>/dev/null)" ]; then
     ww() {
         curl -s "wttr.in/$1"
     }
 fi
 
-if [ -n "$(command -v exa 2>/dev/null)" ]
-then
+if [ -n "$(command -v exa 2>/dev/null)" ]; then
     alias ll='exa -gl --git'
     alias lla='exa -agl --git'
     alias llt='exa -gl --git -s modified'
@@ -248,23 +226,14 @@ else
     alias llt='ls -lhbt --color'
 fi
 
-if [ -n "$(command -v youtube-dl 2>/dev/null)" ]
-then
-    alias ytmp3='youtube-dl --extract-audio --audio-quality 3 --audio-format mp3'
-fi
-
-if [ -n "$(command -v mpv 2>/dev/null)" ]
-then
-    alias play="mpv --no-video --loop-playlist"
-fi
+[ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias ytmp3='youtube-dl -wi --extract-audio --audio-quality 3 --audio-format mp3'
+[ -n "$(command -v mpv 2>/dev/null)" ] && alias play="mpv --no-video --loop-playlist"
 
 # TODO: find a more reliable function that proposes all bluetooth devices
 # probably a separated script
-if [ -n "$(command -v bluetoothctl 2>/dev/null)" ]
-then
+if [ -n "$(command -v bluetoothctl 2>/dev/null)" ]; then
     bt() {
-        if [ "$1" == "on" ]
-        then
+        if [ "$1" == "on" ]; then
             (
                 sudo rfkill unblock bluetooth
                 echo "power off" | bluetoothctl
@@ -282,25 +251,10 @@ then
     }
 fi
 
-if [ -n "$(command -v rg 2>/dev/null)"  ]
-then
-    # TODO: find a better name
-    getTODOs() {
-        todo=$(rg -c TODO "$1" | cut -d':' -f2 | awk '{s+=$1}END{print s}')
-        xxx=$(rg -c XXX "$1" | cut -d':' -f2 | awk '{s+=$1}END{print s}')
-        fixme=$(rg -c FIXME "$1" | cut -d':' -f2 | awk '{s+=$1}END{print s}')
-        echo "TODO: $todo"
-        echo "XXX: $xxx"
-        echo "FIXME: $fixme"
-    }
-fi
-
 # go to the root of the git repository
 cdroot() {
-    if ! [ -d ".git" ] && [ "$(pwd)" != "/" ]
-    then
-        cd ..
-        cdroot
+    if ! [ -d ".git" ]; then
+        [ "$(pwd)" != "/" ] && cd .. && cdroot
     fi
 }
 
@@ -316,14 +270,62 @@ md5dirsum() {
     cd - >/dev/null || exit
 }
 
+extract() {
+    if [ -z "$1" ]; then
+        # display usage if no parameters given
+        printf "Usage: extract <path/file_name>.<zip|rar|bz2|gz|tar|tbz2|tgz|Z|7z|xz|ex|tar.bz2|tar.gz|tar.xz>\\n"
+        printf "       extract <path/file_name_1.ext> [path/file_name_2.ext] [path/file_name_3.ext]\\n"
+        return 1
+    else
+        for n in "$@"
+        do
+            if [ -f "$n" ]; then
+                case "${n%,}" in
+                    *.tar.bz2|*.tar.gz|*.tar.xz|*.tbz2|*.tgz|*.txz|*.tar) 
+                        tar xvf "$n"
+                        ;;
+                    *.lzma)
+                        unlzma ./"$n"
+                        ;;
+                    *.bz2)
+                        bunzip2 ./"$n"
+                        ;;
+                    *.rar)
+                        unrar x -ad ./"$n"
+                        ;;
+                    *.gz)
+                        gunzip ./"$n"
+                        ;;
+                    *.zip)
+                        unzip ./"$n"
+                        ;;
+                    *.z)
+                        uncompress ./"$n"
+                        ;;
+                    *.7z|*.arj|*.cab|*.chm|*.deb|*.dmg|*.iso|*.lzh|*.msi|*.rpm|*.udf|*.wim|*.xar)
+                        7z x ./"$n"
+                        ;;
+                    *.xz)
+                        unxz ./"$n"
+                        ;;
+                    *.exe)
+                        cabextract ./"$n"
+                        ;;
+                    *)
+                        printf "extract: '%s' - unknown archive method\\n" "$n"
+                        return 1
+                        ;;
+                esac
+            else
+                printf "'%s' - file does not exist\\n" "$n"
+                return 1
+            fi
+        done
+    fi
+}
+
 gruvbox
-if [ -z "$(pgrep tmux)" ]
-then
-    start_tmux
-fi
+[ -z "$(pgrep tmux)" ] && start_tmux
 
 # Greetings
-if [ -n "$(command -v greeting 2>/dev/null)" ]
-then
-    greeting 2>/dev/null
-fi
+[ -n "$(command -v greeting 2>/dev/null)" ] && greeting 2>/dev/null
