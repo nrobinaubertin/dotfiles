@@ -1,0 +1,26 @@
+[user]
+    email = niels.robin.aubertin@gmail.com
+    name = Niels Robin-Aubertin
+[color]
+    ui = auto
+[color "diff"]
+    meta = yellow bold
+    frag = magenta bold
+    old = red bold
+    new = green bold
+    whitespace = red reverse
+[color "status"]
+    added = green bold
+    changed = yellow bold
+    untracked = red bold
+[diff]
+    tool = vimdiff
+	algorithm = patience
+    indentHeuristic = 1
+[difftool]
+    prompt = false
+[merge]
+    tool = vimdiff
+    #conflictstyle = diff3
+[mergetool "vimdiff"]
+    cmd = nvim -d $LOCAL $BASE $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
