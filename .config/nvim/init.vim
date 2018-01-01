@@ -15,7 +15,8 @@ set background=dark
 set fillchars=vert:\ ,stl:\ ,stlnc:\ 
 set laststatus=2
 set shell=/bin/bash
-"set colorcolumn=120
+
+match ErrorMsg "\s\+$"
 
 " ignore some files
 set wildignore+=*/.git/*,*.swp,*.orig
@@ -59,7 +60,7 @@ tnoremap <A-k> :tabmove +1<CR>i
 
 " force writing with sudo
 cnoremap w!! %!sudo tee >/dev/null %
-    
+
 if executable('rg')
     set grepprg=rg\ --vimgrep
     set grepformat^=%f:%l:%c:%m
