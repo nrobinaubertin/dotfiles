@@ -88,7 +88,7 @@ export LESS="-RI"
 unset HISTFILESIZE
 export HISTSIZE="10000"
 export HISTCONTROL=ignoreboth:erasedups
-export HISTIGNORE="fg:bg:&:[ ]*:exit:ls:history:clear:ll:cd:\[A*"
+export HISTIGNORE="fg:bg:&:[ ]*:exit:ls:clear:ll:cd:\[A*:nvim:gs:gd:gf:gg:gl"
 export HISTTIMEFORMAT='%F %T '
 
 # Enable incremental history search with up/down arrows (also Readline goodness)
@@ -103,6 +103,7 @@ alias :q='exit'
 alias tmux='tmux -2'
 alias todo='nvim ${HOME}/.TODO'
 alias grep='grep --color=always'
+alias less='less -R'
 
 # git aliases
 if [ -n "$(command -v git 2>/dev/null)" ]; then
