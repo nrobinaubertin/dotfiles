@@ -112,6 +112,7 @@ Plug 'w0rp/ale'
 Plug 'xuyuanp/nerdtree-git-plugin', { 'on': 'NERDTreeToggle' }
 " testing
 Plug 'amadeus/vim-mjml'
+Plug 'chr4/nginx.vim'
 call plug#end()
 
 " NERDTree options
