@@ -70,19 +70,20 @@ endif
 function! SuperSearch(...)
     let search = a:1
     let location = a:0 > 1 ? a:2 : '.'
-    tabe
     if executable('rg')
-        execute 'silent grep --hidden --glob "!.git/*" ' . search . ' ' . location
+        execute 'silent! grep --hidden --glob "!.git/*" ' . search . ' ' . location
     else
-        execute 'silent grep -srnw --binary-files=without-match --exclude-dir=.git ' . search . ' ' . location
+        execute 'silent! grep -srnw --binary-files=without-match --exclude-dir=.git ' . search . ' ' . location
     endif
-    try
-        cwindow
+    if len(getqflist())
+        copen
+        redraw!
         cc
-    catch /E42/
-        echo "Nothing found"
-        quit
-    endtry
+    else
+        cclose
+        redraw!
+        echo "No match found for " . search
+    endif
 endfunction
 command -nargs=+ SuperSearch call SuperSearch(<f-args>)
 map <Leader>s :execute SuperSearch(expand("<cword>"))<CR>
@@ -113,6 +114,7 @@ Plug 'xuyuanp/nerdtree-git-plugin', { 'on': 'NERDTreeToggle' }
 " testing
 Plug 'amadeus/vim-mjml'
 Plug 'chr4/nginx.vim'
+Plug 'jremmen/vim-ripgrep'
 call plug#end()
 
 " NERDTree options
@@ -159,3 +161,14 @@ endif
 let g:ale_php_phpstan_executable = expand("$HOME/.config/nvim/bin/phpstan")
 let g:ale_php_phpcs_executable = expand("$HOME/.config/nvim/bin/phpcs")
 let g:ale_php_phpcs_standard = 'PSR2'
+
+" Rg
+nnoremap <leader>a :Rg<space>
+nnoremap <leader>A :exec "Rg ".expand("<cword>")<cr>
+
+autocmd VimEnter * command! -nargs=* Rg
+  \ call fzf#vim#grep(
+  \   'rg --column --line-number --no-heading --fixed-strings --ignore-case --hidden --follow --glob "!.git/*" --color "always" 2>/dev/null '.shellescape(<q-args>), 1,
+  \   <bang>0 ? fzf#vim#with_preview('up:60%')
+  \           : fzf#vim#with_preview('right:50%:hidden', '?'),
+  \   <bang>0)
