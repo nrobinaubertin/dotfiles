@@ -1,0 +1,165 @@
+#!/bin/sh
+
+usage() {
+    printf "\\n"
+    printf "    ssync [OPTION...] INPUT DEST\\n\\n"
+    printf "    -h           Displays this help.\\n"
+    printf "    -p PORT      Will use PORT for DEST.\\n"
+    printf "    -s SPEED     Will stay under SPEED. SPEED is in KiB.\\n"
+    printf "\\n"
+    exit 0
+}
+
+# checks if $2 start with $1
+beginswith() {
+	case "$2" in
+        "$1"*) echo "true";;
+            *) echo "false";;
+	esac
+}
+
+absolute_path() {
+    if [ "$(beginswith "/" "$1")" = "true" ]
+	then
+		echo "$1"
+	else
+		cd "$(dirname "$1")" || exit 1
+		echo "$(pwd -P)/$1"
+	fi
+}
+
+# the real sync function
+sync() {
+
+printf "\\n"
+printf "source_dir:\\t%s\\n" "$source_dir"
+printf "target_dir:\\t%s\\n" "$target_dir"
+printf "user:\\t\\t%s\\n" "$user"
+printf "domain:\\t\\t%s\\n" "$domain"
+printf "port:\\t\\t%s\\n" "$port"
+printf "speed:\\t\\t%s\\n" "$speed"
+printf ""
+exit
+    if [ -z "$(command -v ssh)" ]
+    then
+        echo "ssh is not in your path. Aborting."
+        exit 1
+    fi
+
+    # the following is a test to see if we can connect to the distant server using ssh
+    if ! ssh -o "BatchMode=yes" -q -p "${port}" "${user}"@"${domain}" exit; then
+        echo "Could not connect to distant server using ssh. Aborting."
+        exit 1
+    fi
+
+    # first, sync/create the shadow directories
+    if ! {
+        rsync -a --delete --link-dest="${source_dir}" --exclude="/${shadow}" "${source_dir}/" "${source_dir}/${shadow}"
+		ssh -p "${port}" "${user}"@"${domain}" rsync -a --delete --link-dest="${target_dir}" --exclude="/${shadow}" "${target_dir}/" "${target_dir}/${shadow}"
+    }
+    then
+        echo "Could not sync shadow directories. Aborting"
+        exit 1
+    fi
+
+    # sync the directory with the distant one (with the shadow directory).
+    # the idea is that if a file is moved, it will be in the shadow directory and not resynced
+	rsync -axH -e "ssh -p ${port}" --bwlimit="${speed}" --no-inc-recursive --numeric-ids --delete-after "${source_dir}/" "${user}"@"${domain}":"${target_dir}"
+
+    # we can now remove the shadow directories
+    rm -rf "${source_dir:?}/${shadow:?}"
+    ssh -p "${port}" "${user}"@"${domain}" rm -rf "${target_dir:?}/${shadow:?}"
+}
+
+# prevent from running if rsync already is
+# this function is used if flock is absent from the system
+plock() {
+    if [ -z "$(command -v rsync)" ]
+    then
+        echo "rsync is not in your path. Aborting."
+        exit 1
+    fi
+
+    if [ "$(pgrep rsync 2>/dev/null)" != "" ]
+    then
+        echo "Rsync is already running. Aborting."
+        exit 1
+    fi
+}
+
+while getopts ":p:s:h" opt; do
+    case $opt in
+        p)
+            port="$OPTARG"
+            ;;
+        s)
+            speed="$OPTARG"
+            ;;
+        h)
+            usage
+            ;;
+        \?)
+            echo "Invalid option: -$OPTARG" >&2
+            exit 1
+            ;;
+        :)
+            echo "Option -$OPTARG requires an argument." >&2
+            exit 1
+            ;;
+    esac
+done
+
+# remove arguments processed by getopts
+shift "$((OPTIND-1))"
+
+if [ $# = 0 ]; then
+    usage
+fi
+
+if [ -n "$1" ] && [ -d "$1" ]; then
+    source_dir="${1%/}"
+    source_dir=$(absolute_path "$source_dir")
+else
+    printf "You need to specify a valid input directory\\n"
+    usage
+fi
+
+if [ -n "$2" ] && [ "$(echo "$2" | grep -E "[^@:]+@[^@:]+:.*")" != "" ]; then
+    target_dir=$(echo "$2" | cut -d: -f2)
+    target_dir="${target_dir%/}"
+    user=$(echo "$2" | cut -d@ -f1)
+    domain=$(echo "$2" | cut -d: -f1 | cut -d@ -f2)
+else
+    printf "Second argument should be a network location\\n"
+    printf "Example: test@example.com:~/\\n"
+    usage
+fi
+
+# name of the shadow directory
+shadow=".shadow-rsync"
+
+if [ -z "$port" ]; then
+    port="22"
+fi
+if [ -z "$speed" ]; then
+    speed="0"
+fi
+
+printf "\\n"
+printf "source_dir:\\t%s\\n" "$source_dir"
+printf "target_dir:\\t%s\\n" "$target_dir"
+printf "user:\\t\\t%s\\n" "$user"
+printf "domain:\\t\\t%s\\n" "$domain"
+printf "port:\\t\\t%s\\n" "$port"
+printf "speed:\\t\\t%s\\n" "$speed"
+printf ""
+
+# man flock
+if [ -n "$(command -v flock)" ]; then
+    if [ "${FLOCKER}" != "$0" ] && exec env FLOCKER="$0" flock -en "$0" "$0" "$@"; then
+        sync
+    fi
+else
+    plock
+    sync
+fi
