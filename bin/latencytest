@@ -45,7 +45,7 @@ latencies="$(
     head -n 10 "$servers_distances" | while read -r SERVER; do
         base_url="$(printf "%s" "$SERVER" | cut -d" " -f2 | sed -E 's/\/upload(\.php)?$//')"
         # domain="$(printf "%s" "$base_url" | sed -E 's/^https?:\/\/(www)?//' | sed -E 's/\/.*$//')"
-        latency="$(curl -sw "%{time_total}" -o /dev/null "$base_url/latency.txt" | tr -d "," | cut -c 1-4)"
+        latency="$(curl -sw "%{time_total}" -o /dev/null "$base_url/latency.txt" | tr -d ",." | cut -c 1-4)"
         printf "%s %s\\n" "$latency" "$base_url"
     done
 )"
