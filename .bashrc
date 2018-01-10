@@ -14,14 +14,16 @@ Yel='\033[33m';
 Blu='\033[34m';
 
 # custom prompt
-PS1="\n\r${RCol}┌─[\`if [ \$? = 0 ]; then echo ${Gre}; else echo ${Red}; fi\`\t\[${RCol}\] \[${Blu}\]\h\[${RCol}\] \[${Yel}\]\w\[${RCol}\]]\n└─╼ "
+startprompt="$(printf "\\xE2\\x94\\x8C\\xE2\\x94\\x80")"
+endprompt="$(printf "\\xE2\\x94\\x94\\xE2\\x94\\x80\\xE2\\x95\\xBC")"
+PS1="\\n\\r${RCol}${startprompt}[\`if [ \$? = 0 ]; then echo ${Gre}; else echo ${Red}; fi\`\\t\\[${RCol}\\] \\[${Blu}\\]\\h\\[${RCol}\\] \\[${Yel}\\]\\w\\[${RCol}\\]]\\n${endprompt} "
 
 # attach/start tmux
 start_tmux() {
     # If not running interactively, do not do anything
     [[ $- != *i* ]] && return
     # If tmux exists on the system, attach or create session
-    if [[ -z "$TMUX" ]] && [[ -n $(command -v tmux) ]] 
+    if [[ -z "$TMUX" ]] && [[ -n $(command -v tmux) ]]
     then
         t=$(tmux has-session 2>&1)
         if [[ -z "$t" ]]
