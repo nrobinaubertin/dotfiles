@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # do not continue if we are not in a bash shell
 [ -z "$BASH_VERSION" ] && return
@@ -21,14 +21,14 @@ PS1="\\n\\r${RCol}${startprompt}[\`if [ \$? = 0 ]; then echo ${Gre}; else echo $
 # attach/start tmux
 start_tmux() {
     # If not running interactively, do not do anything
-    [[ $- != *i* ]] && return
+    [ $- != *i* ] && return
     # If tmux exists on the system, attach or create session
-    if [[ -z "$TMUX" ]] && [[ -n $(command -v tmux) ]]
-    then
+    if [ -z "$TMUX" ] && [ -n "$(command -v tmux)" ]; then
         t=$(tmux has-session 2>&1)
-        if [[ -z "$t" ]]
-        then exec tmux -2 attach
-        else exec tmux -2 new
+        if [ -z "$t" ]; then
+            exec tmux -2 attach
+        else
+            exec tmux -2 new
         fi
     fi
 }
@@ -37,22 +37,22 @@ start_tmux() {
 gruvbox() {
     # if we are in a tty
     if [ "$TERM" = "linux" ]; then
-        echo -en "\\e]P0282828" #black
-        echo -en "\\e]P1cc241d" #red
-        echo -en "\\e]P298971a" #green
-        echo -en "\\e]P3d79921" #yellow
-        echo -en "\\e]P4458588" #blue
-        echo -en "\\e]P5b16286" #purple
-        echo -en "\\e]P6689d6a" #aqua
-        echo -en "\\e]P7a89984" #grey
-        echo -en "\\e]P8928374" #boldgrey
-        echo -en "\\e]P9fb4934" #boldred
-        echo -en "\\e]PAb8bb26" #boldgreen
-        echo -en "\\e]PBfabd2f" #boldyellow
-        echo -en "\\e]PC83a598" #boldblue
-        echo -en "\\e]PDd3869b" #boldpurple
-        echo -en "\\e]PE8ec07c" #boldaqua
-        echo -en "\\e]PFebdbb2" #fg
+        printf "\\e]P0282828" #black
+        printf "\\e]P1cc241d" #red
+        printf "\\e]P298971a" #green
+        printf "\\e]P3d79921" #yellow
+        printf "\\e]P4458588" #blue
+        printf "\\e]P5b16286" #purple
+        printf "\\e]P6689d6a" #aqua
+        printf "\\e]P7a89984" #grey
+        printf "\\e]P8928374" #boldgrey
+        printf "\\e]P9fb4934" #boldred
+        printf "\\e]PAb8bb26" #boldgreen
+        printf "\\e]PBfabd2f" #boldyellow
+        printf "\\e]PC83a598" #boldblue
+        printf "\\e]PDd3869b" #boldpurple
+        printf "\\e]PE8ec07c" #boldaqua
+        printf "\\e]PFebdbb2" #fg
         clear #for background artifacting
     fi
 }
@@ -67,30 +67,31 @@ shopt -s globstar &> /dev/null
 [ -d "${HOME}/bin" ] && export PATH="${PATH}:${HOME}/bin"
 [ -d "${HOME}/.yarn/bin" ] && export PATH="${PATH}:${HOME}/.yarn/bin"
 [ -d "${HOME}/.cargo/bin" ] && export PATH="${PATH}:${HOME}/.cargo/bin"
-[ -f "${HOME}/.fzf.bash" ] && source "${HOME}/.fzf.bash"
+[ -f "${HOME}/.fzf.bash" ] && . "${HOME}/.fzf.bash"
 [ -n "$(command -v nvim)" ] && export EDITOR="/usr/bin/nvim"
 
 # completion with sudo
 complete -cf sudo
 
 # open man in neovim
-export MANPAGER="less"
+# export MANPAGER="less"
+export MANPAGER="nvim -c 'set ft=man' -"
 
 # set pager conf
-export LESS_TERMCAP_mb=$'\033[01;31m'
-export LESS_TERMCAP_md=$'\033[01;33m'
-export LESS_TERMCAP_me=$'\033[0m'
-export LESS_TERMCAP_se=$'\033[0m'
-export LESS_TERMCAP_so=$'\033[01;44;37m'
-export LESS_TERMCAP_ue=$'\033[0m'
-export LESS_TERMCAP_us=$'\033[01;37m'
-export LESS="-RI"
+# export LESS_TERMCAP_mb=$'\033[01;31m'
+# export LESS_TERMCAP_md=$'\033[01;33m'
+# export LESS_TERMCAP_me=$'\033[0m'
+# export LESS_TERMCAP_se=$'\033[0m'
+# export LESS_TERMCAP_so=$'\033[01;44;37m'
+# export LESS_TERMCAP_ue=$'\033[0m'
+# export LESS_TERMCAP_us=$'\033[01;37m'
+# export LESS="-RI"
 
 # set history variables
 unset HISTFILESIZE
 export HISTSIZE="10000"
 export HISTCONTROL=ignoreboth:erasedups
-export HISTIGNORE="fg:bg:&:[ ]*:exit:ls:clear:ll:cd:\[A*:nvim:gs:gd:gf:gg:gl"
+export HISTIGNORE="fg:bg:&:[ ]*:exit:ls:clear:ll:cd:\\[A*:nvim:gs:gd:gf:gg:gl"
 export HISTTIMEFORMAT='%F %T '
 
 # Enable incremental history search with up/down arrows (also Readline goodness)
@@ -115,14 +116,14 @@ if [ -n "$(command -v git 2>/dev/null)" ]; then
         curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o "${HOME}/.local/share/git/git-completion.bash" 2>/dev/null
         chmod +x "${HOME}/.local/share/git/git-completion.bash"
     fi
-    source "${HOME}/.local/share/git/git-completion.bash" 2>/dev/null
+    . "${HOME}/.local/share/git/git-completion.bash" 2>/dev/null
 
     alias gl='git log --pretty=medium --abbrev-commit --date=relative'
     alias gs='git status -sb'
     alias gf='git fetch -p --all'
 
     # get stats of a git repo
-    git-stats() {
+    git_stats() {
         (
         head=$(git ls-files | while read -r f; do git blame --line-porcelain "$f" | grep '^author-mail '; done | sort -f | uniq -ic | sort -n | tr -d '<>' | awk '{print $1, $3}')
             printf "head,commits,inserted,deleted,author\\n"
@@ -136,7 +137,7 @@ if [ -n "$(command -v git 2>/dev/null)" ]; then
     }
 
     # get number of commit last week/day for each author
-    git-pulse() {
+    git_pulse() {
         case "$1" in
             "day")
                 age=$(( $(date +%s) - (60 * 60 * 24) ))
@@ -186,10 +187,10 @@ if [ -n "$(command -v git 2>/dev/null)" ]; then
         ) | column -t -s ','
     }
 
-    alias gp='git-pulse'
+    alias gp='git_pulse'
 
-    if [ -n "$(command -v git-forest 2>/dev/null)" ]; then
-        alias gg='git-forest --all | less'
+    if [ -n "$(command -v git_forest 2>/dev/null)" ]; then
+        alias gg='git_forest --all | less'
     else
         alias gg='git log --graph --abbrev-commit --decorate --format=format:"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)" --all'
     fi
@@ -236,7 +237,7 @@ fi
 # probably a separated script
 if [ -n "$(command -v bluetoothctl 2>/dev/null)" ]; then
     bt() {
-        if [ "$1" == "on" ]; then
+        if [ "$1" = "on" ]; then
             (
                 sudo rfkill unblock bluetooth
                 echo "power off" | bluetoothctl
@@ -284,7 +285,7 @@ extract() {
         do
             if [ -f "$n" ]; then
                 case "${n%,}" in
-                    *.tar.bz2|*.tar.gz|*.tar.xz|*.tbz2|*.tgz|*.txz|*.tar) 
+                    *.tar.bz2|*.tar.gz|*.tar.xz|*.tbz2|*.tgz|*.txz|*.tar)
                         tar xvf "$n"
                         ;;
                     *.lzma)
@@ -328,7 +329,6 @@ extract() {
 }
 
 gruvbox
-[ -z "$(pgrep tmux)" ] && start_tmux
 
 # Greetings
 [ -n "$(command -v greeting 2>/dev/null)" ] && greeting 2>/dev/null
