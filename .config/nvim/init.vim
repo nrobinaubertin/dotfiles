@@ -91,31 +91,48 @@ map <Leader>s :execute SuperSearch(expand("<cword>"))<CR>
 " space bar un-highlights search
 nnoremap <silent> <Leader> <Space> :silent noh<Bar>echo<CR>
 
-" update plugins
-command Update execute "PlugUpgrade | PlugUpdate"
 
+" get vim-plug
 if !filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
     echo system("curl -fLo $HOME/.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim")
 endif
 
+" update plugins
+command Update execute Update()
+function! Update()
+    " load phpstan and phpcs phar
+    if !filereadable(expand("$HOME/.config/nvim/bin/phpstan"))
+        echo system("mkdir -p $HOME/.config/nvim/bin")
+        echo system("wget -q -O $HOME/.config/nvim/bin/phpstan https://github.com/phpstan/phpstan/releases/download/0.8.5/phpstan.phar")
+    endif
+    if !filereadable(expand("$HOME/.config/nvim/bin/phpcs"))
+        echo system("mkdir -p $HOME/.config/nvim/bin")
+        echo system("wget -q -O $HOME/.config/nvim/bin/phpcs https://github.com/squizlabs/PHP_CodeSniffer/releases/download/3.1.1/phpcs.phar")
+    endif
+    PlugUpgrade
+    PlugUpdate
+endfunction
+
 " vim-plug
-call plug#begin('~/.config/nvim/plugged')
-Plug 'itchyny/lightline.vim'
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --key-bindings --completion --no-update-rc' }
-Plug 'junegunn/fzf.vim'
-Plug 'junegunn/gv.vim'
-Plug 'mhinz/vim-signify'
-Plug 'morhetz/gruvbox'
-Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
-Plug 'sheerun/vim-polyglot'
-Plug 'tpope/vim-fugitive'
-Plug 'w0rp/ale'
-Plug 'xuyuanp/nerdtree-git-plugin', { 'on': 'NERDTreeToggle' }
-" testing
-Plug 'amadeus/vim-mjml'
-Plug 'chr4/nginx.vim'
-Plug 'jremmen/vim-ripgrep'
-call plug#end()
+if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
+    call plug#begin('~/.config/nvim/plugged')
+    Plug 'itchyny/lightline.vim'
+    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --key-bindings --completion --no-update-rc' }
+    Plug 'junegunn/fzf.vim'
+    Plug 'junegunn/gv.vim'
+    Plug 'mhinz/vim-signify'
+    Plug 'morhetz/gruvbox'
+    Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
+    Plug 'sheerun/vim-polyglot'
+    Plug 'tpope/vim-fugitive'
+    Plug 'w0rp/ale'
+    Plug 'xuyuanp/nerdtree-git-plugin', { 'on': 'NERDTreeToggle' }
+    " testing
+    Plug 'amadeus/vim-mjml'
+    Plug 'chr4/nginx.vim'
+    Plug 'jremmen/vim-ripgrep'
+    call plug#end()
+endif
 
 " NERDTree options
 noremap <C-n> :NERDTreeToggle<CR>
@@ -134,38 +151,33 @@ if executable('rg')
     let $FZF_DEFAULT_COMMAND = 'rg . --files --color=never --hidden --glob "!.git/*" 2>/dev/null'
 endif
 
-" lightline
-let g:lightline = {'colorscheme': 'gruvbox'}
-
 " vim-signify
 let g:signify_vcs_list = [ 'git' ]
 let g:signify_sign_change = '~'
 
-" gruvbox
-colors gruvbox
+if filereadable(expand("$HOME/.config/nvim/plugged/gruvbox/autoload/gruvbox.vim"))
+    " gruvbox
+    colors gruvbox
+    " lightline
+    let g:lightline = {'colorscheme': 'gruvbox'}
+endif
 
 " ale
 let g:ale_lint_on_insert_leave = 1
 let g:ale_lint_on_text_changed = 'never'
 let g:ale_maximum_file_size = 16384
 
-" load phpstan and phpcs phar
-if !filereadable(expand("$HOME/.config/nvim/bin/phpstan"))
-    echo system("mkdir -p $HOME/.config/nvim/bin")
-    echo system("wget -q -O $HOME/.config/nvim/bin/phpstan https://github.com/phpstan/phpstan/releases/download/0.8.5/phpstan.phar")
+if filereadable(expand("$HOME/.config/nvim/bin/phpstan"))
+    let g:ale_php_phpstan_executable = expand("$HOME/.config/nvim/bin/phpstan")
 endif
-if !filereadable(expand("$HOME/.config/nvim/bin/phpcs"))
-    echo system("mkdir -p $HOME/.config/nvim/bin")
-    echo system("wget -q -O $HOME/.config/nvim/bin/phpcs https://github.com/squizlabs/PHP_CodeSniffer/releases/download/3.1.1/phpcs.phar")
+if filereadable(expand("$HOME/.config/nvim/bin/phpcs"))
+    let g:ale_php_phpcs_executable = expand("$HOME/.config/nvim/bin/phpcs")
+    let g:ale_php_phpcs_standard = 'PSR2'
 endif
-let g:ale_php_phpstan_executable = expand("$HOME/.config/nvim/bin/phpstan")
-let g:ale_php_phpcs_executable = expand("$HOME/.config/nvim/bin/phpcs")
-let g:ale_php_phpcs_standard = 'PSR2'
 
 " Rg
 nnoremap <leader>a :Rg<space>
 nnoremap <leader>A :exec "Rg ".expand("<cword>")<cr>
-
 autocmd VimEnter * command! -nargs=* Rg
   \ call fzf#vim#grep(
   \   'rg --column --line-number --no-heading --fixed-strings --ignore-case --hidden --follow --glob "!.git/*" --color "always" 2>/dev/null '.shellescape(<q-args>), 1,
