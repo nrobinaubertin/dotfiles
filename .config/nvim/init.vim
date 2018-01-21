@@ -15,6 +15,8 @@ set background=dark
 set fillchars=vert:\ ,stl:\ ,stlnc:\ 
 set laststatus=2
 set shell=/bin/bash
+set undofile " allow undos after closing the buffer
+set clipboard+=unnamedplus " use the clipboard for all operations
 
 match ErrorMsg "\s\+$"
 
