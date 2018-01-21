@@ -91,7 +91,7 @@ export MANPAGER="nvim -c 'set ft=man' -"
 unset HISTFILESIZE
 export HISTSIZE="10000"
 export HISTCONTROL=ignoreboth:erasedups
-export HISTIGNORE="fg:bg:&:[ ]*:exit:ls:clear:ll:cd:\\[A*:nvim:gs:gd:gf:gg:gl"
+export HISTIGNORE="fg:bg:&:[ ]*:exit:ls:clear:ll:cd:\\[A*:nvim:gs:gd:gf:gg:gl:systemctl poweroff:shutdown*"
 export HISTTIMEFORMAT='%F %T '
 
 # Enable incremental history search with up/down arrows (also Readline goodness)
@@ -253,6 +253,10 @@ if [ -n "$(command -v bluetoothctl 2>/dev/null)" ]; then
             ) >/dev/null 2>/dev/null
         fi
     }
+fi
+
+if [ -n "$(command -v openssl 2>/dev/null)" ]; then
+    alias htpass='openssl passwd -apr1'
 fi
 
 # go to the root of the git repository
