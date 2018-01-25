@@ -154,7 +154,7 @@ if [ -n "$(command -v git 2>/dev/null)" ]; then
         esac
         (
             printf "commits,files,additions,deletions,author\\n"
-            for name in $(git log --pretty="%ce" | sort | uniq)
+            for name in $(git shortlog -se --all | sed -E 's/.*<(.*)>.*/\1/' | sort | uniq)
             do
                 count=$(git rev-list --no-merges --author="$name" --max-age="$age" --count --all)
                 if [ "$count" -gt 0 ]; then
@@ -239,17 +239,27 @@ if [ -n "$(command -v bluetoothctl 2>/dev/null)" ]; then
     bt() {
         if [ "$1" = "on" ]; then
             (
+                sudo rfkill block bluetooth
+                sleep 1
                 sudo rfkill unblock bluetooth
-                echo "power off" | bluetoothctl
+                printf "power off" | bluetoothctl
                 sleep 1
-                echo "power on" | bluetoothctl
-                echo "agent on" | bluetoothctl
+                printf "power on" | bluetoothctl
                 sleep 1
-                echo "connect 10:4F:A8:BB:0B:1C" | bluetoothctl
+                printf "agent off" | bluetoothctl
+                sleep 1
+                printf "agent on" | bluetoothctl
+                sleep 1
+                printf "disconnect 10:4F:A8:BB:0B:1C" | bluetoothctl
+                sleep 1
+                printf "connect 10:4F:A8:BB:0B:1C" | bluetoothctl
             ) >/dev/null 2>/dev/null
         else
             (
-                echo "power off" | bluetoothctl
+                printf "disconnect 10:4F:A8:BB:0B:1C" | bluetoothctl
+                printf "agent off" | bluetoothctl
+                printf "power off" | bluetoothctl
+                sudo rfkill block bluetooth
             ) >/dev/null 2>/dev/null
         fi
     }
@@ -284,52 +294,30 @@ extract() {
         printf "Usage: extract <path/file_name>.<zip|rar|bz2|gz|tar|tbz2|tgz|Z|7z|xz|ex|tar.bz2|tar.gz|tar.xz>\\n"
         printf "       extract <path/file_name_1.ext> [path/file_name_2.ext] [path/file_name_3.ext]\\n"
         return 1
-    else
-        for n in "$@"
-        do
-            if [ -f "$n" ]; then
-                case "${n%,}" in
-                    *.tar.bz2|*.tar.gz|*.tar.xz|*.tbz2|*.tgz|*.txz|*.tar)
-                        tar xvf "$n"
-                        ;;
-                    *.lzma)
-                        unlzma ./"$n"
-                        ;;
-                    *.bz2)
-                        bunzip2 ./"$n"
-                        ;;
-                    *.rar)
-                        unrar x -ad ./"$n"
-                        ;;
-                    *.gz)
-                        gunzip ./"$n"
-                        ;;
-                    *.zip)
-                        unzip ./"$n"
-                        ;;
-                    *.z)
-                        uncompress ./"$n"
-                        ;;
-                    *.7z|*.arj|*.cab|*.chm|*.deb|*.dmg|*.iso|*.lzh|*.msi|*.rpm|*.udf|*.wim|*.xar)
-                        7z x ./"$n"
-                        ;;
-                    *.xz)
-                        unxz ./"$n"
-                        ;;
-                    *.exe)
-                        cabextract ./"$n"
-                        ;;
-                    *)
-                        printf "extract: '%s' - unknown archive method\\n" "$n"
-                        return 1
-                        ;;
-                esac
-            else
-                printf "'%s' - file does not exist\\n" "$n"
-                return 1
-            fi
-        done
     fi
+    for n in "$@"; do
+        if [ -f "$n" ]; then
+            case "${n%,}" in
+                *.tar.bz2|*.tar.gz|*.tar.xz|*.tbz2|*.tgz|*.txz|*.tar) tar xvf "$n" ;;
+                *.lzma) unlzma ./"$n" ;;
+                *.bz2) bunzip2 ./"$n" ;;
+                *.rar) unrar x -ad ./"$n" ;;
+                *.gz) gunzip ./"$n" ;;
+                *.zip) unzip ./"$n" ;;
+                *.z) uncompress ./"$n" ;;
+                *.7z|*.arj|*.cab|*.chm|*.deb|*.dmg|*.iso|*.lzh|*.msi|*.rpm|*.udf|*.wim|*.xar) 7z x ./"$n" ;;
+                *.xz) unxz ./"$n" ;;
+                *.exe) cabextract ./"$n" ;;
+                *)
+                    printf "extract: '%s' - unknown archive method\\n" "$n"
+                    return 1
+                    ;;
+            esac
+        else
+            printf "'%s' - file does not exist\\n" "$n"
+            return 1
+        fi
+    done
 }
 
 gruvbox
