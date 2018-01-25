@@ -119,9 +119,11 @@ endfunction
 if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
     call plug#begin('~/.config/nvim/plugged')
     Plug 'itchyny/lightline.vim'
+    Plug 'jremmen/vim-ripgrep'
     Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --key-bindings --completion --no-update-rc' }
     Plug 'junegunn/fzf.vim'
     Plug 'junegunn/gv.vim'
+    Plug 'justinmk/vim-sneak'
     Plug 'mhinz/vim-signify'
     Plug 'morhetz/gruvbox'
     Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
@@ -129,12 +131,11 @@ if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
     Plug 'tpope/vim-fugitive'
     Plug 'w0rp/ale'
     Plug 'xuyuanp/nerdtree-git-plugin', { 'on': 'NERDTreeToggle' }
-    " testing
-    Plug 'amadeus/vim-mjml'
-    Plug 'chr4/nginx.vim'
-    Plug 'jremmen/vim-ripgrep'
     call plug#end()
 endif
+
+" vim-sneak
+let g:sneak#label = 1
 
 " NERDTree options
 noremap <C-n> :NERDTreeToggle<CR>
