@@ -31,15 +31,6 @@ absolute_path() {
 # the real sync function
 sync() {
 
-printf "\\n"
-printf "source_dir:\\t%s\\n" "$source_dir"
-printf "target_dir:\\t%s\\n" "$target_dir"
-printf "user:\\t\\t%s\\n" "$user"
-printf "domain:\\t\\t%s\\n" "$domain"
-printf "port:\\t\\t%s\\n" "$port"
-printf "speed:\\t\\t%s\\n" "$speed"
-printf ""
-exit
     if [ -z "$(command -v ssh)" ]
     then
         echo "ssh is not in your path. Aborting."
@@ -47,10 +38,11 @@ exit
     fi
 
     # the following is a test to see if we can connect to the distant server using ssh
-    if ! ssh -o "BatchMode=yes" -q -p "${port}" "${user}"@"${domain}" exit; then
-        echo "Could not connect to distant server using ssh. Aborting."
-        exit 1
-    fi
+    # does not work with ssh key protected by password
+    #if ! ssh -o "BatchMode=yes" -q -p "${port}" "${user}"@"${domain}" exit; then
+    #    echo "Could not connect to distant server using ssh. Aborting."
+    #    exit 1
+    #fi
 
     # first, sync/create the shadow directories
     if ! {
@@ -155,11 +147,14 @@ printf "speed:\\t\\t%s\\n" "$speed"
 printf ""
 
 # man flock
-if [ -n "$(command -v flock)" ]; then
-    if [ "${FLOCKER}" != "$0" ] && exec env FLOCKER="$0" flock -en "$0" "$0" "$@"; then
-        sync
-    fi
-else
+#if [ -n "$(command -v flock)" ]; then
+#    if [ "${FLOCKER}" != "$0" ] && exec env FLOCKER="$0" flock -en "$0" "$0" "$@"; then
+#        sync
+#    else
+#        echo "Already running !"
+#        exit 1
+#    fi
+#else
     plock
     sync
-fi
+#fi
