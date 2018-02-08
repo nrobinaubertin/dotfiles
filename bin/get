@@ -24,7 +24,7 @@ fi
 
 if [ "$1" = "time" ]
 then
-    currentTime="$(date +"%R")"
+    currentTime="$(date -u +"%R")"
     if [ -n "$currentTime" ]
     then
         printf "%s" "$currentTime"
