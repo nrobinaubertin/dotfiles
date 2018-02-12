@@ -34,15 +34,9 @@ inoremap êê Ê
 
 "" Terminal commands
 tnoremap <Leader><Esc> <C-\><C-n>
-" tnoremap <Leader>c <C-\><C-n>:tab new<CR>:term<CR>i
 noremap <Leader>c :tab new<CR>:term<CR>i
-" inoremap <Leader>c <Esc>:tab new<CR>:term<CR>i
-" tnoremap <Leader>% <C-\><C-n>:vsp<CR><C-w><C-w>:term<CR>i
 noremap <Leader>% :vsp<CR><C-w><C-w>:term<CR>i
-" inoremap <Leader>% <Esc>:vsp<CR><C-w><C-w>:term<CR>i
-" tnoremap <Leader>" <C-\><C-n>:sp<CR><C-w><C-w>:term<CR>i
 noremap <Leader>" :sp<CR><C-w><C-w>:term<CR>i
-" inoremap <Leader>" <Esc>:sp<CR><C-w><C-w>:term<CR>i
 
 " when in a neovim terminal, add a buffer to the existing vim session
 " instead of nesting (credit justinmk)
@@ -79,11 +73,11 @@ nnoremap <A-h> :tabprevious<CR>
 inoremap <A-h> <Esc>:tabprevious<CR>
 tnoremap <A-h> <C-\><C-n>:tabprevious<CR>
 nnoremap <A-j> :tabmove -1<CR>
-inoremap <A-j> :tabmove -1<CR>
-tnoremap <A-j> :tabmove -1<CR>
+inoremap <A-j> <Esc>:tabmove -1<CR>
+tnoremap <A-j> <C-\><C-n>:tabmove -1<CR>
 nnoremap <A-k> :tabmove +1<CR>
-inoremap <A-k> :tabmove +1<CR>
-tnoremap <A-k> :tabmove +1<CR>
+inoremap <A-k> <Esc>:tabmove +1<CR>
+tnoremap <A-k> <C-\><C-n>:tabmove +1<CR>
 
 " force writing with sudo
 cnoremap w!! %!sudo tee >/dev/null %
@@ -175,13 +169,6 @@ nnoremap <Leader>f :FZF<CR>
 let g:signify_vcs_list = [ 'git' ]
 let g:signify_sign_change = '~'
 
-if filereadable(expand("$HOME/.config/nvim/plugged/gruvbox/autoload/gruvbox.vim"))
-    " gruvbox
-    colors gruvbox
-    " lightline
-    let g:lightline = {'colorscheme': 'gruvbox'}
-endif
-
 " ale
 let g:ale_lint_on_insert_leave = 1
 let g:ale_lint_on_text_changed = 'never'
@@ -199,14 +186,18 @@ endif
 nnoremap <leader>a :Rg<space>
 nnoremap <leader>A :exec "Rg ".expand("<cword>")<cr>
 autocmd VimEnter * command! -nargs=* Rg
-  \ call fzf#vim#grep(
-  \   'rg --column --line-number --no-heading --fixed-strings --ignore-case --hidden --follow --glob "!.git/*" --color "always" 2>/dev/null '.shellescape(<q-args>), 1,
-  \   <bang>0 ? fzf#vim#with_preview('up:60%')
-  \           : fzf#vim#with_preview('right:50%:hidden', '?'),
-  \   <bang>0)
+            \ call fzf#vim#grep(
+            \   'rg --column --line-number --no-heading --fixed-strings --ignore-case --hidden --follow --glob "!.git/*" --color "always" 2>/dev/null '.shellescape(<q-args>), 1,
+            \   <bang>0 ? fzf#vim#with_preview('up:60%')
+            \           : fzf#vim#with_preview('right:50%:hidden', '?'),
+            \   <bang>0)
 
 if executable('rg')
     let $FZF_DEFAULT_COMMAND = 'rg . --files --color=never --hidden --glob "!.git/*" 2>/dev/null'
     set grepprg=rg\ --vimgrep
     set grepformat^=%f:%l:%c:%m
+endif
+
+if filereadable(expand("$HOME/.config/nvim/plugged/gruvbox/autoload/gruvbox.vim"))
+    colors gruvbox
 endif
