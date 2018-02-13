@@ -15,9 +15,16 @@ set background=dark
 set fillchars=vert:\ ,stl:\ ,stlnc:\ 
 set laststatus=2
 set shell=/bin/bash
-set undofile " allow undos after closing the buffer
 set clipboard+=unnamedplus " use the clipboard for all operations
 
+" the following options are good only if:
+" - umask is restrictive (something like 077)
+" - /tmp is mounted as tmpfs
+let g:whoami = system("id -unz")
+set undofile
+let &undodir="/tmp/".g:whoami."/nvim/undo"
+
+" set the background to red for trailing spaces
 match ErrorMsg "\s\+$"
 
 " ignore some files

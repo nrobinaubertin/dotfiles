@@ -42,6 +42,9 @@ gruvbox() {
     fi
 }
 
+# set a restrictive umask
+umask 077
+
 # Automatically trim long paths in the prompt (requires Bash 4.x)
 export PROMPT_DIRTRIM=2
 
