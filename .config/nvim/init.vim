@@ -86,6 +86,9 @@ nnoremap <A-k> :tabmove +1<CR>
 inoremap <A-k> <Esc>:tabmove +1<CR>
 tnoremap <A-k> <C-\><C-n>:tabmove +1<CR>
 
+"" Vue manipulation
+nnoremap <A-z> :-tabe %<CR>
+
 " force writing with sudo
 cnoremap w!! %!sudo tee >/dev/null %
 
