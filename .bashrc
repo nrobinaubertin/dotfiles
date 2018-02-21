@@ -42,6 +42,15 @@ gruvbox() {
     fi
 }
 
+# enables user services and start them
+if [ -n "$(command -v systemctl 2>/dev/null)" ]; then
+    if ! [ -h ${HOME}/.config/systemd/user/default.target.wants/ssh-agent.service ]
+    then
+        systemctl --user enable ssh-agent.service
+        systemctl --user start ssh-agent.service
+    fi
+fi
+
 # set a restrictive umask
 umask 077
 
