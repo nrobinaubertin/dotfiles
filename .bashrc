@@ -18,21 +18,6 @@ startprompt="$(printf "\\xE2\\x94\\x8C\\xE2\\x94\\x80")"
 endprompt="$(printf "\\xE2\\x94\\x94\\xE2\\x94\\x80\\xE2\\x95\\xBC")"
 PS1="\\n\\r${RCol}${startprompt}[\`if [ \$? = 0 ]; then echo ${Gre}; else echo ${Red}; fi\`\\t\\[${RCol}\\] \\[${Blu}\\]\\h\\[${RCol}\\] \\[${Yel}\\]\\w\\[${RCol}\\]]\\n${endprompt} "
 
-# attach/start tmux
-start_tmux() {
-    # If not running interactively, do not do anything
-    [ $- != *i* ] && return
-    # If tmux exists on the system, attach or create session
-    if [ -z "$TMUX" ] && [ -n "$(command -v tmux)" ]; then
-        t=$(tmux has-session 2>&1)
-        if [ -z "$t" ]; then
-            exec tmux -2 attach
-        else
-            exec tmux -2 new
-        fi
-    fi
-}
-
 # display gruvbox colors event in a tty
 gruvbox() {
     # if we are in a tty
@@ -57,6 +42,9 @@ gruvbox() {
     fi
 }
 
+# set a restrictive umask
+umask 077
+
 # Automatically trim long paths in the prompt (requires Bash 4.x)
 export PROMPT_DIRTRIM=2
 
@@ -76,16 +64,6 @@ complete -cf sudo
 # open man in neovim
 # export MANPAGER="less"
 export MANPAGER="nvim -c 'set ft=man' -"
-
-# set pager conf
-# export LESS_TERMCAP_mb=$'\033[01;31m'
-# export LESS_TERMCAP_md=$'\033[01;33m'
-# export LESS_TERMCAP_me=$'\033[0m'
-# export LESS_TERMCAP_se=$'\033[0m'
-# export LESS_TERMCAP_so=$'\033[01;44;37m'
-# export LESS_TERMCAP_ue=$'\033[0m'
-# export LESS_TERMCAP_us=$'\033[01;37m'
-# export LESS="-RI"
 
 # set history variables
 unset HISTFILESIZE
@@ -271,9 +249,7 @@ fi
 
 # go to the root of the git repository
 cdroot() {
-    if ! [ -d ".git" ]; then
-        [ "$(pwd)" != "/" ] && cd .. && cdroot
-    fi
+    ! [ -d ".git" ] && [ "$(pwd)" != "/" ] && cd .. && cdroot
 }
 
 # get number of files for each extension in a dir

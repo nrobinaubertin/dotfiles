@@ -15,9 +15,16 @@ set background=dark
 set fillchars=vert:\ ,stl:\ ,stlnc:\ 
 set laststatus=2
 set shell=/bin/bash
-set undofile " allow undos after closing the buffer
 set clipboard+=unnamedplus " use the clipboard for all operations
 
+" the following options are good only if:
+" - umask is restrictive (something like 077)
+" - /tmp is mounted as tmpfs
+let g:whoami = system("id -unz")
+set undofile
+let &undodir="/tmp/".g:whoami."/nvim/undo"
+
+" set the background to red for trailing spaces
 match ErrorMsg "\s\+$"
 
 " ignore some files
@@ -32,41 +39,55 @@ inoremap àà À
 inoremap éé É
 inoremap êê Ê
 
+"" Terminal commands
+tnoremap <Leader><Esc> <C-\><C-n>
+noremap <Leader>c :tab new<CR>:term<CR>i
+noremap <Leader>% :vsp<CR><C-w><C-w>:term<CR>i
+noremap <Leader>" :sp<CR><C-w><C-w>:term<CR>i
+
+" when in a neovim terminal, add a buffer to the existing vim session
+" instead of nesting (credit justinmk)
+autocmd VimEnter * if !empty($NVIM_LISTEN_ADDRESS) && $NVIM_LISTEN_ADDRESS !=# v:servername
+    \ |let g:r=jobstart(['nc', '-U', $NVIM_LISTEN_ADDRESS],{'rpc':v:true})
+    \ |let g:f=fnameescape(expand('%:p'))
+    \ |noau bwipe
+    \ |call rpcrequest(g:r, "nvim_command", "edit ".g:f)
+    \ |qa
+    \ |endif
+
+" start in insert mode when opening a terminal buffer
+autocmd BufEnter * if &buftype == 'terminal' | startinsert | endif
+
 "" Windows commands
-nnoremap <C-Up> :wincmd k<CR>
-inoremap <C-Up> <Esc>:wincmd k<CR>i
-tnoremap <C-Up> <C-\><C-n>:wincmd k<CR>i
-nnoremap <C-Down> :wincmd j<CR>
-inoremap <C-Down> <Esc>:wincmd j<CR>i
-tnoremap <C-Down> <C-\><C-n>:wincmd j<CR>i
-nnoremap <C-Left> :wincmd h<CR>
-inoremap <C-Left> <Esc>:wincmd h<CR>i
-tnoremap <C-Left> <C-\><C-n>:wincmd h<CR>i
-nnoremap <C-Right> :wincmd l<CR>
-inoremap <C-Right> <Esc>:wincmd l<CR>i
-tnoremap <C-Right> <C-\><C-n>:wincmd l<CR>i
+nnoremap <C-k> :wincmd k<CR>
+inoremap <C-k> <Esc>:wincmd k<CR>
+tnoremap <C-k> <C-\><C-n>:wincmd k<CR>
+nnoremap <C-j> :wincmd j<CR>
+inoremap <C-j> <Esc>:wincmd j<CR>
+tnoremap <C-j> <C-\><C-n>:wincmd j<CR>
+nnoremap <C-h> :wincmd h<CR>
+inoremap <C-h> <Esc>:wincmd h<CR>
+tnoremap <C-h> <C-\><C-n>:wincmd h<CR>
+nnoremap <C-l> :wincmd l<CR>
+inoremap <C-l> <Esc>:wincmd l<CR>
+tnoremap <C-l> <C-\><C-n>:wincmd l<CR>
 
 "" Tabs commands
-nnoremap <C-k> :tabnext<CR>
-inoremap <C-k> <Esc>:tabnext<CR>i
-tnoremap <C-k> <C-\><C-n>:tabnext<CR>i
-nnoremap <C-j> :tabprevious<CR>
-inoremap <C-j> <Esc>:tabprevious<CR>i
-tnoremap <C-j> <C-\><C-n>:tabprevious<CR>i
+nnoremap <A-l> :tabnext<CR>
+inoremap <A-l> <Esc>:tabnext<CR>
+tnoremap <A-l> <C-\><C-n>:tabnext<CR>
+nnoremap <A-h> :tabprevious<CR>
+inoremap <A-h> <Esc>:tabprevious<CR>
+tnoremap <A-h> <C-\><C-n>:tabprevious<CR>
 nnoremap <A-j> :tabmove -1<CR>
+inoremap <A-j> <Esc>:tabmove -1<CR>
+tnoremap <A-j> <C-\><C-n>:tabmove -1<CR>
 nnoremap <A-k> :tabmove +1<CR>
-inoremap <A-j> :tabmove -1<CR>i
-inoremap <A-k> :tabmove +1<CR>i
-tnoremap <A-j> :tabmove -1<CR>i
-tnoremap <A-k> :tabmove +1<CR>i
+inoremap <A-k> <Esc>:tabmove +1<CR>
+tnoremap <A-k> <C-\><C-n>:tabmove +1<CR>
 
 " force writing with sudo
 cnoremap w!! %!sudo tee >/dev/null %
-
-if executable('rg')
-    set grepprg=rg\ --vimgrep
-    set grepformat^=%f:%l:%c:%m
-endif
 
 " super vim search
 function! SuperSearch(...)
@@ -93,7 +114,6 @@ map <Leader>s :execute SuperSearch(expand("<cword>"))<CR>
 " space bar un-highlights search
 nnoremap <silent> <Leader> <Space> :silent noh<Bar>echo<CR>
 
-
 " get vim-plug
 if !filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
     echo system("curl -fLo $HOME/.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim")
@@ -102,7 +122,7 @@ endif
 " update plugins
 command Update execute Update()
 function! Update()
-    " load phpstan and phpcs phar
+    " load phpstan and phpcs phar to be used with ale
     if !filereadable(expand("$HOME/.config/nvim/bin/phpstan"))
         echo system("mkdir -p $HOME/.config/nvim/bin")
         echo system("wget -q -O $HOME/.config/nvim/bin/phpstan https://github.com/phpstan/phpstan/releases/download/0.8.5/phpstan.phar")
@@ -119,6 +139,7 @@ endfunction
 if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
     call plug#begin('~/.config/nvim/plugged')
     Plug 'itchyny/lightline.vim'
+    Plug 'jremmen/vim-ripgrep'
     Plug 'jremmen/vim-ripgrep'
     Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --key-bindings --completion --no-update-rc' }
     Plug 'junegunn/fzf.vim'
@@ -150,20 +171,10 @@ let $FZF_DEFAULT_COMMAND = 'find . 2>/dev/null'
 nnoremap <Leader>b :Buffers<CR>
 nnoremap <Leader>h :History<CR>
 nnoremap <Leader>f :FZF<CR>
-if executable('rg')
-    let $FZF_DEFAULT_COMMAND = 'rg . --files --color=never --hidden --glob "!.git/*" 2>/dev/null'
-endif
 
 " vim-signify
 let g:signify_vcs_list = [ 'git' ]
 let g:signify_sign_change = '~'
-
-if filereadable(expand("$HOME/.config/nvim/plugged/gruvbox/autoload/gruvbox.vim"))
-    " gruvbox
-    colors gruvbox
-    " lightline
-    let g:lightline = {'colorscheme': 'gruvbox'}
-endif
 
 " ale
 let g:ale_lint_on_insert_leave = 1
@@ -182,8 +193,20 @@ endif
 nnoremap <leader>a :Rg<space>
 nnoremap <leader>A :exec "Rg ".expand("<cword>")<cr>
 autocmd VimEnter * command! -nargs=* Rg
-  \ call fzf#vim#grep(
-  \   'rg --column --line-number --no-heading --fixed-strings --ignore-case --hidden --follow --glob "!.git/*" --color "always" 2>/dev/null '.shellescape(<q-args>), 1,
-  \   <bang>0 ? fzf#vim#with_preview('up:60%')
-  \           : fzf#vim#with_preview('right:50%:hidden', '?'),
-  \   <bang>0)
+    \ call fzf#vim#grep(
+    \   'rg --column --line-number --no-heading --fixed-strings --ignore-case --hidden --follow --glob "!.git/*" --color "always" 2>/dev/null '.shellescape(<q-args>), 1,
+    \   <bang>0 ? fzf#vim#with_preview('up:60%')
+    \           : fzf#vim#with_preview('right:50%:hidden', '?'),
+    \   <bang>0)
+
+if executable('rg')
+    let $FZF_DEFAULT_COMMAND = 'rg . --files --color=never --hidden --glob "!.git/*" 2>/dev/null'
+    set grepprg=rg\ --vimgrep
+    set grepformat^=%f:%l:%c:%m
+endif
+
+" gruvbox
+if filereadable(expand("$HOME/.config/nvim/plugged/gruvbox/autoload/gruvbox.vim"))
+    colors gruvbox
+    let g:lightline = {'colorscheme': 'gruvbox'}
+endif
