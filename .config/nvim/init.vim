@@ -47,13 +47,16 @@ noremap <Leader>" :sp<CR><C-w><C-w>:term<CR>i
 
 " when in a neovim terminal, add a buffer to the existing vim session
 " instead of nesting (credit justinmk)
-autocmd VimEnter * if !empty($NVIM_LISTEN_ADDRESS) && $NVIM_LISTEN_ADDRESS !=# v:servername
-    \ |let g:r=jobstart(['nc', '-U', $NVIM_LISTEN_ADDRESS],{'rpc':v:true})
-    \ |let g:f=fnameescape(expand('%:p'))
-    \ |noau bwipe
-    \ |call rpcrequest(g:r, "nvim_command", "edit ".g:f)
-    \ |qa
-    \ |endif
+" You need socat to do this
+if executable('socat')
+    autocmd VimEnter * if !empty($NVIM_LISTEN_ADDRESS) && $NVIM_LISTEN_ADDRESS !=# v:servername
+        \ |let g:r=jobstart(['socat', '-', 'UNIX-CLIENT:'.$NVIM_LISTEN_ADDRESS],{'rpc':v:true})
+        \ |let g:f=fnameescape(expand('%:p'))
+        \ |noau bwipe
+        \ |call rpcrequest(g:r, "nvim_command", "edit ".g:f)
+        \ |qa
+        \ |endif
+endif
 
 " start in insert mode when opening a terminal buffer
 autocmd BufEnter * if &buftype == 'terminal' | startinsert | endif

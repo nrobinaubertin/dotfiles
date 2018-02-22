@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# print out help
 usage() {
     printf "\\n"
     printf "    ssync [OPTION...] INPUT DEST\\n\\n"
@@ -18,6 +19,7 @@ beginswith() {
 	esac
 }
 
+# get the absolute path of $1
 absolute_path() {
     if [ "$(beginswith "/" "$1")" = "true" ]
 	then
@@ -30,34 +32,11 @@ absolute_path() {
 
 # the real sync function
 sync() {
-
-printf "\\n"
-printf "source_dir:\\t%s\\n" "$source_dir"
-printf "target_dir:\\t%s\\n" "$target_dir"
-printf "user:\\t\\t%s\\n" "$user"
-printf "domain:\\t\\t%s\\n" "$domain"
-printf "port:\\t\\t%s\\n" "$port"
-printf "speed:\\t\\t%s\\n" "$speed"
-printf ""
-exit
-    if [ -z "$(command -v ssh)" ]
-    then
-        echo "ssh is not in your path. Aborting."
-        exit 1
-    fi
-
-    # the following is a test to see if we can connect to the distant server using ssh
-    if ! ssh -o "BatchMode=yes" -q -p "${port}" "${user}"@"${domain}" exit; then
-        echo "Could not connect to distant server using ssh. Aborting."
-        exit 1
-    fi
-
     # first, sync/create the shadow directories
     if ! {
         rsync -a --delete --link-dest="${source_dir}" --exclude="/${shadow}" "${source_dir}/" "${source_dir}/${shadow}"
 		ssh -p "${port}" "${user}"@"${domain}" rsync -a --delete --link-dest="${target_dir}" --exclude="/${shadow}" "${target_dir}/" "${target_dir}/${shadow}"
-    }
-    then
+    }; then
         echo "Could not sync shadow directories. Aborting"
         exit 1
     fi
@@ -71,21 +50,11 @@ exit
     ssh -p "${port}" "${user}"@"${domain}" rm -rf "${target_dir:?}/${shadow:?}"
 }
 
-# prevent from running if rsync already is
-# this function is used if flock is absent from the system
-plock() {
-    if [ -z "$(command -v rsync)" ]
-    then
-        echo "rsync is not in your path. Aborting."
-        exit 1
-    fi
-
-    if [ "$(pgrep rsync 2>/dev/null)" != "" ]
-    then
-        echo "Rsync is already running. Aborting."
-        exit 1
-    fi
-}
+if [ -z "$(command -v ssh)" ]
+then
+    echo "ssh is not in your path. Aborting."
+    exit 1
+fi
 
 while getopts ":p:s:h" opt; do
     case $opt in
@@ -154,12 +123,7 @@ printf "port:\\t\\t%s\\n" "$port"
 printf "speed:\\t\\t%s\\n" "$speed"
 printf ""
 
-# man flock
-if [ -n "$(command -v flock)" ]; then
-    if [ "${FLOCKER}" != "$0" ] && exec env FLOCKER="$0" flock -en "$0" "$0" "$@"; then
-        sync
-    fi
-else
-    plock
-    sync
-fi
+# lock script execution
+[ "${FLOCKER}" != "$0" ] && exec env FLOCKER="$0" flock -en "$0" "$0" "$@" || :
+
+sync

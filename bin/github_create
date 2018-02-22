@@ -1,0 +1,23 @@
+#!/bin/sh
+
+usage="\n $(basename "$0") repository user \n Create a github repository.\n"
+
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]
+then
+    printf "$usage"
+    exit
+fi
+
+if [ -z "$1" ] || [ -z "$2" ]
+then
+    printf "$usage" 1>&2
+    exit 1
+fi
+
+if [ -n $(command -v curl 2>/dev/null) ]
+then
+    curl -u "$1" https://api.github.com/user/repos -d "{\"name\":\"$2\"}"
+else
+    printf "curl is not in your path.\n" 1>&2
+    exit 1
+fi
