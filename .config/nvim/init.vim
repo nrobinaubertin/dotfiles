@@ -89,6 +89,9 @@ nnoremap <A-k> :tabmove +1<CR>
 inoremap <A-k> <Esc>:tabmove +1<CR>
 tnoremap <A-k> <C-\><C-n>:tabmove +1<CR>
 
+"" Vue manipulation
+nnoremap <A-z> :-tabe %<CR>
+
 " force writing with sudo
 cnoremap w!! %!sudo tee >/dev/null %
 
@@ -147,7 +150,6 @@ if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
     Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --key-bindings --completion --no-update-rc' }
     Plug 'junegunn/fzf.vim'
     Plug 'junegunn/gv.vim'
-    Plug 'justinmk/vim-sneak'
     Plug 'mhinz/vim-signify'
     Plug 'morhetz/gruvbox'
     Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
@@ -157,9 +159,6 @@ if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
     Plug 'xuyuanp/nerdtree-git-plugin', { 'on': 'NERDTreeToggle' }
     call plug#end()
 endif
-
-" vim-sneak
-let g:sneak#label = 1
 
 " NERDTree options
 noremap <C-n> :NERDTreeToggle<CR>
