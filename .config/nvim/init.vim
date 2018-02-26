@@ -43,7 +43,7 @@ inoremap èè È
 inoremap çç Ç
 
 "" Terminal commands
-tnoremap <Leader><Esc> <C-\><C-n>
+tnoremap <C-q> <C-\><C-n>
 noremap <Leader>c :tab new<CR>:term<CR>i
 noremap <Leader>% :vsp<CR><C-w><C-w>:term<CR>i
 noremap <Leader>" :sp<CR><C-w><C-w>:term<CR>i

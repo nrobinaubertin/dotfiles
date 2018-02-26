@@ -94,6 +94,7 @@ alias tmux='tmux -2'
 alias todo='nvim ${HOME}/.TODO'
 alias grep='grep --color=always'
 alias less='less -R'
+alias emerge='emerge --color y'
 
 # git aliases
 if [ -n "$(command -v git 2>/dev/null)" ]; then
