@@ -193,7 +193,7 @@ if [ -n "$(command -v git 2>/dev/null)" ]; then
             git diff --color "$target" | diff-so-fancy | less
         }
     else
-        alias gd='git diff --color'
+        alias gd='git diff --color --color-words --color-moved'
     fi
 fi
 
