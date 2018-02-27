@@ -15,29 +15,32 @@ set background=dark
 set fillchars=vert:\ ,stl:\ ,stlnc:\ 
 set laststatus=2
 set shell=/bin/bash
-set clipboard+=unnamedplus " use the clipboard for all operations
+set clipboard+=unnamedplus " Use the clipboard for all operations
 
-" the following options are good only if:
-" - umask is restrictive (something like 077)
-" - /tmp is mounted as tmpfs
+" The following options are good only if:
+" - umask is restrictive (something like 077 to avoid security issues)
+" - /tmp is mounted as tmpfs (the idea is to avoid disk writing)
 let g:whoami = system("id -unz")
 set undofile
 let &undodir="/tmp/".g:whoami."/nvim/undo"
 
-" set the background to red for trailing spaces
+" Set the background to red for trailing spaces
 match ErrorMsg "\s\+$"
 
-" ignore some files
+" Ignore some files
 set wildignore+=*/.git/*,*.swp,*.orig
 
-"Remap leader Key
+" Remap leader key
 let mapleader=" "
 
 " The french keyboard is awesome
-inoremap çç Ç
 inoremap àà À
+inoremap ää Ä
+inoremap ââ Â
 inoremap éé É
 inoremap êê Ê
+inoremap èè È
+inoremap çç Ç
 
 "" Terminal commands
 tnoremap <A-q> <C-\><C-n>
@@ -95,10 +98,10 @@ tnoremap <A-k> <C-\><C-n>:tabmove +1<CR>
 "" Vue manipulation
 nnoremap <A-z> :-tabe %<CR>
 
-" force writing with sudo
+" Force writing with sudo
 cnoremap w!! %!sudo tee >/dev/null %
 
-" super vim search
+" Super vim search
 function! SuperSearch(...)
     let search = a:1
     let location = a:0 > 1 ? a:2 : '.'
@@ -120,18 +123,18 @@ endfunction
 command -nargs=+ SuperSearch call SuperSearch(<f-args>)
 map <Leader>s :execute SuperSearch(expand("<cword>"))<CR>
 
-" space bar un-highlights search
+" Space bar un-highlights search
 nnoremap <silent> <Leader> <Space> :silent noh<Bar>echo<CR>
 
-" get vim-plug
+" Get vim-plug
 if !filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
     echo system("curl -fLo $HOME/.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim")
 endif
 
-" update plugins
+" Update plugins
 command Update execute Update()
 function! Update()
-    " load phpstan and phpcs phar to be used with ale
+    " Load phpstan and phpcs phar to be used with ale
     if !filereadable(expand("$HOME/.config/nvim/bin/phpstan"))
         echo system("mkdir -p $HOME/.config/nvim/bin")
         echo system("wget -q -O $HOME/.config/nvim/bin/phpstan https://github.com/phpstan/phpstan/releases/download/0.8.5/phpstan.phar")
@@ -144,7 +147,7 @@ function! Update()
     PlugUpdate
 endfunction
 
-" vim-plug
+" Vim-plug
 if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
     call plug#begin('~/.config/nvim/plugged')
     Plug 'itchyny/lightline.vim'
@@ -171,17 +174,17 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isT
 autocmd FileType nerdtree noremap <buffer> <C-k> :tabnext<CR>
 autocmd FileType nerdtree noremap <buffer> <C-j> :tabprevious<CR>
 
-" fzf
+" Fzf
 let $FZF_DEFAULT_COMMAND = 'find . 2>/dev/null'
 nnoremap <Leader>b :Buffers<CR>
 nnoremap <Leader>h :History<CR>
 nnoremap <Leader>f :FZF<CR>
 
-" vim-signify
+" Vim-signify
 let g:signify_vcs_list = [ 'git' ]
 let g:signify_sign_change = '~'
 
-" ale
+" Ale
 let g:ale_lint_on_insert_leave = 1
 let g:ale_lint_on_text_changed = 'never'
 let g:ale_maximum_file_size = 16384
@@ -210,7 +213,7 @@ if executable('rg')
     set grepformat^=%f:%l:%c:%m
 endif
 
-" gruvbox
+" Gruvbox
 if filereadable(expand("$HOME/.config/nvim/plugged/gruvbox/autoload/gruvbox.vim"))
     colors gruvbox
     let g:lightline = {'colorscheme': 'gruvbox'}

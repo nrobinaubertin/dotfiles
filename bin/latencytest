@@ -17,7 +17,7 @@ if ! [ -f "$servers_distances" ]; then
 
     if ! [ -f "$servers_file" ]; then
         printf "Getting servers list from speedtest.net...\\n"
-        wget -qO "$servers_file" http://www.speedtest.net/speedtest-servers.php
+        wget -qO "$servers_file" "https://www.speedtest.net/speedtest-servers.php"
     fi
 
     servers_list="$(cat "$servers_file" | sed -E 's/.*url="([a-zA-Z0-9:\/._-]+)".*lat="([0-9.-]+)".*lon="([0-9.-]+)".*/\1 \2 \3/g' | grep -E "^http" | grep ".php" | grep -v "<")"
