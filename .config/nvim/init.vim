@@ -40,10 +40,13 @@ inoremap éé É
 inoremap êê Ê
 
 "" Terminal commands
-tnoremap <C-q> <C-\><C-n>
-noremap <Leader>c :tab new<CR>:term<CR>i
-noremap <Leader>% :vsp<CR><C-w><C-w>:term<CR>i
-noremap <Leader>" :sp<CR><C-w><C-w>:term<CR>i
+tnoremap <A-q> <C-\><C-n>
+tnoremap <A-c> <C-\><C-n>:tab new<CR>:term<CR>i
+tnoremap <A-v> <C-\><C-n>:vsp<CR><C-w><C-w>:term<CR>i
+tnoremap <A-b> <C-\><C-n>:sp<CR><C-w><C-w>:term<CR>i
+noremap <A-c> <C-\><C-n>:tab new<CR>:term<CR>i
+noremap <A-v> :vsp<CR><C-w><C-w>:term<CR>i
+noremap <A-b> :sp<CR><C-w><C-w>:term<CR>i
 
 " when in a neovim terminal, add a buffer to the existing vim session
 " instead of nesting (credit justinmk)
