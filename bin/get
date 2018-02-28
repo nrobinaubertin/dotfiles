@@ -1,50 +1,45 @@
 #!/bin/sh
 
-if [ "$1" = "power" ]
-then
-    power="$(cat /sys/class/power_supply/BAT1/capacity)"
+get_power() {
+    if [ -e /sys/class/power_supply/BAT0 ]; then
+        BAT="BAT0"
+    else
+        BAT="BAT1"
+    fi
+    power="$(cat /sys/class/power_supply/${BAT}/capacity)"
     if [ -n "$power" ]
     then
         printf "%s%%" "${power}"
     else
         printf "AC/DC"
     fi
-    exit
-fi
+}
 
-if [ "$1" = "date" ]
-then
+get_date() {
     currentDate="$(date +"%F")"
     if [ -n "$currentDate" ]
     then
         printf "%s" "$currentDate"
     fi
-    exit
-fi
+}
 
-if [ "$1" = "time" ]
-then
-    currentTime="$(date -u +"%R")"
+get_time() {
+    currentTime="$(date +"%R")"
     if [ -n "$currentTime" ]
     then
         printf "%s" "$currentTime"
     fi
-    exit
-fi
+}
 
-if [ "$1" = "cpu" ]
-then
+get_cpu() {
     cpu="$(awk '{ print $1 }' /proc/loadavg)"
     if [ -n "$cpu" ]
     then
         printf "%s" "$cpu"
     fi
-    exit
-fi
+}
 
-if [ "$1" = "latency" ]
-then
-
+get_latency() {
     # LDN (France)
     latency="$(ping -W 1 -c 3 -l 3 80.67.188.188 2>/dev/null | tail -n1 | awk '{print $4}' | tr '/' ' ' | cut -d'.' -f1)"
 
@@ -64,21 +59,17 @@ then
     then
         printf "%s" "${latency}ms"
     fi
-    exit
-fi
+}
 
-if [ "$1" = "heat" ]
-then
+get_heat() {
     heat="$(awk '{ print $1/1000 }' /sys/class/thermal/thermal_zone0/temp)"
     if [ -n "$heat" ]
     then
         printf "%s" "${heat}°C"
     fi
-    exit
-fi
+}
 
-if [ "$1" = "ip" ]
-then
+get_ip() {
     if [ -n "$(command -v dig 2>/dev/null)" ]
     then
         ip="$(dig +short +keepopen myip.opendns.com @resolver1.opendns.com 2>/dev/null)"
@@ -92,11 +83,9 @@ then
     then
         printf "%s" "$ip"
     fi
-    exit
-fi
+}
 
-if [ "$1" = "ram" ]
-then
+get_ram() {
     mem_total=$(grep -E "^MemTotal:" < /proc/meminfo | awk '{print $2}')
     swap_total=$(grep -E "^SwapTotal:" < /proc/meminfo | awk '{print $2}')
     mem_free=$(grep -E "^MemFree:" < /proc/meminfo | awk '{print $2}')
@@ -117,11 +106,9 @@ then
         fi
         printf "%s MB" "$mb";
     fi
-    exit
-fi
+}
 
-if [ "$1" = "uptime" ]
-then
+get_uptime() {
     uptime=""
     total_seconds=$(cut -d. -f1 < /proc/uptime)
     days=$(( total_seconds / 60 / 60 / 24 ))
@@ -140,11 +127,115 @@ then
     then
         printf "%s" "$uptime"
     fi
+}
+
+get_dot() {
+    printf "\\xE2\\x80\\xA2"
+}
+
+
+if [ "$1" = "power" ]
+then
+    get_power
+    exit
+fi
+
+if [ "$1" = "date" ]
+then
+    get_date
+    exit
+fi
+
+if [ "$1" = "time" ]
+then
+    get_time
+    exit
+fi
+
+if [ "$1" = "cpu" ]
+then
+    get_cpu
+    exit
+fi
+
+if [ "$1" = "latency" ]
+then
+    get_latency
+    exit
+fi
+
+if [ "$1" = "heat" ]
+then
+    exit
+fi
+
+if [ "$1" = "ip" ]
+then
+    get_ip
+    exit
+fi
+
+if [ "$1" = "ram" ]
+then
+    get_ram
+    exit
+fi
+
+if [ "$1" = "uptime" ]
+then
+    get_uptime
     exit
 fi
 
 if [ "$1" = "dot" ]
 then
-    printf "\\xE2\\x80\\xA2"
+    get_dot
     exit
+fi
+
+if [ "$1" = "full_status" ]; then
+    power=$(get_power)
+    if [ -n "$power" ]; then
+        printf "%s" "$power"
+        printf "%s" " $(get_dot) "
+    fi
+    ip=$(get_ip)
+    if [ -n "$ip" ]; then
+        printf "%s" "$ip"
+        printf "%s" " $(get_dot) "
+    fi
+    uptime=$(get_uptime)
+    if [ -n "$uptime" ]; then
+        printf "%s" "$uptime"
+        printf "%s" " $(get_dot) "
+    fi
+    ram=$(get_ram)
+    if [ -n "$ram" ]; then
+        printf "%s" "$ram"
+        printf "%s" " $(get_dot) "
+    fi
+    heat=$(get_heat)
+    if [ -n "$heat" ]; then
+        printf "%s" "$heat"
+        printf "%s" " $(get_dot) "
+    fi
+    latency=$(get_latency)
+    if [ -n "$latency" ]; then
+        printf "%s" "$latency"
+        printf "%s" " $(get_dot) "
+    fi
+    cpu=$(get_cpu)
+    if [ -n "$cpu" ]; then
+        printf "%s" "$cpu"
+        printf "%s" " $(get_dot) "
+    fi
+    date=$(get_date)
+    if [ -n "$date" ]; then
+        printf "%s" "$date"
+        printf "%s" " $(get_dot) "
+    fi
+    time=$(get_time)
+    if [ -n "$time" ]; then
+        printf "%s" "$time"
+    fi
 fi
