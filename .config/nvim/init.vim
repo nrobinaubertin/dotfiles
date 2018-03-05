@@ -33,74 +33,6 @@ set wildignore+=*/.git/*,*.swp,*.orig
 " Remap leader key
 let mapleader=" "
 
-" The french keyboard is awesome
-inoremap àà À
-inoremap ää Ä
-inoremap ââ Â
-inoremap éé É
-inoremap êê Ê
-inoremap èè È
-inoremap çç Ç
-
-"" Terminal commands
-tnoremap <A-q> <C-\><C-n>
-tnoremap <A-c> <C-\><C-n>:tab new<CR>:term<CR>i
-tnoremap <A-v> <C-\><C-n>:vsp<CR><C-w><C-w>:term<CR>i
-tnoremap <A-b> <C-\><C-n>:sp<CR><C-w><C-w>:term<CR>i
-noremap <A-c> <C-\><C-n>:tab new<CR>:term<CR>i
-noremap <A-v> :vsp<CR><C-w><C-w>:term<CR>i
-noremap <A-b> :sp<CR><C-w><C-w>:term<CR>i
-
-" when in a neovim terminal, add a buffer to the existing vim session
-" instead of nesting (credit justinmk)
-" You need socat to do this
-if executable('socat')
-    autocmd VimEnter * if !empty($NVIM_LISTEN_ADDRESS) && $NVIM_LISTEN_ADDRESS !=# v:servername
-        \ |let g:r=jobstart(['socat', '-', 'UNIX-CLIENT:'.$NVIM_LISTEN_ADDRESS],{'rpc':v:true})
-        \ |let g:f=fnameescape(expand('%:p'))
-        \ |noau bwipe
-        \ |call rpcrequest(g:r, "nvim_command", "edit ".g:f)
-        \ |qa
-        \ |endif
-endif
-
-" start in insert mode when opening a terminal buffer
-autocmd BufEnter * if &buftype == 'terminal' | startinsert | endif
-
-"" Windows commands
-nnoremap <C-k> :wincmd k<CR>
-inoremap <C-k> <Esc>:wincmd k<CR>
-tnoremap <C-k> <C-\><C-n>:wincmd k<CR>
-nnoremap <C-j> :wincmd j<CR>
-inoremap <C-j> <Esc>:wincmd j<CR>
-tnoremap <C-j> <C-\><C-n>:wincmd j<CR>
-nnoremap <C-h> :wincmd h<CR>
-inoremap <C-h> <Esc>:wincmd h<CR>
-tnoremap <C-h> <C-\><C-n>:wincmd h<CR>
-nnoremap <C-l> :wincmd l<CR>
-inoremap <C-l> <Esc>:wincmd l<CR>
-tnoremap <C-l> <C-\><C-n>:wincmd l<CR>
-
-"" Tabs commands
-nnoremap <A-l> :tabnext<CR>
-inoremap <A-l> <Esc>:tabnext<CR>
-tnoremap <A-l> <C-\><C-n>:tabnext<CR>
-nnoremap <A-h> :tabprevious<CR>
-inoremap <A-h> <Esc>:tabprevious<CR>
-tnoremap <A-h> <C-\><C-n>:tabprevious<CR>
-nnoremap <A-j> :tabmove -1<CR>
-inoremap <A-j> <Esc>:tabmove -1<CR>
-tnoremap <A-j> <C-\><C-n>:tabmove -1<CR>
-nnoremap <A-k> :tabmove +1<CR>
-inoremap <A-k> <Esc>:tabmove +1<CR>
-tnoremap <A-k> <C-\><C-n>:tabmove +1<CR>
-
-"" Vue manipulation
-nnoremap <A-z> :-tabe %<CR>
-
-" Force writing with sudo
-cnoremap w!! %!sudo tee >/dev/null %
-
 " Super vim search
 function! SuperSearch(...)
     let search = a:1
@@ -122,9 +54,6 @@ function! SuperSearch(...)
 endfunction
 command -nargs=+ SuperSearch call SuperSearch(<f-args>)
 map <Leader>s :execute SuperSearch(expand("<cword>"))<CR>
-
-" Space bar un-highlights search
-nnoremap <silent> <Leader> <Space> :silent noh<Bar>echo<CR>
 
 " Get vim-plug
 if !filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
@@ -166,6 +95,75 @@ if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
     call plug#end()
 endif
 
+" The french keyboard is awesome
+inoremap àà À
+inoremap ää Ä
+inoremap ââ Â
+inoremap éé É
+inoremap êê Ê
+inoremap èè È
+inoremap çç Ç
+
+" when in a neovim terminal, add a buffer to the existing vim session
+" instead of nesting (credit justinmk)
+" You need socat to do this
+if executable('socat')
+    autocmd VimEnter * if !empty($NVIM_LISTEN_ADDRESS) && $NVIM_LISTEN_ADDRESS !=# v:servername
+        \ |let g:r=jobstart(['socat', '-', 'UNIX-CLIENT:'.$NVIM_LISTEN_ADDRESS],{'rpc':v:true})
+        \ |let g:f=fnameescape(expand('%:p'))
+        \ |noau bwipe
+        \ |call rpcrequest(g:r, "nvim_command", "edit ".g:f)
+        \ |qa
+        \ |endif
+endif
+
+" start in insert mode when opening a terminal buffer
+autocmd BufEnter * if &buftype == 'terminal' | startinsert | endif
+
+"" Terminal commands
+tnoremap <A-q> <C-\><C-n>
+tnoremap <A-c> <C-\><C-n>:tab new<CR>:term<CR>i
+tnoremap <A-v> <C-\><C-n>:vsp<CR><C-w><C-w>:term<CR>i
+noremap <A-c> <C-\><C-n>:tab new<CR>:term<CR>i
+noremap <A-v> :vsp<CR><C-w><C-w>:term<CR>i
+
+"" Windows commands
+nnoremap <C-k> :wincmd k<CR>
+inoremap <C-k> <Esc>:wincmd k<CR>
+tnoremap <C-k> <C-\><C-n>:wincmd k<CR>
+nnoremap <C-j> :wincmd j<CR>
+inoremap <C-j> <Esc>:wincmd j<CR>
+tnoremap <C-j> <C-\><C-n>:wincmd j<CR>
+nnoremap <C-h> :wincmd h<CR>
+inoremap <C-h> <Esc>:wincmd h<CR>
+tnoremap <C-h> <C-\><C-n>:wincmd h<CR>
+nnoremap <C-l> :wincmd l<CR>
+inoremap <C-l> <Esc>:wincmd l<CR>
+tnoremap <C-l> <C-\><C-n>:wincmd l<CR>
+
+"" Tabs commands
+nnoremap <A-l> :tabnext<CR>
+inoremap <A-l> <Esc>:tabnext<CR>
+tnoremap <A-l> <C-\><C-n>:tabnext<CR>
+nnoremap <A-h> :tabprevious<CR>
+inoremap <A-h> <Esc>:tabprevious<CR>
+tnoremap <A-h> <C-\><C-n>:tabprevious<CR>
+nnoremap <A-j> :tabmove -1<CR>
+inoremap <A-j> <Esc>:tabmove -1<CR>
+tnoremap <A-j> <C-\><C-n>:tabmove -1<CR>
+nnoremap <A-k> :tabmove +1<CR>
+inoremap <A-k> <Esc>:tabmove +1<CR>
+tnoremap <A-k> <C-\><C-n>:tabmove +1<CR>
+
+"" Vue manipulation
+nnoremap <A-z> :-tabe %<CR>
+
+" Force writing with sudo
+cnoremap w!! %!sudo tee >/dev/null %
+
+" Space bar un-highlights search
+nnoremap <Space><Space> :silent noh<Bar>echo<CR>
+
 " NERDTree options
 nnoremap <C-n> :NERDTreeToggle<CR>
 tnoremap <C-n> <C-\><C-n>:NERDTreeToggle<CR>
@@ -177,9 +175,15 @@ autocmd FileType nerdtree noremap <buffer> <C-j> :tabprevious<CR>
 
 " Fzf
 let $FZF_DEFAULT_COMMAND = 'find . 2>/dev/null'
-nnoremap <Leader>b :Buffers<CR>
-nnoremap <Leader>h :History<CR>
-nnoremap <Leader>f :FZF<CR>
+nnoremap <A-d> :Buffers<CR>
+tnoremap <A-d> <C-\><C-n>:Buffers<CR>
+inoremap <A-d> <Esc>:Buffers<CR>
+nnoremap <A-s> :History<CR>
+tnoremap <A-s> <C-\><C-n>:History<CR>
+inoremap <A-s> <Esc>:History<CR>
+nnoremap <A-f> :FZF<CR>
+tnoremap <A-f> <C-\><C-n>:FZF<CR>
+inoremap <A-f> <Esc>:FZF<CR>
 
 " Vim-signify
 let g:signify_vcs_list = [ 'git' ]
