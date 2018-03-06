@@ -1,5 +1,9 @@
 #!/bin/sh
 
+usage() {
+	printf "todo: write usage"
+}
+
 get_power() {
     if [ -e /sys/class/power_supply/BAT0 ]; then
         BAT="BAT0"
@@ -133,109 +137,52 @@ get_dot() {
     printf "\\xE2\\x80\\xA2"
 }
 
+ifprint() {
+	if [ -n "$1" ]; then
+		if [ "$2" = "end" ]; then
+			printf "%s" "$1"
+		else
+			printf "%s %s " "$1" "$2"
+		fi
+	fi
+}
 
-if [ "$1" = "power" ]
-then
-    get_power
-    exit
-fi
+get_status() {
+	ifprint "$(get_power)" "$1"
+    #ifprint "$(get_ip)" "$1"
+    #ifprint "$(get_uptime)" "$1"
+    ifprint "$(get_ram)" "$1"
+    #ifprint "$(get_heat)" "$1"
+    ifprint "$(get_latency)" "$1"
+    ifprint "$(get_cpu)" "$1"
+    ifprint "$(get_date)" "$1"
+    ifprint "$(get_time)" "end"
+}
 
-if [ "$1" = "date" ]
-then
-    get_date
-    exit
-fi
+get_status_with_cache() {
+    tmpdir="$(dirname $(mktemp))"
+    filename="system_status"
+	timestamp=$(cat "$tmpdir/$filename" | awk 'BEGIN{RS="";FS="\n"}{print $1}')
+    status="$(cat "$tmpdir/$filename" | awk 'BEGIN{RS="";FS="\n"}{print $2}')"
+    current="$(date +%s)"
+    printf "%s" "$status"
+	if [ $(( timestamp + 60 )) -lt $current ]; then
+		printf "%s\n%s" "$current" "$(get_status "$1")" > "$tmpdir/$filename"
+	fi
+}
 
-if [ "$1" = "time" ]
-then
-    get_time
-    exit
-fi
-
-if [ "$1" = "cpu" ]
-then
-    get_cpu
-    exit
-fi
-
-if [ "$1" = "latency" ]
-then
-    get_latency
-    exit
-fi
-
-if [ "$1" = "heat" ]
-then
-    exit
-fi
-
-if [ "$1" = "ip" ]
-then
-    get_ip
-    exit
-fi
-
-if [ "$1" = "ram" ]
-then
-    get_ram
-    exit
-fi
-
-if [ "$1" = "uptime" ]
-then
-    get_uptime
-    exit
-fi
-
-if [ "$1" = "dot" ]
-then
-    get_dot
-    exit
-fi
-
-if [ "$1" = "full_status" ]; then
-    power=$(get_power)
-    if [ -n "$power" ]; then
-        printf "%s" "$power"
-        printf "%s" " $(get_dot) "
-    fi
-    ip=$(get_ip)
-    if [ -n "$ip" ]; then
-        printf "%s" "$ip"
-        printf "%s" " $(get_dot) "
-    fi
-    uptime=$(get_uptime)
-    if [ -n "$uptime" ]; then
-        printf "%s" "$uptime"
-        printf "%s" " $(get_dot) "
-    fi
-    ram=$(get_ram)
-    if [ -n "$ram" ]; then
-        printf "%s" "$ram"
-        printf "%s" " $(get_dot) "
-    fi
-    heat=$(get_heat)
-    if [ -n "$heat" ]; then
-        printf "%s" "$heat"
-        printf "%s" " $(get_dot) "
-    fi
-    latency=$(get_latency)
-    if [ -n "$latency" ]; then
-        printf "%s" "$latency"
-        printf "%s" " $(get_dot) "
-    fi
-    cpu=$(get_cpu)
-    if [ -n "$cpu" ]; then
-        printf "%s" "$cpu"
-        printf "%s" " $(get_dot) "
-    fi
-    date=$(get_date)
-    if [ -n "$date" ]; then
-        printf "%s" "$date"
-        printf "%s" " $(get_dot) "
-    fi
-    time=$(get_time)
-    if [ -n "$time" ]; then
-        printf "%s" "$time"
-    fi
-fi
+case "$1" in
+	"power") get_power;;
+	"date") get_power;;
+	"time") get_time;;
+	"cpu") get_cpu;;
+	"latency") get_latency;;
+	"heat") get_heat;;
+	"ip") get_ip;;
+	"ram") get_ram;;
+	"uptime") get_uptime;;
+	"dot") get_dot;;
+	"status") get_status "$2";;
+	"status_with_cache") get_status_with_cache "$2";;
+	*) usage;;
+esac
