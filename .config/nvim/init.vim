@@ -109,12 +109,12 @@ inoremap çç Ç
 " You need socat to do this
 if executable('socat')
     autocmd VimEnter * if !empty($NVIM_LISTEN_ADDRESS) && $NVIM_LISTEN_ADDRESS !=# v:servername
-        \ |let g:r=jobstart(['socat', '-', 'UNIX-CLIENT:'.$NVIM_LISTEN_ADDRESS],{'rpc':v:true})
-        \ |let g:f=fnameescape(expand('%:p'))
-        \ |noau bwipe
-        \ |call rpcrequest(g:r, "nvim_command", "edit ".g:f)
-        \ |qa
-        \ |endif
+                \ |let g:r=jobstart(['socat', '-', 'UNIX-CLIENT:'.$NVIM_LISTEN_ADDRESS],{'rpc':v:true})
+                \ |let g:f=fnameescape(expand('%:p'))
+                \ |noau bwipe
+                \ |call rpcrequest(g:r, "nvim_command", "edit ".g:f)
+                \ |qa
+                \ |endif
 endif
 
 " start in insert mode when opening a terminal buffer
@@ -206,11 +206,11 @@ endif
 nnoremap <leader>a :Rg<space>
 nnoremap <leader>A :exec "Rg ".expand("<cword>")<cr>
 autocmd VimEnter * command! -nargs=* Rg
-    \ call fzf#vim#grep(
-    \   'rg --column --line-number --no-heading --fixed-strings --ignore-case --hidden --follow --glob "!.git/*" --color "always" 2>/dev/null '.shellescape(<q-args>), 1,
-    \   <bang>0 ? fzf#vim#with_preview('up:60%')
-    \           : fzf#vim#with_preview('right:50%:hidden', '?'),
-    \   <bang>0)
+            \ call fzf#vim#grep(
+            \   'rg --column --line-number --no-heading --fixed-strings --ignore-case --hidden --follow --glob "!.git/*" --color "always" 2>/dev/null '.shellescape(<q-args>), 1,
+            \   <bang>0 ? fzf#vim#with_preview('up:60%')
+            \           : fzf#vim#with_preview('right:50%:hidden', '?'),
+            \   <bang>0)
 
 if executable('rg')
     let $FZF_DEFAULT_COMMAND = 'rg . --files --color=never --hidden --glob "!.git/*" 2>/dev/null'
@@ -221,5 +221,91 @@ endif
 " Gruvbox
 if filereadable(expand("$HOME/.config/nvim/plugged/gruvbox/autoload/gruvbox.vim"))
     colors gruvbox
-    let g:lightline = {'colorscheme': 'gruvbox'}
+endif
+
+" Lightline
+if filereadable(expand("$HOME/.config/nvim/plugged/gruvbox/autoload/gruvbox.vim"))
+    if filereadable(expand("$HOME/bin/get"))
+
+        let g:status = system("$HOME/bin/get 'status' '|'")
+        let g:status_timestamp = strftime('%s')
+
+        function! GetStatus()
+            if g:status_timestamp + 10 < strftime('%s')
+                let g:status = system("$HOME/bin/get 'status' '|'")
+                let g:status_timestamp = strftime('%s')
+            endif
+            return g:status
+        endfunction
+
+        let g:lightline = {
+                    \   'active': {
+                    \       'left': [
+                    \           ['mode', 'paste'],
+                    \           ['readonly', 'filename', 'modified'],
+                    \           ['percent', 'fileformat', 'fileencoding', 'filetype', 'lineinfo'],
+                    \       ],
+                    \       'right': [
+                    \           [''], [''],
+                    \           ['get_status'],
+                    \       ]
+                    \   },
+                    \   'inactive': {
+                    \       'left': [['filename']],
+                    \       'right': [['lineinfo'], ['percent']]
+                    \   },
+                    \   'tabline': {
+                    \       'left': [['tabs']],
+                    \       'right': [['close']]
+                    \   },
+                    \   'tab': {
+                    \       'active': ['tabnum', 'filename', 'modified'],
+                    \       'inactive': ['tabnum', 'filename', 'modified']
+                    \   },
+                    \   'component': {
+                    \       'mode': '%{lightline#mode()}',
+                    \       'absolutepath': '%F', 'relativepath': '%f', 'filename': '%t', 'modified': '%M', 'bufnum': '%n',
+                    \       'paste': '%{&paste?"PASTE":""}', 'readonly': '%R', 'charvalue': '%b', 'charvaluehex': '%B',
+                    \       'spell': '%{&spell?&spelllang:""}', 'fileencoding': '%{&fenc!=#""?&fenc:&enc}', 'fileformat': '%{&ff}',
+                    \       'filetype': '%{&ft!=#""?&ft:"no ft"}', 'percent': '%3p%%', 'percentwin': '%P',
+                    \       'lineinfo': '%3l:%-2v', 'line': '%l', 'column': '%c', 'close': '%999X X ', 'winnr': '%{winnr()}'
+                    \   },
+                    \   'component_visible_condition': {
+                    \       'modified': '&modified||!&modifiable', 'readonly': '&readonly', 'paste': '&paste', 'spell': '&spell'
+                    \   },
+                    \   'component_function': {
+                    \       'get_status': 'GetStatus',
+                    \   },
+                    \   'component_function_visible_condition': {},
+                    \   'component_expand': {
+                    \       'tabs': 'lightline#tabs'
+                    \   },
+                    \   'component_type': {
+                    \       'tabs': 'tabsel', 'close': 'raw'
+                    \   },
+                    \   'component_raw': {},
+                    \   'tab_component': {},
+                    \   'tab_component_function': {
+                    \       'filename': 'lightline#tab#filename', 'modified': 'lightline#tab#modified',
+                    \       'readonly': 'lightline#tab#readonly', 'tabnum': 'lightline#tab#tabnum'
+                    \   },
+                    \   'colorscheme': 'gruvbox',
+                    \   'mode_map': {
+                    \       'n': 'NORMAL', 'i': 'INSERT', 'R': 'REPLACE', 'v': 'VISUAL', 'V': 'V-LINE', "\<C-v>": 'V-BLOCK',
+                    \       'c': 'COMMAND', 's': 'SELECT', 'S': 'S-LINE', "\<C-s>": 'S-BLOCK', 't': 'TERMINAL'
+                    \   },
+                    \   'separator': { 'left': '', 'right': '' },
+                    \   'subseparator': { 'left': '|', 'right': '|' },
+                    \   'tabline_separator': {},
+                    \   'tabline_subseparator': {},
+                    \   'enable': { 'statusline': 1, 'tabline': 1 },
+                    \   '_mode_': {
+                    \       'n': 'normal', 'i': 'insert', 'R': 'replace', 'v': 'visual', 'V': 'visual', "\<C-v>": 'visual',
+                    \       'c': 'command', 's': 'select', 'S': 'select', "\<C-s>": 'select', 't': 'terminal'
+                    \   },
+                    \   'mode_fallback': { 'replace': 'insert', 'terminal': 'insert', 'select': 'visual' },
+                    \   'palette': {},
+                    \   'winwidth': winwidth(0),
+                    \ }
+    endif
 endif
