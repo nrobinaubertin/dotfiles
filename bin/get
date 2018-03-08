@@ -4,6 +4,14 @@ usage() {
 	printf "todo: write usage"
 }
 
+get_volume() {
+    vol="$(amixer get Master,0 | grep -Po "\d+%")"
+    if [ -n "$vol" ]
+    then
+        printf "%s" "${vol}"
+    fi
+}
+
 get_power() {
     if [ -e /sys/class/power_supply/BAT0 ]; then
         BAT="BAT0"
@@ -172,6 +180,7 @@ get_status_with_cache() {
 }
 
 case "$1" in
+    "volume") get_volume;;
 	"power") get_power;;
 	"date") get_power;;
 	"time") get_time;;
