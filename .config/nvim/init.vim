@@ -17,6 +17,7 @@ set laststatus=2
 set showtabline=2
 set shell=/bin/bash
 set clipboard+=unnamedplus " Use the clipboard for all operations
+let g:PHP_vintage_case_default_indent = 1 " Use 'correct' php indentation for switch blocks
 
 " The following options are good only if:
 " - umask is restrictive (something like 077 to avoid security issues)
