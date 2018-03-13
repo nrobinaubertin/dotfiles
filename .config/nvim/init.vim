@@ -14,6 +14,7 @@ set noshowmode
 set background=dark
 set fillchars=vert:\ ,stl:\ ,stlnc:\ 
 set laststatus=2
+set showtabline=2
 set shell=/bin/bash
 set clipboard+=unnamedplus " Use the clipboard for all operations
 
@@ -218,94 +219,31 @@ if executable('rg')
     set grepformat^=%f:%l:%c:%m
 endif
 
-" Gruvbox
-if filereadable(expand("$HOME/.config/nvim/plugged/gruvbox/autoload/gruvbox.vim"))
-    colors gruvbox
-endif
-
-" Lightline
+" Lightline & Gruvbox
 if filereadable(expand("$HOME/.config/nvim/plugged/gruvbox/autoload/gruvbox.vim"))
     if filereadable(expand("$HOME/bin/get"))
 
-        let g:status = system("$HOME/bin/get 'status' '|'")
-        let g:status_timestamp = strftime('%s')
+        let s:status = system("$HOME/bin/get 'status' '|'")
+        let s:status_timestamp = strftime('%s')
 
         function! GetStatus()
-            if g:status_timestamp + 10 < strftime('%s')
-                let g:status = system("$HOME/bin/get 'status' '|'")
-                let g:status_timestamp = strftime('%s')
+            if s:status_timestamp + 20 < strftime('%s')
+                let s:status = system("$HOME/bin/get 'status' '|'")
+                let s:status_timestamp = strftime('%s')
             endif
-            return g:status
+            return s:status
         endfunction
 
         let g:lightline = {
-                    \   'active': {
-                    \       'left': [
-                    \           ['mode', 'paste'],
-                    \           ['readonly', 'filename', 'modified'],
-                    \           ['percent', 'fileformat', 'fileencoding', 'filetype', 'lineinfo'],
-                    \       ],
-                    \       'right': [
-                    \           [''], [''],
-                    \           ['get_status'],
-                    \       ]
-                    \   },
-                    \   'inactive': {
-                    \       'left': [['filename']],
-                    \       'right': [['lineinfo'], ['percent']]
-                    \   },
                     \   'tabline': {
                     \       'left': [['tabs']],
-                    \       'right': [['close']]
-                    \   },
-                    \   'tab': {
-                    \       'active': ['tabnum', 'filename', 'modified'],
-                    \       'inactive': ['tabnum', 'filename', 'modified']
-                    \   },
-                    \   'component': {
-                    \       'mode': '%{lightline#mode()}',
-                    \       'absolutepath': '%F', 'relativepath': '%f', 'filename': '%t', 'modified': '%M', 'bufnum': '%n',
-                    \       'paste': '%{&paste?"PASTE":""}', 'readonly': '%R', 'charvalue': '%b', 'charvaluehex': '%B',
-                    \       'spell': '%{&spell?&spelllang:""}', 'fileencoding': '%{&fenc!=#""?&fenc:&enc}', 'fileformat': '%{&ff}',
-                    \       'filetype': '%{&ft!=#""?&ft:"no ft"}', 'percent': '%3p%%', 'percentwin': '%P',
-                    \       'lineinfo': '%3l:%-2v', 'line': '%l', 'column': '%c', 'close': '%999X X ', 'winnr': '%{winnr()}'
-                    \   },
-                    \   'component_visible_condition': {
-                    \       'modified': '&modified||!&modifiable', 'readonly': '&readonly', 'paste': '&paste', 'spell': '&spell'
+                    \       'right': [['get_status']]
                     \   },
                     \   'component_function': {
                     \       'get_status': 'GetStatus',
                     \   },
-                    \   'component_function_visible_condition': {},
-                    \   'component_expand': {
-                    \       'tabs': 'lightline#tabs'
-                    \   },
-                    \   'component_type': {
-                    \       'tabs': 'tabsel', 'close': 'raw'
-                    \   },
-                    \   'component_raw': {},
-                    \   'tab_component': {},
-                    \   'tab_component_function': {
-                    \       'filename': 'lightline#tab#filename', 'modified': 'lightline#tab#modified',
-                    \       'readonly': 'lightline#tab#readonly', 'tabnum': 'lightline#tab#tabnum'
-                    \   },
                     \   'colorscheme': 'gruvbox',
-                    \   'mode_map': {
-                    \       'n': 'NORMAL', 'i': 'INSERT', 'R': 'REPLACE', 'v': 'VISUAL', 'V': 'V-LINE', "\<C-v>": 'V-BLOCK',
-                    \       'c': 'COMMAND', 's': 'SELECT', 'S': 'S-LINE', "\<C-s>": 'S-BLOCK', 't': 'TERMINAL'
-                    \   },
-                    \   'separator': { 'left': '', 'right': '' },
-                    \   'subseparator': { 'left': '|', 'right': '|' },
-                    \   'tabline_separator': {},
-                    \   'tabline_subseparator': {},
-                    \   'enable': { 'statusline': 1, 'tabline': 1 },
-                    \   '_mode_': {
-                    \       'n': 'normal', 'i': 'insert', 'R': 'replace', 'v': 'visual', 'V': 'visual', "\<C-v>": 'visual',
-                    \       'c': 'command', 's': 'select', 'S': 'select', "\<C-s>": 'select', 't': 'terminal'
-                    \   },
-                    \   'mode_fallback': { 'replace': 'insert', 'terminal': 'insert', 'select': 'visual' },
-                    \   'palette': {},
-                    \   'winwidth': winwidth(0),
                     \ }
     endif
+    colors gruvbox
 endif
