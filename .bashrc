@@ -22,23 +22,54 @@ PS1="\\n\\r${RCol}${startprompt}[\`if [ \$? = 0 ]; then echo ${Gre}; else echo $
 gruvbox() {
     # if we are in a tty
     if [ "$TERM" = "linux" ]; then
-        printf "\\e]P0282828" #black
-        printf "\\e]P1cc241d" #red
-        printf "\\e]P298971a" #green
-        printf "\\e]P3d79921" #yellow
-        printf "\\e]P4458588" #blue
-        printf "\\e]P5b16286" #purple
-        printf "\\e]P6689d6a" #aqua
-        printf "\\e]P7a89984" #grey
-        printf "\\e]P8928374" #boldgrey
-        printf "\\e]P9fb4934" #boldred
-        printf "\\e]PAb8bb26" #boldgreen
-        printf "\\e]PBfabd2f" #boldyellow
-        printf "\\e]PC83a598" #boldblue
-        printf "\\e]PDd3869b" #boldpurple
-        printf "\\e]PE8ec07c" #boldaqua
-        printf "\\e]PFebdbb2" #fg
+        printf "\033]P0282828" #black
+        printf "\033]P1cc241d" #red
+        printf "\033]P298971a" #green
+        printf "\033]P3d79921" #yellow
+        printf "\033]P4458588" #blue
+        printf "\033]P5b16286" #purple
+        printf "\033]P6689d6a" #aqua
+        printf "\033]P7a89984" #grey
+        printf "\033]P8928374" #boldgrey
+        printf "\033]P9fb4934" #boldred
+        printf "\033]PAb8bb26" #boldgreen
+        printf "\033]PBfabd2f" #boldyellow
+        printf "\033]PC83a598" #boldblue
+        printf "\033]PDd3869b" #boldpurple
+        printf "\033]PE8ec07c" #boldaqua
+        printf "\033]PFebdbb2" #fg
         clear #for background artifacting
+    else
+        printf "\033]4;236;rgb:32/30/2f\033\\"
+        printf "\033]4;234;rgb:1d/20/21\033\\"
+        printf "\033]4;235;rgb:28/28/28\033\\"
+        printf "\033]4;237;rgb:3c/38/36\033\\"
+        printf "\033]4;239;rgb:50/49/45\033\\"
+        printf "\033]4;241;rgb:66/5c/54\033\\"
+        printf "\033]4;243;rgb:7c/6f/64\033\\"
+        printf "\033]4;244;rgb:92/83/74\033\\"
+        printf "\033]4;245;rgb:92/83/74\033\\"
+        printf "\033]4;228;rgb:f2/e5/bc\033\\"
+        printf "\033]4;230;rgb:f9/f5/d7\033\\"
+        printf "\033]4;229;rgb:fb/f1/c7\033\\"
+        printf "\033]4;223;rgb:eb/db/b2\033\\"
+        printf "\033]4;250;rgb:d5/c4/a1\033\\"
+        printf "\033]4;248;rgb:bd/ae/93\033\\"
+        printf "\033]4;246;rgb:a8/99/84\033\\"
+        printf "\033]4;167;rgb:fb/49/34\033\\"
+        printf "\033]4;142;rgb:b8/bb/26\033\\"
+        printf "\033]4;214;rgb:fa/bd/2f\033\\"
+        printf "\033]4;109;rgb:83/a5/98\033\\"
+        printf "\033]4;175;rgb:d3/86/9b\033\\"
+        printf "\033]4;108;rgb:8e/c0/7c\033\\"
+        printf "\033]4;208;rgb:fe/80/19\033\\"
+        printf "\033]4;88;rgb:9d/00/06\033\\"
+        printf "\033]4;100;rgb:79/74/0e\033\\"
+        printf "\033]4;136;rgb:b5/76/14\033\\"
+        printf "\033]4;24;rgb:07/66/78\033\\"
+        printf "\033]4;96;rgb:8f/3f/71\033\\"
+        printf "\033]4;66;rgb:42/7b/58\033\\"
+        printf "\033]4;130;rgb:af/3a/03\033\\"
     fi
 }
 
@@ -114,13 +145,13 @@ if [ -n "$(command -v git 2>/dev/null)" ]; then
     git_stats() {
         (
         head=$(git ls-files | while read -r f; do git blame --line-porcelain "$f" | grep '^author-mail '; done | sort -f | uniq -ic | sort -n | tr -d '<>' | awk '{print $1, $3}')
-            printf "head,commits,inserted,deleted,author\\n"
-            for author in $(git log --pretty="%ce" | sort | uniq)
-            do
-                head_author=$(echo "$head" | grep "$author" | cut -d' ' -f1)
-                stat=$(git log --shortstat --author "$author" -i 2> /dev/null | grep -E 'files? changed' | awk 'BEGIN{commits=0;inserted=0;deleted=0} {commits+=1; if($5!~"^insertion") { deleted+=$4 } else { inserted+=$4; deleted+=$6 } } END {print commits, ",", inserted, ",", deleted}')
-                printf "%s,%s,%s\\n" "$head_author" "$stat" "$author"
-            done
+        printf "head,commits,inserted,deleted,author\\n"
+        for author in $(git log --pretty="%ce" | sort | uniq)
+        do
+            head_author=$(echo "$head" | grep "$author" | cut -d' ' -f1)
+            stat=$(git log --shortstat --author "$author" -i 2> /dev/null | grep -E 'files? changed' | awk 'BEGIN{commits=0;inserted=0;deleted=0} {commits+=1; if($5!~"^insertion") { deleted+=$4 } else { inserted+=$4; deleted+=$6 } } END {print commits, ",", inserted, ",", deleted}')
+            printf "%s,%s,%s\\n" "$head_author" "$stat" "$author"
+        done
         ) | column -t -s ','
     }
 
@@ -141,37 +172,37 @@ if [ -n "$(command -v git 2>/dev/null)" ]; then
                 ;;
         esac
         (
-            printf "commits,files,additions,deletions,author\\n"
-            for name in $(git shortlog -se --all | sed -E 's/.*<(.*)>.*/\1/' | sort | uniq)
-            do
-                count=$(git rev-list --no-merges --author="$name" --max-age="$age" --count --all)
-                if [ "$count" -gt 0 ]; then
-                    added="0"
-                    deleted="0"
-                    files="0"
-                    for commit in $(git rev-list --no-merges --author="$name" --max-age="$age" --all)
-                    do
-                        if [ -n "$commit" ]; then
-                            to_files=$(git diff --shortstat "$commit"^ "$commit" 2>/dev/null | cut -d" " -f2)
-                            if [ -n "$to_files" ]; then
-                                files=$(( files + to_files ))
-                            fi
-                            to_add=$(git diff --shortstat "$commit"^ "$commit" 2>/dev/null | cut -d" " -f5)
-                            if [ -n "$to_add" ]; then
-                                added=$(( added + to_add ))
-                            fi
-                            to_delete=$(git diff --shortstat "$commit"^ "$commit" 2>/dev/null | cut -d" " -f7)
-                            if [ -n "$to_delete" ]; then
-                                deleted=$(( deleted + to_delete ))
-                            fi
+        printf "commits,files,additions,deletions,author\\n"
+        for name in $(git shortlog -se --all | sed -E 's/.*<(.*)>.*/\1/' | sort | uniq)
+        do
+            count=$(git rev-list --no-merges --author="$name" --max-age="$age" --count --all)
+            if [ "$count" -gt 0 ]; then
+                added="0"
+                deleted="0"
+                files="0"
+                for commit in $(git rev-list --no-merges --author="$name" --max-age="$age" --all)
+                do
+                    if [ -n "$commit" ]; then
+                        to_files=$(git diff --shortstat "$commit"^ "$commit" 2>/dev/null | cut -d" " -f2)
+                        if [ -n "$to_files" ]; then
+                            files=$(( files + to_files ))
                         fi
-                    done
-                    m_added=$(( added / count ))
-                    m_deleted=$(( deleted / count ))
-                    m_files=$(( files / count ))
-                    printf "%s,(%s) %s, (%s) %s,(%s) %s,%s\\n" "$count" "$m_files" "$files" "$m_added" "$added" "$m_deleted" "$deleted" "$name"
-                fi
-            done
+                        to_add=$(git diff --shortstat "$commit"^ "$commit" 2>/dev/null | cut -d" " -f5)
+                        if [ -n "$to_add" ]; then
+                            added=$(( added + to_add ))
+                        fi
+                        to_delete=$(git diff --shortstat "$commit"^ "$commit" 2>/dev/null | cut -d" " -f7)
+                        if [ -n "$to_delete" ]; then
+                            deleted=$(( deleted + to_delete ))
+                        fi
+                    fi
+                done
+                m_added=$(( added / count ))
+                m_deleted=$(( deleted / count ))
+                m_files=$(( files / count ))
+                printf "%s,(%s) %s, (%s) %s,(%s) %s,%s\\n" "$count" "$m_files" "$files" "$m_added" "$added" "$m_deleted" "$deleted" "$name"
+            fi
+        done
         ) | column -t -s ','
     }
 
@@ -227,27 +258,27 @@ if [ -n "$(command -v bluetoothctl 2>/dev/null)" ]; then
     bt() {
         if [ "$1" = "on" ]; then
             (
-                sudo rfkill block bluetooth
-                sleep 1
-                sudo rfkill unblock bluetooth
-                printf "power off" | bluetoothctl
-                sleep 1
-                printf "power on" | bluetoothctl
-                sleep 1
-                printf "agent off" | bluetoothctl
-                sleep 1
-                printf "agent on" | bluetoothctl
-                sleep 1
-                printf "disconnect 10:4F:A8:BB:0B:1C" | bluetoothctl
-                sleep 1
-                printf "connect 10:4F:A8:BB:0B:1C" | bluetoothctl
+            sudo rfkill block bluetooth
+            sleep 1
+            sudo rfkill unblock bluetooth
+            printf "power off" | bluetoothctl
+            sleep 1
+            printf "power on" | bluetoothctl
+            sleep 1
+            printf "agent off" | bluetoothctl
+            sleep 1
+            printf "agent on" | bluetoothctl
+            sleep 1
+            printf "disconnect 10:4F:A8:BB:0B:1C" | bluetoothctl
+            sleep 1
+            printf "connect 10:4F:A8:BB:0B:1C" | bluetoothctl
             ) >/dev/null 2>/dev/null
         else
             (
-                printf "disconnect 10:4F:A8:BB:0B:1C" | bluetoothctl
-                printf "agent off" | bluetoothctl
-                printf "power off" | bluetoothctl
-                sudo rfkill block bluetooth
+            printf "disconnect 10:4F:A8:BB:0B:1C" | bluetoothctl
+            printf "agent off" | bluetoothctl
+            printf "power off" | bluetoothctl
+            sudo rfkill block bluetooth
             ) >/dev/null 2>/dev/null
         fi
     }
