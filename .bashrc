@@ -200,7 +200,7 @@ if [ -n "$(command -v git 2>/dev/null)" ]; then
                 m_added=$(( added / count ))
                 m_deleted=$(( deleted / count ))
                 m_files=$(( files / count ))
-                printf "%s,(%s) %s, (%s) %s,(%s) %s,%s\\n" "$count" "$m_files" "$files" "$m_added" "$added" "$m_deleted" "$deleted" "$name"
+                printf "%s,(%s) %s,(%s) %s,(%s) %s,%s\\n" "$count" "$m_files" "$files" "$m_added" "$added" "$m_deleted" "$deleted" "$name"
             fi
         done
         ) | column -t -s ','
