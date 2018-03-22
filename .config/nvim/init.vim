@@ -6,10 +6,12 @@ set mouse=
 set mat=2
 set novisualbell
 set noerrorbells
-set shiftwidth=4
+
+filetype plugin indent on
 set tabstop=4
-set softtabstop=4
+set shiftwidth=4
 set expandtab
+
 set noshowmode
 set background=dark
 set fillchars=vert:\ ,stl:\ ,stlnc:\ 
