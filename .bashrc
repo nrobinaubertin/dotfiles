@@ -240,9 +240,10 @@ if [ -n "$(command -v curl 2>/dev/null)" ]; then
 fi
 
 if [ -n "$(command -v exa 2>/dev/null)" ]; then
-    alias ll='exa -gl --git'
-    alias lla='exa -agl --git'
-    alias llt='exa -gl --git -s modified'
+    alias ll='exa -gl --git --color=always'
+    alias lll='exa -gl --git --color=always | less'
+    alias lla='exa -agl --git --color=always'
+    alias llt='exa -gl --git -s modified --color=always'
 else
     alias ll='ls -lhb --color'
     alias lla='ls -alhb --color'
