@@ -23,4 +23,4 @@
     tool = vimdiff
     #conflictstyle = diff3
 [mergetool "vimdiff"]
-    cmd = nvim -u NORC -d $LOCAL $BASE $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
+    cmd = nvim -d $LOCAL $BASE $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
