@@ -165,6 +165,9 @@ nnoremap <A-z> :-tabe %<CR>
 " Force writing with sudo
 cnoremap w!! %!sudo tee >/dev/null %
 
+" Open todo file
+command Todo execute ":tabe $HOME/.TODO"
+
 " Space bar un-highlights search
 nnoremap <Space><Space> :silent noh<Bar>echo<CR>
 
