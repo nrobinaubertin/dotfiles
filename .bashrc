@@ -92,9 +92,9 @@ export PROMPT_DIRTRIM=2
 shopt -s globstar &> /dev/null
 
 # PATH
-[ -d "${HOME}/bin" ] && export PATH="${PATH}:${HOME}/bin"
-[ -d "${HOME}/.yarn/bin" ] && export PATH="${PATH}:${HOME}/.yarn/bin"
-[ -d "${HOME}/.cargo/bin" ] && export PATH="${PATH}:${HOME}/.cargo/bin"
+. "${HOME}/.config/pathrc"
+
+# FZF and EDITOR
 [ -f "${HOME}/.fzf.bash" ] && . "${HOME}/.fzf.bash"
 [ -n "$(command -v nvim)" ] && export EDITOR="/usr/bin/nvim"
 
@@ -241,11 +241,12 @@ fi
 
 if [ -n "$(command -v exa 2>/dev/null)" ]; then
     alias ll='exa -gl --git --color=always'
-    alias lll='exa -gl --git --color=always | less'
+    alias lll='exa -gl --git --color=always | less -R'
     alias lla='exa -agl --git --color=always'
     alias llt='exa -gl --git -s modified --color=always'
 else
     alias ll='ls -lhb --color'
+    alias lll='ls -lhb --color | less -R'
     alias lla='ls -alhb --color'
     alias llt='ls -lhbt --color'
 fi

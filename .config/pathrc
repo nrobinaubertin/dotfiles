@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# PATH
+[ -d "${HOME}/bin" ] && export PATH="${PATH}:${HOME}/bin"
+[ -d "${HOME}/.yarn/bin" ] && export PATH="${PATH}:${HOME}/.yarn/bin"
+[ -d "${HOME}/.cargo/bin" ] && export PATH="${PATH}:${HOME}/.cargo/bin"
