@@ -74,7 +74,7 @@ gruvbox() {
 }
 
 # enables user services and start them
-if [ -n "$(command -v systemctl 2>/dev/null)" ]; then
+if command -v systemctl >/dev/null; then
     if ! [ -h ${HOME}/.config/systemd/user/default.target.wants/ssh-agent.service ]
     then
         systemctl --user enable ssh-agent.service
@@ -96,7 +96,7 @@ shopt -s globstar &> /dev/null
 
 # FZF and EDITOR
 [ -f "${HOME}/.fzf.bash" ] && . "${HOME}/.fzf.bash"
-[ -n "$(command -v nvim)" ] && export EDITOR="/usr/bin/nvim"
+[ -n "$(command -v nvim >/dev/null)" ] && export EDITOR="/usr/bin/nvim"
 
 # completion with sudo
 complete -cf sudo
@@ -128,7 +128,7 @@ alias less='less -R'
 alias emerge='emerge --color y'
 
 # git aliases
-if [ -n "$(command -v git 2>/dev/null)" ]; then
+if command -v git >/dev/null; then
     # git autocompletion file
     if ! [ -f "${HOME}/.local/share/git/git-completion.bash" ]; then
         mkdir -p "${HOME}/.local/share/git/"
@@ -208,13 +208,13 @@ if [ -n "$(command -v git 2>/dev/null)" ]; then
 
     alias gp='git_pulse'
 
-    if [ -n "$(command -v git_forest 2>/dev/null)" ]; then
+    if command -v git_forest >/dev/null; then
         alias gg='git_forest --all | less'
     else
         alias gg='git log --graph --abbrev-commit --decorate --format=format:"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)" --all'
     fi
 
-    if [ -n "$(command -v diff-so-fancy 2>/dev/null)" ]; then
+    if command -v diff-so-fancy >/dev/null; then
         gd() {
             if [ -z "$1" ]
             then
@@ -233,13 +233,13 @@ fi
 
 [ -n "$(command -v wifi-menu 2>/dev/null)" ] && alias wifi='sudo wifi-menu'
 
-if [ -n "$(command -v curl 2>/dev/null)" ]; then
+if command -v curl >/dev/null; then
     ww() {
         curl -s "wttr.in/$1"
     }
 fi
 
-if [ -n "$(command -v exa 2>/dev/null)" ]; then
+if command -v exa >/dev/null; then
     alias ll='exa -gl --git --color=always'
     alias lll='exa -gl --git --color=always | less -R'
     alias lla='exa -agl --git --color=always'
@@ -256,7 +256,7 @@ fi
 
 # TODO: find a more reliable function that proposes all bluetooth devices
 # probably a separated script
-if [ -n "$(command -v bluetoothctl 2>/dev/null)" ]; then
+if command -v bluetoothctl >/dev/null; then
     bt() {
         if [ "$1" = "on" ]; then
             (
@@ -286,7 +286,7 @@ if [ -n "$(command -v bluetoothctl 2>/dev/null)" ]; then
     }
 fi
 
-if [ -n "$(command -v openssl 2>/dev/null)" ]; then
+if command -v openssl >/dev/null; then
     alias htpass='openssl passwd -apr1'
 fi
 
