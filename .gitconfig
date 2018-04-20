@@ -24,3 +24,5 @@
     #conflictstyle = diff3
 [mergetool "vimdiff"]
     cmd = nvim -d $LOCAL $BASE $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
+[core]
+	editor = nvim
