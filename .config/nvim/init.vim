@@ -8,8 +8,6 @@ set novisualbell
 set noerrorbells
 
 filetype plugin indent on
-set tabstop=4
-set shiftwidth=4
 set expandtab
 
 set noshowmode
@@ -36,6 +34,14 @@ set wildignore+=*/.git/*,*.swp,*.orig
 
 " Remap leader key
 let mapleader=" "
+
+" Set tab spaces
+function! SetTabSpaces(...)
+    let &tabstop = a:1
+    let &shiftwidth = a:1
+endfunction
+command -nargs=+ SetTabSpaces call SetTabSpaces(<f-args>)
+call SetTabSpaces(4)
 
 " Super vim search
 function! SuperSearch(...)
@@ -67,15 +73,6 @@ endif
 " Update plugins
 command Update execute Update()
 function! Update()
-    " Load phpstan and phpcs phar to be used with ale
-    if !filereadable(expand("$HOME/.config/nvim/bin/phpstan"))
-        echo system("mkdir -p $HOME/.config/nvim/bin")
-        echo system("wget -q -O $HOME/.config/nvim/bin/phpstan https://github.com/phpstan/phpstan/releases/download/0.8.5/phpstan.phar")
-    endif
-    if !filereadable(expand("$HOME/.config/nvim/bin/phpcs"))
-        echo system("mkdir -p $HOME/.config/nvim/bin")
-        echo system("wget -q -O $HOME/.config/nvim/bin/phpcs https://github.com/squizlabs/PHP_CodeSniffer/releases/download/3.1.1/phpcs.phar")
-    endif
     PlugUpgrade
     PlugUpdate
 endfunction
@@ -89,13 +86,11 @@ if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
     Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --key-bindings --completion --no-update-rc' }
     Plug 'junegunn/fzf.vim'
     Plug 'junegunn/gv.vim'
+    Plug 'justinmk/vim-dirvish'
     Plug 'mhinz/vim-signify'
     Plug 'morhetz/gruvbox'
-    Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
     Plug 'sheerun/vim-polyglot'
     Plug 'tpope/vim-fugitive'
-    Plug 'w0rp/ale'
-    Plug 'xuyuanp/nerdtree-git-plugin', { 'on': 'NERDTreeToggle' }
     call plug#end()
 endif
 
@@ -126,9 +121,11 @@ autocmd BufEnter * if &buftype == 'terminal' | startinsert | endif
 
 "" Terminal commands
 tnoremap <A-q> <C-\><C-n>
-tnoremap <A-c> <C-\><C-n>:tab new<CR>:term<CR>i
+tnoremap <A-c> <C-\><C-n>:tabe<CR>:term<CR>i
+tnoremap <A-t> <C-\><C-n>:tabe<CR>
 tnoremap <A-v> <C-\><C-n>:vsp<CR><C-w><C-w>:term<CR>i
-noremap <A-c> <C-\><C-n>:tab new<CR>:term<CR>i
+noremap <A-c> <C-\><C-n>:tabe<CR>:term<CR>i
+noremap <A-t> <C-\><C-n>:tabe<CR>
 noremap <A-v> :vsp<CR><C-w><C-w>:term<CR>i
 
 "" Windows commands
@@ -171,14 +168,14 @@ command Todo execute ":tabe $HOME/.TODO"
 " Space bar un-highlights search
 nnoremap <Space><Space> :silent noh<Bar>echo<CR>
 
-" NERDTree options
-nnoremap <C-n> :NERDTreeToggle<CR>
-tnoremap <C-n> <C-\><C-n>:NERDTreeToggle<CR>
-autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-autocmd FileType nerdtree noremap <buffer> <C-k> :tabnext<CR>
-autocmd FileType nerdtree noremap <buffer> <C-j> :tabprevious<CR>
+" vim-dirvish
+let loaded_netrwPlugin = 1
+command! -nargs=? -complete=dir Explore Dirvish <args>
+command! -nargs=? -complete=dir Sexplore belowright split | silent Dirvish <args>
+command! -nargs=? -complete=dir Vexplore leftabove vsplit | silent Dirvish <args>
+nnoremap <C-n> :Vex<CR>
+tnoremap <C-n> <C-\><C-n>:Vex<CR>
+" nnoremap <buffer> ~ :edit ~/<CR>
 
 " Fzf
 let $FZF_DEFAULT_COMMAND = 'find . 2>/dev/null'
@@ -195,19 +192,6 @@ inoremap <A-f> <Esc>:FZF<CR>
 " Vim-signify
 let g:signify_vcs_list = [ 'git' ]
 let g:signify_sign_change = '~'
-
-" Ale
-let g:ale_lint_on_insert_leave = 1
-let g:ale_lint_on_text_changed = 'never'
-let g:ale_maximum_file_size = 16384
-
-if filereadable(expand("$HOME/.config/nvim/bin/phpstan"))
-    let g:ale_php_phpstan_executable = expand("$HOME/.config/nvim/bin/phpstan")
-endif
-if filereadable(expand("$HOME/.config/nvim/bin/phpcs"))
-    let g:ale_php_phpcs_executable = expand("$HOME/.config/nvim/bin/phpcs")
-    let g:ale_php_phpcs_standard = 'PSR2'
-endif
 
 " Rg
 nnoremap <leader>a :Rg<space>
