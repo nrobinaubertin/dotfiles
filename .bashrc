@@ -22,22 +22,35 @@ PS1="\\n\\r${RCol}${startprompt}[\`if [ \$? = 0 ]; then echo ${Gre}; else echo $
 gruvbox() {
     # if we are in a tty
     if [ "$TERM" = "linux" ]; then
-        printf "\033]P0282828" #black
+        if [ "$1" = "light"]; then
+            printf "\033]P0fbf1c7" #bg
+            printf "\033]P77c6f64" #grey
+            printf "\033]P99d0006" #boldred
+            printf "\033]PA79740e" #boldgreen
+            printf "\033]PBb57614" #boldyellow
+            printf "\033]PC076678" #boldblue
+            printf "\033]PD8f3f71" #boldpurple
+            printf "\033]PE427b58" #boldaqua
+            printf "\033]PF3c3836" #fg
+        else
+            printf "\033]P0282828" #bg
+            printf "\033]P7a89984" #grey
+            printf "\033]P9fb4934" #boldred
+            printf "\033]PAb8bb26" #boldgreen
+            printf "\033]PBfabd2f" #boldyellow
+            printf "\033]PC83a598" #boldblue
+            printf "\033]PDd3869b" #boldpurple
+            printf "\033]PE8ec07c" #boldaqua
+            printf "\033]PFebdbb2" #fg
+        fi
         printf "\033]P1cc241d" #red
         printf "\033]P298971a" #green
         printf "\033]P3d79921" #yellow
         printf "\033]P4458588" #blue
         printf "\033]P5b16286" #purple
         printf "\033]P6689d6a" #aqua
-        printf "\033]P7a89984" #grey
         printf "\033]P8928374" #boldgrey
-        printf "\033]P9fb4934" #boldred
-        printf "\033]PAb8bb26" #boldgreen
-        printf "\033]PBfabd2f" #boldyellow
-        printf "\033]PC83a598" #boldblue
-        printf "\033]PDd3869b" #boldpurple
-        printf "\033]PE8ec07c" #boldaqua
-        printf "\033]PFebdbb2" #fg
+
         clear #for background artifacting
     else
         printf "\033]4;236;rgb:32/30/2f\033\\"
