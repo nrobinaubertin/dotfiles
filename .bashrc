@@ -102,7 +102,7 @@ umask 077
 export PROMPT_DIRTRIM=2
 
 # (bash 4+) enable recursive glob for grep, rsync, ls, ...
-shopt -s globstar &> /dev/null
+shopt -s globstar 2> /dev/null
 
 # PATH
 . "${HOME}/.config/pathrc"
@@ -124,6 +124,10 @@ export HISTSIZE="10000"
 export HISTCONTROL=ignoreboth:erasedups
 export HISTIGNORE="fg:bg:&:[ ]*:exit:ls:clear:ll:cd:\\[A*:nvim:gs:gd:gf:gg:gl:systemctl poweroff:shutdown*"
 export HISTTIMEFORMAT='%F %T '
+# Append to the history file, don't overwrite it
+shopt -s histappend
+# Save multi-line commands as one command
+shopt -s cmdhist
 
 # Enable incremental history search with up/down arrows (also Readline goodness)
 # Learn more about this here: http://codeinthehole.com/writing/the-most-important-command-line-tip-incremental-history-searching-with-inputrc/
@@ -301,6 +305,9 @@ fi
 
 if command -v openssl >/dev/null; then
     alias htpass='openssl passwd -apr1'
+    checkCertificate() {
+        openssl s_client -connect "$1":443 < /dev/null 2>/dev/null | openssl x509 -noout -enddate | cut -d'=' -f2
+    }
 fi
 
 # go to the root of the git repository
