@@ -1,23 +1,25 @@
-set nu
-set showcmd
-set ruler
-set showmatch
-set mouse=
-set mat=2
-set novisualbell
-set noerrorbells
-
-filetype plugin indent on
-set expandtab
-
-set noshowmode
+" general configuration
 set background=dark
+set clipboard+=unnamedplus " Use the clipboard for all operations
+set expandtab
 set fillchars=vert:\ ,stl:\ ,stlnc:\ 
 set laststatus=2
-set showtabline=2
+set mat=2
+set mouse=
+set noshowmode
+set nu
 set shell=/bin/bash
-set clipboard+=unnamedplus " Use the clipboard for all operations
-let g:PHP_vintage_case_default_indent = 1 " Use 'correct' php indentation for switch blocks
+set showmatch
+set showtabline=2
+
+""" ctags
+if executable('ctags')
+    command! MakeTags !ctags -R -f ./.git/tags .
+endif
+set tags+=,./.git/tags,
+
+" Use 'correct' php indentation for switch blocks
+let g:PHP_vintage_case_default_indent = 1
 
 " The following options are good only if:
 " - umask is restrictive (something like 077 to avoid security issues)
@@ -30,7 +32,7 @@ let &undodir="/tmp/".g:whoami."/nvim/undo"
 match ErrorMsg "\s\+$"
 
 " Ignore some files
-set wildignore+=*/.git/*,*.swp,*.orig
+set wildignore+=,**/.git/*,*.swp,*.orig,
 
 " Remap leader key
 let mapleader=" "
@@ -81,12 +83,7 @@ endfunction
 if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
     call plug#begin('~/.config/nvim/plugged')
     Plug 'itchyny/lightline.vim'
-    Plug 'jremmen/vim-ripgrep'
-    Plug 'jremmen/vim-ripgrep'
-    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --key-bindings --completion --no-update-rc' }
-    Plug 'junegunn/fzf.vim'
     Plug 'junegunn/gv.vim'
-    Plug 'justinmk/vim-dirvish'
     Plug 'mhinz/vim-signify'
     Plug 'morhetz/gruvbox'
     Plug 'sheerun/vim-polyglot'
@@ -168,43 +165,21 @@ command Todo execute ":tabe $HOME/.TODO"
 " Space bar un-highlights search
 nnoremap <Space><Space> :silent noh<Bar>echo<CR>
 
-" vim-dirvish
-let loaded_netrwPlugin = 1
-command! -nargs=? -complete=dir Explore Dirvish <args>
-command! -nargs=? -complete=dir Sexplore belowright split | silent Dirvish <args>
-command! -nargs=? -complete=dir Vexplore leftabove vsplit | silent Dirvish <args>
-nnoremap <C-n> :Vex<CR>
-tnoremap <C-n> <C-\><C-n>:Vex<CR>
-" nnoremap <buffer> ~ :edit ~/<CR>
-
-" Fzf
-let $FZF_DEFAULT_COMMAND = 'find . 2>/dev/null'
-nnoremap <A-d> :Buffers<CR>
-tnoremap <A-d> <C-\><C-n>:Buffers<CR>
-inoremap <A-d> <Esc>:Buffers<CR>
-nnoremap <A-s> :History<CR>
-tnoremap <A-s> <C-\><C-n>:History<CR>
-inoremap <A-s> <Esc>:History<CR>
-nnoremap <A-f> :FZF<CR>
-tnoremap <A-f> <C-\><C-n>:FZF<CR>
-inoremap <A-f> <Esc>:FZF<CR>
+" NETRW
+let g:netrw_banner = 0
+let g:netrw_liststyle = 3
+let g:netrw_browse_split = 4
+let g:netrw_altv = 1
+let g:netrw_winsize = 25
+nnoremap <C-n> :Lex<CR>
+tnoremap <C-n> <C-\><C-n> :Lex<CR>
+nnoremap <buffer> ~ :edit ~/<CR>
 
 " Vim-signify
 let g:signify_vcs_list = [ 'git' ]
 let g:signify_sign_change = '~'
 
-" Rg
-nnoremap <leader>a :Rg<space>
-nnoremap <leader>A :exec "Rg ".expand("<cword>")<cr>
-autocmd VimEnter * command! -nargs=* Rg
-            \ call fzf#vim#grep(
-            \   'rg --column --line-number --no-heading --fixed-strings --ignore-case --hidden --follow --glob "!.git/*" --color "always" 2>/dev/null '.shellescape(<q-args>), 1,
-            \   <bang>0 ? fzf#vim#with_preview('up:60%')
-            \           : fzf#vim#with_preview('right:50%:hidden', '?'),
-            \   <bang>0)
-
 if executable('rg')
-    let $FZF_DEFAULT_COMMAND = 'rg . --files --color=never --hidden --glob "!.git/*" 2>/dev/null'
     set grepprg=rg\ --vimgrep
     set grepformat^=%f:%l:%c:%m
 endif
@@ -237,3 +212,17 @@ if filereadable(expand("$HOME/.config/nvim/plugged/gruvbox/autoload/gruvbox.vim"
     endif
     colors gruvbox
 endif
+
+" learn vim the hard way
+nnoremap <up> <nop>
+nnoremap <down> <nop>
+nnoremap <left> <nop>
+nnoremap <right> <nop>
+inoremap <up> <nop>
+inoremap <down> <nop>
+inoremap <left> <nop>
+inoremap <right> <nop>
+vnoremap <up> <nop>
+vnoremap <down> <nop>
+vnoremap <left> <nop>
+vnoremap <right> <nop>
