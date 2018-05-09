@@ -32,7 +32,7 @@ let &undodir="/tmp/".g:whoami."/nvim/undo"
 match ErrorMsg "\s\+$"
 
 " Ignore some files
-set wildignore+=,**/.git/*,*.swp,*.orig,
+" set wildignore+=,**/.git/*,*.swp,*.orig,
 
 " Remap leader key
 let mapleader=" "
@@ -167,10 +167,11 @@ nnoremap <Space><Space> :silent noh<Bar>echo<CR>
 
 " NETRW
 let g:netrw_banner = 0
-let g:netrw_liststyle = 3
+let g:netrw_liststyle = 0
 let g:netrw_browse_split = 4
 let g:netrw_altv = 1
 let g:netrw_winsize = 25
+let g:netrw_preview = 1
 nnoremap <C-n> :Lex<CR>
 tnoremap <C-n> <C-\><C-n> :Lex<CR>
 nnoremap <buffer> ~ :edit ~/<CR>
