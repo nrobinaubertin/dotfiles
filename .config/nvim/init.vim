@@ -88,6 +88,7 @@ if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
     Plug 'morhetz/gruvbox'
     Plug 'sheerun/vim-polyglot'
     Plug 'tpope/vim-fugitive'
+    Plug 'justinmk/vim-dirvish'
     call plug#end()
 endif
 
@@ -157,7 +158,7 @@ tnoremap <A-k> <C-\><C-n>:tabmove +1<CR>
 nnoremap <A-z> :-tabe %<CR>
 
 " Force writing with sudo
-cnoremap w!! %!sudo tee >/dev/null %
+command! SaveSudo :execute ':silent w !sudo tee % > /dev/null' | :edit!
 
 " Open todo file
 command Todo execute ":tabe $HOME/.TODO"
@@ -165,15 +166,11 @@ command Todo execute ":tabe $HOME/.TODO"
 " Space bar un-highlights search
 nnoremap <Space><Space> :silent noh<Bar>echo<CR>
 
-" NETRW
-let g:netrw_banner = 0
-let g:netrw_liststyle = 0
-let g:netrw_browse_split = 4
-let g:netrw_altv = 1
-let g:netrw_winsize = 25
-let g:netrw_preview = 1
-nnoremap <C-n> :Lex<CR>
-tnoremap <C-n> <C-\><C-n> :Lex<CR>
+" Vim-dirwish
+let g:loaded_netrwPlugin = 1
+command! VleftDirvish leftabove vsplit | vertical resize 50 | silent Dirvish
+nnoremap <C-n> :VleftDirvish<CR>
+tnoremap <C-n> <C-\><C-n> :VleftDirvish<CR>
 nnoremap <buffer> ~ :edit ~/<CR>
 
 " Vim-signify
