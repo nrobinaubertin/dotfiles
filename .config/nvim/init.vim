@@ -118,11 +118,11 @@ autocmd BufEnter * if &buftype == 'terminal' | startinsert | endif
 
 "" Terminal commands
 tnoremap <A-q> <C-\><C-n>
-tnoremap <A-c> <C-\><C-n>:tabe<CR>:term<CR>i
-tnoremap <A-t> <C-\><C-n>:tabe<CR>
+tnoremap <A-t> <C-\><C-n>:tabe<CR>:term<CR>i
+tnoremap <A-c> <C-\><C-n>:tabe<CR>
 tnoremap <A-v> <C-\><C-n>:vsp<CR><C-w><C-w>:term<CR>i
-noremap <A-c> <C-\><C-n>:tabe<CR>:term<CR>i
-noremap <A-t> <C-\><C-n>:tabe<CR>
+noremap <A-t> <C-\><C-n>:tabe<CR>:term<CR>i
+noremap <A-c> <C-\><C-n>:tabe<CR>
 noremap <A-v> :vsp<CR><C-w><C-w>:term<CR>i
 
 "" Windows commands
