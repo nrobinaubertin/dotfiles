@@ -12,14 +12,9 @@ get_volume() {
 }
 
 get_power() {
-    if [ -e /sys/class/power_supply/BAT0 ]; then
-        BAT="BAT0"
-    fi
-    if [ -e /sys/class/power_supply/BAT1 ]; then
-        BAT="BAT1"
-    fi
+    BAT="$(find /sys/class/power_supply -name "BAT*" | head -1)"
     if [ -n "$BAT" ]; then
-        power="$(cat /sys/class/power_supply/${BAT}/capacity)"
+        power="$(cat ${BAT}/capacity)"
     fi
     if [ -n "$power" ]; then
         printf "%s%%" "${power}"
