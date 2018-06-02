@@ -15,8 +15,14 @@ Blu='\033[34m';
 
 # custom prompt
 startprompt="$(printf "\\xE2\\x94\\x8C\\xE2\\x94\\x80")"
+if command -v get 2>/dev/null; then
+    power="$(get power | tr -d "a-z/%")"
+    if [ -n "$power"] && [ "10" -gt "$power" ]; then
+        batteryalert="${Red} BATTERY LOW !${RCol}"
+    fi
+fi
 endprompt="$(printf "\\xE2\\x94\\x94\\xE2\\x94\\x80\\xE2\\x95\\xBC")"
-PS1="\\n\\r${RCol}${startprompt}[\`if [ \$? = 0 ]; then echo ${Gre}; else echo ${Red}; fi\`\\t\\[${RCol}\\] \\[${Blu}\\]\\h\\[${RCol}\\] \\[${Yel}\\]\\w\\[${RCol}\\]]\\n${endprompt} "
+PS1="\\n\\r${RCol}${startprompt}[\`if [ \$? = 0 ]; then echo ${Gre}; else echo ${Red}; fi\`\\t\\[${RCol}\\] \\[${Blu}\\]\\h\\[${RCol}\\] \\[${Yel}\\]\\w\\[${RCol}\\]]${batteryalert}\\n${endprompt} "
 
 # display gruvbox colors event in a tty
 gruvbox() {
@@ -252,7 +258,7 @@ fi
 
 if command -v curl >/dev/null; then
     ww() {
-        curl -s "wttr.in/$1"
+        curl -s "wttr.in/$1" | head -n -3
     }
 fi
 
