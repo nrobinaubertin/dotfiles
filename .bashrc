@@ -15,9 +15,9 @@ Blu='\033[34m';
 
 # custom prompt
 startprompt="$(printf "\\xE2\\x94\\x8C\\xE2\\x94\\x80")"
-if command -v get 2>/dev/null; then
+if command -v get >/dev/null; then
     power="$(get power | tr -d "a-z/%")"
-    if [ -n "$power"] && [ "10" -gt "$power" ]; then
+    if [ -n "$power" ] && [ "10" -gt "$power" ]; then
         batteryalert="${Red} BATTERY LOW !${RCol}"
     fi
 fi
