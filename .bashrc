@@ -17,9 +17,14 @@ Blu='\033[34m';
 startprompt="$(printf "\\xE2\\x94\\x8C\\xE2\\x94\\x80")"
 if command -v get >/dev/null; then
     power="$(get power | tr -d "a-z/%")"
-    if [ -n "$power" ] && [ "10" -gt "$power" ]; then
-        batteryalert="${Red} BATTERY LOW !${RCol}"
-    fi
+    case $power in
+        ""|*[!0-9]*) batteryalert="" ;;
+        *)
+            if [ "10" -gt "$power" ]; then
+                batteryalert="${Red} BATTERY LOW !${RCol}"
+            fi
+            ;;
+    esac
 fi
 endprompt="$(printf "\\xE2\\x94\\x94\\xE2\\x94\\x80\\xE2\\x95\\xBC")"
 PS1="\\n\\r${RCol}${startprompt}[\`if [ \$? = 0 ]; then echo ${Gre}; else echo ${Red}; fi\`\\t\\[${RCol}\\] \\[${Blu}\\]\\h\\[${RCol}\\] \\[${Yel}\\]\\w\\[${RCol}\\]]${batteryalert}\\n${endprompt} "
