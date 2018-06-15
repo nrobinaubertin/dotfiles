@@ -83,12 +83,14 @@ endfunction
 if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
     call plug#begin('~/.config/nvim/plugged')
     Plug 'itchyny/lightline.vim'
+    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --key-bindings --completion --no-update-rc' }
+    Plug 'junegunn/fzf.vim'
     Plug 'junegunn/gv.vim'
+    Plug 'justinmk/vim-dirvish'
     Plug 'mhinz/vim-signify'
     Plug 'morhetz/gruvbox'
     Plug 'sheerun/vim-polyglot'
     Plug 'tpope/vim-fugitive'
-    Plug 'justinmk/vim-dirvish'
     call plug#end()
 endif
 
@@ -173,11 +175,24 @@ nnoremap <C-n> :VleftDirvish<CR>
 tnoremap <C-n> <C-\><C-n> :VleftDirvish<CR>
 nnoremap <buffer> ~ :edit ~/<CR>
 
+" Fzf
+let $FZF_DEFAULT_COMMAND = 'find . 2>/dev/null'
+nnoremap <A-d> :Buffers<CR>
+tnoremap <A-d> <C-\><C-n>:Buffers<CR>
+inoremap <A-d> <Esc>:Buffers<CR>
+nnoremap <A-s> :History<CR>
+tnoremap <A-s> <C-\><C-n>:History<CR>
+inoremap <A-s> <Esc>:History<CR>
+nnoremap <A-f> :FZF<CR>
+tnoremap <A-f> <C-\><C-n>:FZF<CR>
+inoremap <A-f> <Esc>:FZF<CR>
+
 " Vim-signify
 let g:signify_vcs_list = [ 'git' ]
 let g:signify_sign_change = '~'
 
 if executable('rg')
+    let $FZF_DEFAULT_COMMAND = 'rg . --files --color=never --hidden --glob "!.git/*" 2>/dev/null'
     set grepprg=rg\ --vimgrep
     set grepformat^=%f:%l:%c:%m
 endif
