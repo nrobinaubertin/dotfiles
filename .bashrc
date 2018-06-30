@@ -22,6 +22,8 @@ if command -v get >/dev/null; then
         *)
             if [ "10" -gt "$power" ]; then
                 batteryalert="${Red} BATTERY LOW !${RCol}"
+            else
+                batteryalert=""
             fi
             ;;
     esac
