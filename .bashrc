@@ -122,7 +122,7 @@ shopt -s globstar 2> /dev/null
 
 # FZF and EDITOR
 [ -f "${HOME}/.fzf.bash" ] && . "${HOME}/.fzf.bash"
-[ -n "$(command -v nvim >/dev/null)" ] && export EDITOR="/usr/bin/nvim"
+command -v nvim >/dev/null && export EDITOR="/usr/bin/nvim"
 
 # completion with sudo
 complete -cf sudo
