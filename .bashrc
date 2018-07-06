@@ -156,7 +156,6 @@ alias todo='nvim ${HOME}/.TODO'
 alias grep='grep --color=always'
 alias less='less -R'
 alias emerge='emerge --color y'
-alias bye='sudo systemctl poweroff'
 
 # git aliases
 if command -v git >/dev/null; then
