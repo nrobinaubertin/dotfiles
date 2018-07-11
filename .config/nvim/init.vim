@@ -31,9 +31,6 @@ let &undodir="/tmp/".g:whoami."/nvim/undo"
 " Set the background to red for trailing spaces
 match ErrorMsg "\s\+$"
 
-" Ignore some files
-" set wildignore+=,**/.git/*,*.swp,*.orig,
-
 " Remap leader key
 let mapleader=" "
 
@@ -96,8 +93,6 @@ endif
 
 " The french keyboard is awesome
 inoremap àà À
-inoremap ää Ä
-inoremap ââ Â
 inoremap éé É
 inoremap êê Ê
 inoremap èè È
@@ -123,10 +118,8 @@ autocmd BufEnter * if &buftype == 'terminal' | startinsert | endif
 tnoremap <A-q> <C-\><C-n>
 tnoremap <A-t> <C-\><C-n>:tabe<CR>:term<CR>i
 tnoremap <A-c> <C-\><C-n>:tabe<CR>
-tnoremap <A-v> <C-\><C-n>:vsp<CR><C-w><C-w>:term<CR>i
 noremap <A-t> <C-\><C-n>:tabe<CR>:term<CR>i
 noremap <A-c> <C-\><C-n>:tabe<CR>
-noremap <A-v> :vsp<CR><C-w><C-w>:term<CR>i
 
 "" Windows commands
 nnoremap <C-k> :wincmd k<CR>
@@ -156,9 +149,6 @@ nnoremap <A-k> :tabmove +1<CR>
 inoremap <A-k> <Esc>:tabmove +1<CR>
 tnoremap <A-k> <C-\><C-n>:tabmove +1<CR>
 
-"" Vue manipulation
-nnoremap <A-z> :-tabe %<CR>
-
 " Force writing with sudo
 command! SaveSudo :execute ':silent w !sudo tee % > /dev/null' | :edit!
 
@@ -170,25 +160,17 @@ nnoremap <Space><Space> :silent noh<Bar>echo<CR>
 
 " Vim-dirwish
 let g:loaded_netrwPlugin = 1
-command! VleftDirvish leftabove vsplit | vertical resize 50 | silent Dirvish
-nnoremap <C-n> :VleftDirvish<CR>
-tnoremap <C-n> <C-\><C-n> :VleftDirvish<CR>
-nnoremap <buffer> ~ :edit ~/<CR>
 
 " Fzf
-let $FZF_DEFAULT_COMMAND = 'find . 2>/dev/null'
-nnoremap <A-d> :Buffers<CR>
-tnoremap <A-d> <C-\><C-n>:Buffers<CR>
-inoremap <A-d> <Esc>:Buffers<CR>
-nnoremap <A-s> :History<CR>
-tnoremap <A-s> <C-\><C-n>:History<CR>
-inoremap <A-s> <Esc>:History<CR>
-nnoremap <A-f> :FZF<CR>
-tnoremap <A-f> <C-\><C-n>:FZF<CR>
-inoremap <A-f> <Esc>:FZF<CR>
+if filereadable(expand("$HOME/.config/nvim/plugged/fzf.vim/autoload/fzf/vim.vim"))
+    let $FZF_DEFAULT_COMMAND = 'find . 2>/dev/null'
+    cmap ls Buffers
+    nnoremap <A-f> :FZF<CR>
+    tnoremap <A-f> <C-\><C-n>:FZF<CR>
+    inoremap <A-f> <Esc>:FZF<CR>
+endif
 
 " Vim-signify
-let g:signify_vcs_list = [ 'git' ]
 let g:signify_sign_change = '~'
 
 if executable('rg')
