@@ -1,35 +1,48 @@
 #!/bin/sh
 
-# do not continue if we are not in a bash shell
-[ -z "$BASH_VERSION" ] && return
-
+# do not continue if we are not in a bash 4+ shell
 # do not continue if we are not running interactively
-[ -z "$PS1" ] && return
+# do not continue if $HOME is not defined
+([ "${BASH_VERSINFO}" -lt 4 ] || [ -z "$PS1" ] || [ -z "$HOME" ]) && return
 
-# some colors
-RCol='\033[0m'
-Red='\033[31m';
-Gre='\033[32m';
-Yel='\033[33m';
-Blu='\033[34m';
+# Automatically trim long paths in the prompt (requires Bash 4.x)
+export PROMPT_DIRTRIM=2
 
-# custom prompt
-startprompt="$(printf "\\xE2\\x94\\x8C\\xE2\\x94\\x80")"
-if command -v get >/dev/null; then
-    power="$(get power | tr -d "a-z/%")"
-    case $power in
-        ""|*[!0-9]*) batteryalert="" ;;
-        *)
-            if [ "10" -gt "$power" ]; then
-                batteryalert="${Red} BATTERY LOW !${RCol}"
-            else
-                batteryalert=""
-            fi
-            ;;
-    esac
-fi
-endprompt="$(printf "\\xE2\\x94\\x94\\xE2\\x94\\x80\\xE2\\x95\\xBC")"
-PS1="\\n\\r${RCol}${startprompt}[\`if [ \$? = 0 ]; then echo ${Gre}; else echo ${Red}; fi\`\\t\\[${RCol}\\] \\[${Blu}\\]\\h\\[${RCol}\\] \\[${Yel}\\]\\w\\[${RCol}\\]]${batteryalert}\\n${endprompt} "
+# (bash 4+) enable recursive glob for grep, rsync, ls, ...
+shopt -s globstar 2> /dev/null
+
+# Force Bash's Emacs Mode
+set -o emacs;
+
+# completion with sudo
+complete -cf sudo
+
+set_prompt() {
+    # some colors
+    RCol='\033[0m'
+    Red='\033[31m';
+    Gre='\033[32m';
+    Yel='\033[33m';
+    Blu='\033[34m';
+
+    # custom prompt
+    startprompt="$(printf "\\xE2\\x94\\x8C\\xE2\\x94\\x80")"
+    if command -v get >/dev/null; then
+        power="$(get power | tr -d "a-z/%")"
+        case $power in
+            ""|*[!0-9]*) batteryalert="" ;;
+            *)
+                if [ "10" -gt "$power" ]; then
+                    batteryalert="${Red} BATTERY LOW !${RCol}"
+                else
+                    batteryalert=""
+                fi
+                ;;
+        esac
+    fi
+    endprompt="$(printf "\\xE2\\x94\\x94\\xE2\\x94\\x80\\xE2\\x95\\xBC")"
+    PS1="\\n\\r${RCol}${startprompt}[\`if [ \$? = 0 ]; then echo ${Gre}; else echo ${Red}; fi\`\\t\\[${RCol}\\] \\[${Blu}\\]\\h\\[${RCol}\\] \\[${Yel}\\]\\w\\[${RCol}\\]]${batteryalert}\\n${endprompt} "
+}
 
 # display gruvbox colors event in a tty
 gruvbox() {
@@ -99,6 +112,12 @@ gruvbox() {
     fi
 }
 
+set_prompt
+gruvbox
+
+# set a restrictive umask
+umask 077
+
 # enables user services and start them
 if command -v systemctl >/dev/null; then
     if ! [ -h ${HOME}/.config/systemd/user/default.target.wants/ssh-agent.service ]
@@ -108,15 +127,6 @@ if command -v systemctl >/dev/null; then
     fi
 fi
 
-# set a restrictive umask
-umask 077
-
-# Automatically trim long paths in the prompt (requires Bash 4.x)
-export PROMPT_DIRTRIM=2
-
-# (bash 4+) enable recursive glob for grep, rsync, ls, ...
-shopt -s globstar 2> /dev/null
-
 # PATH
 . "${HOME}/.config/pathrc"
 
@@ -124,14 +134,14 @@ shopt -s globstar 2> /dev/null
 [ -f "${HOME}/.fzf.bash" ] && . "${HOME}/.fzf.bash"
 command -v nvim >/dev/null && export EDITOR="/usr/bin/nvim"
 
-# completion with sudo
-complete -cf sudo
-
 # open man in neovim
 # export MANPAGER="less"
 export MANPAGER="nvim -c 'set ft=man' -"
 
-# set history variables
+##############
+## HISTORY ###
+##############
+
 unset HISTFILESIZE
 export HISTSIZE="10000"
 export HISTCONTROL=ignoreboth:erasedups
@@ -141,13 +151,19 @@ export HISTTIMEFORMAT='%F %T '
 shopt -s histappend
 # Save multi-line commands as one command
 shopt -s cmdhist
-
 # Enable incremental history search with up/down arrows (also Readline goodness)
 # Learn more about this here: http://codeinthehole.com/writing/the-most-important-command-line-tip-incremental-history-searching-with-inputrc/
 bind '"\033[A": history-search-backward'
 bind '"\033[B": history-search-forward'
 bind '"\033[C": forward-char'
 bind '"\033[D": backward-char'
+
+#############
+## ALIASES ##
+#############
+
+# remove all aliases
+unalias -a
 
 # some aliases
 alias :q='exit'
@@ -284,38 +300,6 @@ fi
 [ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias ytmp3='youtube-dl -wi --extract-audio --audio-quality 3 --audio-format mp3'
 [ -n "$(command -v mpv 2>/dev/null)" ] && alias play="mpv --no-video --loop-playlist"
 
-# TODO: find a more reliable function that proposes all bluetooth devices
-# probably a separated script
-if command -v bluetoothctl >/dev/null; then
-    bt() {
-        if [ "$1" = "on" ]; then
-            (
-            sudo rfkill block bluetooth
-            sleep 1
-            sudo rfkill unblock bluetooth
-            printf "power off" | bluetoothctl
-            sleep 1
-            printf "power on" | bluetoothctl
-            sleep 1
-            printf "agent off" | bluetoothctl
-            sleep 1
-            printf "agent on" | bluetoothctl
-            sleep 1
-            printf "disconnect 10:4F:A8:BB:0B:1C" | bluetoothctl
-            sleep 1
-            printf "connect 10:4F:A8:BB:0B:1C" | bluetoothctl
-            ) >/dev/null 2>/dev/null
-        else
-            (
-            printf "disconnect 10:4F:A8:BB:0B:1C" | bluetoothctl
-            printf "agent off" | bluetoothctl
-            printf "power off" | bluetoothctl
-            sudo rfkill block bluetooth
-            ) >/dev/null 2>/dev/null
-        fi
-    }
-fi
-
 if command -v openssl >/dev/null; then
     alias htpass='openssl passwd -apr1'
     checkCertificate() {
@@ -371,8 +355,6 @@ extract() {
         fi
     done
 }
-
-gruvbox
 
 # Greetings
 [ -n "$(command -v greeting 2>/dev/null)" ] && greeting 2>/dev/null
