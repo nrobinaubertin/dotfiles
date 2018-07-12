@@ -4,12 +4,11 @@
 [color]
     ui = true
 [color "diff"]
-    meta = yellow
+    meta = yellow bold
     frag = magenta bold
     old = red bold
     new = green bold
     whitespace = red reverse
-    commit = yellow bold
 [color "status"]
     added = green bold
     changed = yellow bold
