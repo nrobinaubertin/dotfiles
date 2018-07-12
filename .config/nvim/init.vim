@@ -102,7 +102,7 @@ inoremap çç Ç
 " instead of nesting (credit justinmk)
 " You need socat to do this
 if executable('socat')
-    autocmd VimEnter * if !empty($NVIM_LISTEN_ADDRESS) && $NVIM_LISTEN_ADDRESS !=# v:servername
+    autocmd VimEnter * if !&diff && !empty($NVIM_LISTEN_ADDRESS) && $NVIM_LISTEN_ADDRESS !=# v:servername
                 \ |let g:r=jobstart(['socat', '-', 'UNIX-CLIENT:'.$NVIM_LISTEN_ADDRESS],{'rpc':v:true})
                 \ |let g:f=fnameescape(expand('%:p'))
                 \ |noau bwipe
