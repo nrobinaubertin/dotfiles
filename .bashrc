@@ -167,7 +167,6 @@ unalias -a
 
 # some aliases
 alias :q='exit'
-alias tmux='tmux -2'
 alias todo='nvim ${HOME}/.TODO'
 alias grep='grep --color=always'
 alias less='less -R'
@@ -204,18 +203,9 @@ if command -v git >/dev/null; then
     # get number of commit last week/day for each author
     git_pulse() {
         case "$1" in
-            "day")
-                age=$(( $(date +%s) - (60 * 60 * 24) ))
-                ;;
-            "week")
-                age=$(( $(date +%s) - (60 * 60 * 24 * 7) ))
-                ;;
-            "month")
-                age=$(( $(date +%s) - (60 * 60 * 24 * 30) ))
-                ;;
-            *)
-                age=$(( $(date +%s) - (60 * 60 * 24 * 7) ))
-                ;;
+            "day") age=$(( $(date +%s) - (60 * 60 * 24) ));;
+            "month") age=$(( $(date +%s) - (60 * 60 * 24 * 30) ));;
+            "week"|*) age=$(( $(date +%s) - (60 * 60 * 24 * 7) ));;
         esac
         (
         printf "commits,files,additions,deletions,author\\n"
@@ -322,38 +312,6 @@ md5dirsum() {
     cd "$1" || exit
     find . -type f -print0 | sort -z | uniq -z | xargs -0 -n 1 md5sum | sort | md5sum
     cd - >/dev/null || exit
-}
-
-extract() {
-    if [ -z "$1" ]; then
-        # display usage if no parameters given
-        printf "Usage: extract <path/file_name>.<zip|rar|bz2|gz|tar|tbz2|tgz|Z|7z|xz|ex|tar.bz2|tar.gz|tar.xz>\\n"
-        printf "       extract <path/file_name_1.ext> [path/file_name_2.ext] [path/file_name_3.ext]\\n"
-        return 1
-    fi
-    for n in "$@"; do
-        if [ -f "$n" ]; then
-            case "${n%,}" in
-                *.tar.bz2|*.tar.gz|*.tar.xz|*.tbz2|*.tgz|*.txz|*.tar) tar xvf "$n" ;;
-                *.lzma) unlzma ./"$n" ;;
-                *.bz2) bunzip2 ./"$n" ;;
-                *.rar) unrar x -ad ./"$n" ;;
-                *.gz) gunzip ./"$n" ;;
-                *.zip) unzip ./"$n" ;;
-                *.z) uncompress ./"$n" ;;
-                *.7z|*.arj|*.cab|*.chm|*.deb|*.dmg|*.iso|*.lzh|*.msi|*.rpm|*.udf|*.wim|*.xar) 7z x ./"$n" ;;
-                *.xz) unxz ./"$n" ;;
-                *.exe) cabextract ./"$n" ;;
-                *)
-                    printf "extract: '%s' - unknown archive method\\n" "$n"
-                    return 1
-                    ;;
-            esac
-        else
-            printf "'%s' - file does not exist\\n" "$n"
-            return 1
-        fi
-    done
 }
 
 # Greetings
