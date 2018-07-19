@@ -168,7 +168,7 @@ get_status_with_cache() {
 case "$1" in
     "volume") get_volume;;
 	"power") get_power;;
-	"date") get_power;;
+	"date") get_date;;
 	"time") get_time;;
 	"cpu") get_cpu;;
 	"latency") get_latency;;
