@@ -29,8 +29,9 @@ printf "%b
 %b\\n" "$Cya" "$RCol"
 
 printf " %bMachine%b\\t%s\\n" "$BGre" "$RCol" "$(cat /proc/sys/kernel/hostname)"
-printf " %bArchitecture%b\\t%s\\n" "$BGre" "$RCol" "$(uname -r)"
-printf " %bKernel%b\\t\\t%s\\n" "$BGre" "$RCol" "$(uname -m)"
+printf " %bSystem%b\\t\\t%s\\n" "$BGre" "$RCol" "$(grep "PRETTY_NAME" /etc/os-release | cut -d'"' -f2)"
+printf " %bArchitecture%b\\t%s\\n" "$BGre" "$RCol" "$(uname -m)"
+printf " %bKernel%b\\t\\t%s\\n" "$BGre" "$RCol" "$(uname -r)"
 printf " %bCPU%b\\t\\t%s\\n" "$BGre" "$RCol" "$(grep -m1 "model name" /proc/cpuinfo | awk -F": " '{print $2}' | sed 's/\s\+/ /g')"
 printf " %bMemory%b\\t\\t%s\\n" "$BGre" "$RCol" "$(free -h --si | head -n2 | tail -n1 | awk '{print $2}')"
 printf " %bShell%b\\t\\t%s\\n" "$BGre" "$RCol" "$SHELL"
