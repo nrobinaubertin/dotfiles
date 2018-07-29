@@ -295,6 +295,12 @@ if command -v openssl >/dev/null; then
     checkCertificate() {
         openssl s_client -connect "$1":443 < /dev/null 2>/dev/null | openssl x509 -noout -enddate | cut -d'=' -f2
     }
+    genSSHKey() {
+        user=$(printf "%s" "$1" | cut -d'@' -f1)
+        host=$(printf "%s" "$1" | cut -d'@' -f2 | cut -d':' -f1)
+        # port=$(printf "%s" "$1" | cut -d'@' -f2 | cut -d':' -f2)
+        ssh-keygen -t ed25519 -C "$user@$host-$(date -I)" -f "$HOME/.ssh/id_ed25519.$user@$host" -a 100
+    }
 fi
 
 # go to the root of the git repository
