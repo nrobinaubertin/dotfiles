@@ -1,12 +1,17 @@
 #!/bin/sh
 
-dist() {
-    x1="$(printf "%s" "$1" | tr -d "." | cut -c 1-2)"
-    y1="$(printf "%s" "$2" | tr -d "." | cut -c 1-2)"
-    x2="$(printf "%s" "$3" | tr -d "." | cut -c 1-2)"
-    y2="$(printf "%s" "$4" | tr -d "." | cut -c 1-2)"
-    printf "%s" "$(( (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) ))"
-}
+SPEEDTEST_SERVERS="http://c.speedtest.net/speedtest-servers-static.php"
+SAMPLE_SIZE="20"
+
+if ! command -v curl > /dev/null; then
+    print "This script needs curl to work."
+    exit 1
+fi
+
+if ! command -v awk > /dev/null; then
+    print "This script needs awk to work."
+    exit 1
+fi
 
 temp_dir="$(dirname "$(mktemp)")"
 servers_file="$temp_dir/speedtest.xml"
@@ -17,10 +22,8 @@ if ! [ -f "$servers_distances" ]; then
 
     if ! [ -f "$servers_file" ]; then
         printf "Getting servers list from speedtest.net...\\n"
-        wget -qO "$servers_file" "https://www.speedtest.net/speedtest-servers.php"
+        curl -so "$servers_file" "$SPEEDTEST_SERVERS"
     fi
-
-    servers_list="$(cat "$servers_file" | sed -E 's/.*url="([a-zA-Z0-9:\/._-]+)".*lat="([0-9.-]+)".*lon="([0-9.-]+)".*/\1 \2 \3/g' | grep -E "^http" | grep ".php" | grep -v "<")"
 
     # get current geolocation
     geoloc="$(curl -s ipinfo.io | grep loc | cut -d'"' -f4)"
@@ -28,23 +31,20 @@ if ! [ -f "$servers_distances" ]; then
     long="$(printf "%s" "$geoloc" | cut -d, -f2)"
 
     printf "Calculating distances...\\n"
-    distances="$(
-        printf "%s" "$servers_list" | while read -r SERVER; do
-            base_url="$(printf "%s" "$SERVER" | cut -d" " -f1 | sed -E 's/\/upload.php$//')"
-            slat="$(printf "%s" "$SERVER" | cut -d" " -f2)"
-            slong="$(printf "%s" "$SERVER" | cut -d" " -f3)"
-            dist="$(dist "$lat" "$long" "$slat" "$slong")"
-            printf "%s %s\\n" "$dist" "$base_url"
-        done
-    )"
-    printf "%s" "$distances" | sort -n > "$servers_distances"
+    cat "$servers_file" | grep "server" | awk '{\
+        FS=" ";\
+        split($2, url, "\"");\
+        split($3, lat, "\"");\
+        split($4, lon, "\"");\
+        d=(lat[2] - '$lat') * (lat[2] - '$lat') + (lon[2] - '$long') * (lon[2] - '$long');\
+        print d, url[2] }\
+    ' | sort -n > "$servers_distances"
 fi
 
-# mesure latencies for the 40 most close servers
+# mesure latencies for the $SAMPLE_SIZE most close servers
 latencies="$(
-    head -n 10 "$servers_distances" | while read -r SERVER; do
+    head -n "$SAMPLE_SIZE" "$servers_distances" | while read -r SERVER; do
         base_url="$(printf "%s" "$SERVER" | cut -d" " -f2 | sed -E 's/\/upload(\.php)?$//')"
-        # domain="$(printf "%s" "$base_url" | sed -E 's/^https?:\/\/(www)?//' | sed -E 's/\/.*$//')"
         latency="$(curl -sw "%{time_total}" -o /dev/null "$base_url/latency.txt" | tr -d ",." | cut -c 1-4)"
         printf "%s %s\\n" "$latency" "$base_url"
     done
@@ -65,19 +65,3 @@ latencies="$(printf "%s" "$latencies" | sort -nr | tail -n +"$to_remove" | sort 
 sum="$(printf "%s" "$latencies" | cut -d" " -f1 | awk '{sum += $1} END {print sum}')"
 number="$(printf "%s" "$latencies" | wc -l)"
 printf "speedtest mean network latency: %sms\\n" "$(( sum / number ))"
-
-# test /upload.php to get the size to download
-# return value : "size=500"
-# then get the corresponding image http://speed1.blix.com/speedtest/ and mesure speed. Deduce download speed
-
-# mesure download
-#downloads="$(
-#	printf "%s" "$servers_list" | while read -r URL; do
-#		size="$(curl -s "$URL" | cut -d"=" -f2)"
-#        base_url="$(printf "%s" "$URL" | sed -E 's/\/upload.php$//')"
-#        printf "%s %s\\n" "$size" "$base_url"
-#		# printf "%s\\n" "$(curl -sw "%{time_total}" -o /dev/null "$URL/latency.txt" | cut -d"," -f2 | cut -c 1-4)"
-#	done
-#)"
-#
-#printf "%s" "$downloads"
