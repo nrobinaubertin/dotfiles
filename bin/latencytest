@@ -18,7 +18,7 @@ servers_file="$temp_dir/speedtest.xml"
 servers_distances="$temp_dir/speedtest.servers"
 
 # put servers files in /tmp as cache
-if ! [ -f "$servers_distances" ]; then
+# if ! [ -f "$servers_distances" ] || [ -n "$1" ]; then
 
     if ! [ -f "$servers_file" ]; then
         printf "Getting servers list from speedtest.net...\\n"
@@ -31,7 +31,7 @@ if ! [ -f "$servers_distances" ]; then
     long="$(printf "%s" "$geoloc" | cut -d, -f2)"
 
     printf "Calculating distances...\\n"
-    cat "$servers_file" | grep "server" | awk '{\
+    cat "$servers_file" | grep "server" | ( [ -n "$1" ] && grep "$1" || cat) | awk '{\
         FS=" ";\
         split($2, url, "\"");\
         split($3, lat, "\"");\
@@ -39,9 +39,10 @@ if ! [ -f "$servers_distances" ]; then
         d=(lat[2] - '$lat') * (lat[2] - '$lat') + (lon[2] - '$long') * (lon[2] - '$long');\
         print d, url[2] }\
     ' | sort -n > "$servers_distances"
-fi
+# fi
 
 # mesure latencies for the $SAMPLE_SIZE most close servers
+printf "Measuring latency...\\n"
 latencies="$(
     head -n "$SAMPLE_SIZE" "$servers_distances" | while read -r SERVER; do
         base_url="$(printf "%s" "$SERVER" | cut -d" " -f2 | sed -E 's/\/upload(\.php)?$//')"
