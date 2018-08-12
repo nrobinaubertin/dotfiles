@@ -112,13 +112,13 @@ if executable('socat')
 endif
 
 " start in insert mode when opening a terminal buffer
-autocmd BufEnter * if &buftype == 'terminal' | startinsert | endif
+autocmd TermOpen * startinsert
 
 "" Terminal commands
 tnoremap <A-q> <C-\><C-n>
-tnoremap <A-t> <C-\><C-n>:tabe<CR>:term<CR>i
+tnoremap <A-t> <C-\><C-n>:tabe<CR>:term<CR>
 tnoremap <A-c> <C-\><C-n>:tabe<CR>
-noremap <A-t> <C-\><C-n>:tabe<CR>:term<CR>i
+noremap <A-t> <C-\><C-n>:tabe<CR>:term<CR>
 noremap <A-c> <C-\><C-n>:tabe<CR>
 
 "" Windows commands
@@ -164,7 +164,6 @@ let g:loaded_netrwPlugin = 1
 " Fzf
 if filereadable(expand("$HOME/.config/nvim/plugged/fzf.vim/autoload/fzf/vim.vim"))
     let $FZF_DEFAULT_COMMAND = 'find . 2>/dev/null'
-    cmap ls Buffers
     nnoremap <A-f> :FZF<CR>
     tnoremap <A-f> <C-\><C-n>:FZF<CR>
     inoremap <A-f> <Esc>:FZF<CR>
