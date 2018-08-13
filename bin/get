@@ -77,7 +77,7 @@ get_heat() {
 
 get_ip() {
     if [ -n "$(command -v dig 2>/dev/null)" ]; then
-        ip="$(dig +short +keepopen myip.opendns.com @resolver1.opendns.com 2>/dev/null)"
+        ip="$(dig +short myip.opendns.com @resolver1.opendns.com 2>/dev/null)"
     fi
     if [ -z "$ip" ] && [ -n "$(command -v curl 2>/dev/null)" ]; then
         ip="$(curl -s "http://whatismyip.akamai.com" 2>/dev/null)"
