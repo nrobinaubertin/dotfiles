@@ -13,6 +13,14 @@ set shell=/bin/bash
 set showmatch
 set showtabline=2
 
+""" statusline
+set statusline=
+set statusline+=[%n%H%M%R%W]\       " flags and buf no
+set statusline+=\ %f\               " path
+set statusline+=%=                  " switch to right side
+set statusline+=%y\                 " file type
+set statusline+=[%l,%c]\ %p%%       " line, column and percentage
+
 """ ctags
 if executable('ctags')
     command! MakeTags !ctags -R -f ./.git/tags .
@@ -176,23 +184,6 @@ if executable('rg')
     set grepprg=rg\ --vimgrep
     set grepformat^=%f:%l:%c:%m
 endif
-
-function! GetStatus()
-    if s:status_timestamp + 60 < strftime('%s')
-        let s:status_timestamp = strftime('%s')
-        let s:status = system("$HOME/bin/get 'status' ' | '")
-    endif
-    return s:status
-endfunction
-
-" statusline
-set statusline=
-set statusline+=\ %n%H%M%R%W\       " flags and buf no
-set statusline+=%y\                 " file type
-set statusline+=%l,%c,%p%%\         " line, column and percentage
-set statusline+=\ %f\               " path
-set statusline+=%=                  " switch to right side
-set statusline+=%{GetStatus()}\     " system status
 
 " learn vim the hard way
 nnoremap <up> <nop>
