@@ -102,10 +102,10 @@ get_ram() {
     if [ -n "$kb" ]; then
         if [ "$gb" -gt 0 ]; then
             r=$(( (mb - gb * 1024) / 100 ))
-            printf "%s.%s GB" "$gb" "$r";
+            printf "%s.%sGB" "$gb" "$r";
             exit
         fi
-        printf "%s MB" "$mb";
+        printf "%sMB" "$mb";
     fi
 }
 
@@ -136,18 +136,18 @@ ifprint() {
 		if [ "$2" = "end" ]; then
 			printf "%s" "$1"
 		else
-			printf "%s %s " "$1" "$2"
+			printf "%s%s" "$1" "$2"
 		fi
 	fi
 }
 
 get_status() {
+    ifprint "$(get_ip)" "$1"
+    ifprint "$(get_latency)" "$1"
+    ifprint "$(get_uptime)" "$1"
+    ifprint "$(get_heat)" "$1"
 	ifprint "$(get_power)" "$1"
-    #ifprint "$(get_ip)" "$1"
-    #ifprint "$(get_uptime)" "$1"
     ifprint "$(get_ram)" "$1"
-    #ifprint "$(get_heat)" "$1"
-    #ifprint "$(get_latency)" "$1"
     ifprint "$(get_cpu)" "$1"
     ifprint "$(get_date)" "$1"
     ifprint "$(get_time)" "end"
