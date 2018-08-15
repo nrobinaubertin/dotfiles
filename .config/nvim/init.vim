@@ -1,4 +1,5 @@
 " general configuration
+colors gruvbox
 set background=dark
 set clipboard+=unnamedplus " Use the clipboard for all operations
 set expandtab
@@ -39,7 +40,7 @@ function! SetTabSpaces(...)
     let &tabstop = a:1
     let &shiftwidth = a:1
 endfunction
-command -nargs=+ SetTabSpaces call SetTabSpaces(<f-args>)
+command! -nargs=+ SetTabSpaces call SetTabSpaces(<f-args>)
 call SetTabSpaces(4)
 
 " Super vim search
@@ -61,7 +62,7 @@ function! SuperSearch(...)
         echo "No match found for " . search
     endif
 endfunction
-command -nargs=+ SuperSearch call SuperSearch(<f-args>)
+command! -nargs=+ SuperSearch call SuperSearch(<f-args>)
 map <Leader>s :execute SuperSearch(expand("<cword>"))<CR>
 
 " Get vim-plug
@@ -70,7 +71,7 @@ if !filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
 endif
 
 " Update plugins
-command Update execute Update()
+command! Update execute Update()
 function! Update()
     PlugUpgrade
     PlugUpdate
@@ -79,13 +80,11 @@ endfunction
 " Vim-plug
 if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
     call plug#begin('~/.config/nvim/plugged')
-    Plug 'itchyny/lightline.vim'
     Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --key-bindings --completion --no-update-rc' }
     Plug 'junegunn/fzf.vim'
     Plug 'junegunn/gv.vim'
     Plug 'justinmk/vim-dirvish'
     Plug 'mhinz/vim-signify'
-    Plug 'morhetz/gruvbox'
     Plug 'sheerun/vim-polyglot'
     Plug 'tpope/vim-fugitive'
     call plug#end()
@@ -150,10 +149,10 @@ inoremap <A-k> <Esc>:tabmove +1<CR>
 tnoremap <A-k> <C-\><C-n>:tabmove +1<CR>
 
 " Force writing with sudo
-command! SaveSudo :execute ':silent w !sudo tee % > /dev/null' | :edit!
+command! SaveSudo :execute ':silent w !sudo tee % > /dev/null' <Bar> :edit!
 
 " Open todo file
-command Todo execute ":tabe $HOME/.TODO"
+command! Todo execute ":tabe $HOME/.TODO"
 
 " Space bar un-highlights search
 nnoremap <Space><Space> :silent noh<Bar>echo<CR>
@@ -178,34 +177,22 @@ if executable('rg')
     set grepformat^=%f:%l:%c:%m
 endif
 
-" Lightline & Gruvbox
-if filereadable(expand("$HOME/.config/nvim/plugged/gruvbox/autoload/gruvbox.vim"))
-    if filereadable(expand("$HOME/bin/get"))
-
-        let s:status = system("$HOME/bin/get 'status' '|'")
+function! GetStatus()
+    if s:status_timestamp + 60 < strftime('%s')
         let s:status_timestamp = strftime('%s')
-
-        function! GetStatus()
-            if s:status_timestamp + 20 < strftime('%s')
-                let s:status = system("$HOME/bin/get 'status' '|'")
-                let s:status_timestamp = strftime('%s')
-            endif
-            return s:status
-        endfunction
-
-        let g:lightline = {
-                    \   'tabline': {
-                    \       'left': [['tabs']],
-                    \       'right': [['get_status']]
-                    \   },
-                    \   'component_function': {
-                    \       'get_status': 'GetStatus',
-                    \   },
-                    \   'colorscheme': 'gruvbox',
-                    \ }
+        let s:status = system("$HOME/bin/get 'status' ' | '")
     endif
-    colors gruvbox
-endif
+    return s:status
+endfunction
+
+" statusline
+set statusline=
+set statusline+=\ %n%H%M%R%W\       " flags and buf no
+set statusline+=%y\                 " file type
+set statusline+=%l,%c,%p%%\         " line, column and percentage
+set statusline+=\ %f\               " path
+set statusline+=%=                  " switch to right side
+set statusline+=%{GetStatus()}\     " system status
 
 " learn vim the hard way
 nnoremap <up> <nop>
