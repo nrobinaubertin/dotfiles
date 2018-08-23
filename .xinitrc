@@ -10,6 +10,6 @@ while true; do
 done &
 
 # autostart st with neovim in terminal mode
-st -e nvim -c term &
+st &
 
 exec dwm
