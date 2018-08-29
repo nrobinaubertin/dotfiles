@@ -5,7 +5,7 @@
 
 # statusbar
 while true; do
-    xsetroot -name "$(get status ' | ')"
+    xsetroot -name "$(get status ' | ' 2>/dev/null)"
     sleep 1m
 done &
 
