@@ -172,6 +172,12 @@ alias grep='grep --color=always'
 alias less='less -R'
 alias emerge='emerge --color y'
 
+[ -n "$(command -v trash-put 2>/dev/null)" ] && alias rr='trash-put'
+[ -n "$(command -v bat 2>/dev/null)" ] && alias cat='bat'
+[ -n "$(command -v wifi-menu 2>/dev/null)" ] && alias wifi='sudo wifi-menu'
+[ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias ytmp3='youtube-dl -wi --extract-audio --audio-quality 3 --audio-format mp3'
+[ -n "$(command -v mpv 2>/dev/null)" ] && alias play="mpv --no-video --loop-playlist"
+
 # git aliases
 if command -v git >/dev/null; then
     # git autocompletion file
@@ -185,6 +191,8 @@ if command -v git >/dev/null; then
     alias gl='git log --pretty=medium --abbrev-commit --date=relative'
     alias gs='git status -sb'
     alias gf='git fetch -p --all'
+    alias gd='git diff --color --color-moved'
+    alias gg='git log --graph --abbrev-commit --decorate --format=format:"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)" --all'
 
     # get stats of a git repo
     git_stats() {
@@ -243,31 +251,7 @@ if command -v git >/dev/null; then
     }
 
     alias gp='git_pulse'
-
-    if command -v git_forest >/dev/null; then
-        alias gg='git_forest --all | less'
-    else
-        alias gg='git log --graph --abbrev-commit --decorate --format=format:"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)" --all'
-    fi
-
-    if command -v diff-so-fancy >/dev/null; then
-        gd() {
-            if [ -z "$1" ]
-            then
-                target="."
-            else
-                target="$1"
-            fi
-            git diff --color "$target" | diff-so-fancy | less
-        }
-    else
-        alias gd='git diff --color --color-moved'
-    fi
 fi
-
-[ -n "$(command -v trash-put 2>/dev/null)" ] && alias rr='trash-put'
-
-[ -n "$(command -v wifi-menu 2>/dev/null)" ] && alias wifi='sudo wifi-menu'
 
 if command -v curl >/dev/null; then
     ww() {
@@ -286,9 +270,6 @@ else
     alias lla='ls -alhb --color'
     alias llt='ls -lhbt --color'
 fi
-
-[ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias ytmp3='youtube-dl -wi --extract-audio --audio-quality 3 --audio-format mp3'
-[ -n "$(command -v mpv 2>/dev/null)" ] && alias play="mpv --no-video --loop-playlist"
 
 if command -v openssl >/dev/null; then
     alias htpass='openssl passwd -apr1'

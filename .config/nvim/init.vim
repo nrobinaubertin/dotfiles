@@ -124,8 +124,8 @@ autocmd TermOpen * startinsert
 "" Terminal commands
 tnoremap <A-q> <C-\><C-n>
 tnoremap <A-t> <C-\><C-n>:tabe<CR>:term<CR>
-tnoremap <A-c> <C-\><C-n>:tabe<CR>
 noremap <A-t> <C-\><C-n>:tabe<CR>:term<CR>
+tnoremap <A-c> <C-\><C-n>:tabe<CR>
 noremap <A-c> <C-\><C-n>:tabe<CR>
 
 "" Windows commands
@@ -166,6 +166,7 @@ command! Todo execute ":tabe $HOME/.TODO"
 nnoremap <Space><Space> :silent noh<Bar>echo<CR>
 
 " Vim-dirwish
+" Remove netrw
 let g:loaded_netrwPlugin = 1
 
 " Fzf
