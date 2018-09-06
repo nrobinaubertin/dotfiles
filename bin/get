@@ -70,6 +70,7 @@ get_latency() {
 
 get_heat() {
     heat="$(awk '{ print $1/1000 }' /sys/class/thermal/thermal_zone0/temp)"
+    # heats="$(cat -n /sys/class/hwmon/hwmon*/temp*_input 2>/dev/null)"
     if [ -n "$heat" ]; then
         printf "%s" "${heat}°C"
     fi
@@ -142,15 +143,15 @@ ifprint() {
 }
 
 get_status() {
-    ifprint "$(get_ip)" "$1"
-    ifprint "$(get_latency)" "$1"
-    ifprint "$(get_uptime)" "$1"
-    ifprint "$(get_heat)" "$1"
-	ifprint "$(get_power)" "$1"
-    ifprint "$(get_ram)" "$1"
-    ifprint "$(get_cpu)" "$1"
+    ifprint "$(get_time)" "$1"
     ifprint "$(get_date)" "$1"
-    ifprint "$(get_time)" "end"
+    ifprint "$(get_cpu)" "$1"
+    ifprint "$(get_ram)" "$1"
+	ifprint "$(get_power)" "$1"
+    ifprint "$(get_heat)" "$1"
+    ifprint "$(get_uptime)" "$1"
+    ifprint "$(get_latency)" "$1"
+    ifprint "$(get_ip)" "end"
 }
 
 get_status_with_cache() {
@@ -166,18 +167,19 @@ get_status_with_cache() {
 }
 
 case "$1" in
-    "volume") get_volume;;
-	"power") get_power;;
-	"date") get_date;;
-	"time") get_time;;
 	"cpu") get_cpu;;
-	"latency") get_latency;;
+	"date") get_date;;
+	"dot") get_dot;;
 	"heat") get_heat;;
 	"ip") get_ip;;
+	"latency") get_latency;;
+	"power") get_power;;
 	"ram") get_ram;;
-	"uptime") get_uptime;;
-	"dot") get_dot;;
 	"status") get_status "$2";;
 	"status_with_cache") get_status_with_cache "$2";;
+	"temp") get_temp;;
+	"time") get_time;;
+	"uptime") get_uptime;;
+    "volume") get_volume;;
 	*) usage;;
 esac
