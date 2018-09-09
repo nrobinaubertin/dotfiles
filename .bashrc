@@ -135,8 +135,7 @@ fi
 command -v nvim >/dev/null && export EDITOR="/usr/bin/nvim"
 
 # open man in neovim
-# export MANPAGER="less"
-export MANPAGER="nvim -c 'set ft=man' -"
+export MANPAGER="nvim -Rc 'set ft=man' -"
 
 ##############
 ## HISTORY ###
@@ -145,7 +144,7 @@ export MANPAGER="nvim -c 'set ft=man' -"
 unset HISTFILESIZE
 export HISTSIZE="10000"
 export HISTCONTROL=ignoreboth:erasedups
-export HISTIGNORE="fg:bg:&:[ ]*:exit:ls:clear:ll:cd:\\[A*:nvim:gs:gd:gf:gg:gl:systemctl poweroff:shutdown*"
+export HISTIGNORE="fg:bg:&:[ ]*:exit:ls:clear:ll:cd:\\[A*:nvim:gs:gd:gf:gg:gl"
 export HISTTIMEFORMAT='%F %T '
 # Append to the history file, don't overwrite it
 shopt -s histappend
@@ -169,7 +168,7 @@ unalias -a
 alias :q='exit'
 alias todo='nvim ${HOME}/.TODO'
 alias grep='grep --color=always'
-alias less='less -R'
+alias less='less -RX'
 alias emerge='emerge --color y'
 
 [ -n "$(command -v trash-put 2>/dev/null)" ] && alias rr='trash-put'
