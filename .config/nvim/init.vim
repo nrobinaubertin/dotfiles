@@ -4,7 +4,6 @@ set background=dark
 set clipboard+=unnamedplus " Use the clipboard for all operations
 set expandtab
 set fillchars=vert:\ ,stl:\ ,stlnc:\ 
-set laststatus=2
 set mat=2
 set mouse=
 set noshowmode
@@ -12,6 +11,7 @@ set nu
 set shell=/bin/bash
 set showmatch
 set showtabline=2
+set laststatus=2
 
 """ statusline
 set statusline=
@@ -22,10 +22,10 @@ set statusline+=%y\                 " file type
 set statusline+=[%l,%c]\ %p%%       " line, column and percentage
 
 """ ctags
-if executable('ctags')
-    command! MakeTags !ctags -R -f ./.git/tags .
-endif
-set tags+=,./.git/tags,
+" if executable('ctags')
+"     command! MakeTags !ctags -R -f ./.git/tags .
+" endif
+" set tags+=,./.git/tags,
 
 " Use 'correct' php indentation for switch blocks
 let g:PHP_vintage_case_default_indent = 1
@@ -109,7 +109,7 @@ inoremap çç Ç
 " instead of nesting (credit justinmk)
 " You need socat to do this
 if executable('socat')
-    autocmd VimEnter * if !&diff && !empty($NVIM_LISTEN_ADDRESS) && $NVIM_LISTEN_ADDRESS !=# v:servername
+    autocmd VimEnter * if &ft != 'man' && !&diff && !empty($NVIM_LISTEN_ADDRESS) && $NVIM_LISTEN_ADDRESS !=# v:servername
                 \ |let g:r=jobstart(['socat', '-', 'UNIX-CLIENT:'.$NVIM_LISTEN_ADDRESS],{'rpc':v:true})
                 \ |let g:f=fnameescape(expand('%:p'))
                 \ |noau bwipe
@@ -117,6 +117,12 @@ if executable('socat')
                 \ |qa
                 \ |endif
 endif
+
+" Don't show tabline and statusline on a man page
+autocmd VimEnter * if &ft == 'man'
+            \ |set showtabline=0
+            \ |set laststatus=0
+            \ |endif
 
 " start in insert mode when opening a terminal buffer
 autocmd TermOpen * startinsert
