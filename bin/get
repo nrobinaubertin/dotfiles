@@ -134,16 +134,16 @@ get_dot() {
 
 ifprint() {
 	if [ -n "$1" ]; then
-		if [ "$2" = "end" ]; then
+		if [ "$2" = "start" ]; then
 			printf "%s" "$1"
 		else
-			printf "%s%s" "$1" "$2"
+			printf "%s%s" "$2" "$1"
 		fi
 	fi
 }
 
 get_status() {
-    ifprint "$(get_time)" "$1"
+    ifprint "$(get_time)" "start"
     ifprint "$(get_date)" "$1"
     ifprint "$(get_cpu)" "$1"
     ifprint "$(get_ram)" "$1"
@@ -151,7 +151,7 @@ get_status() {
     ifprint "$(get_heat)" "$1"
     ifprint "$(get_uptime)" "$1"
     ifprint "$(get_latency)" "$1"
-    ifprint "$(get_ip)" "end"
+    ifprint "$(get_ip)" "$1"
 }
 
 get_status_with_cache() {
