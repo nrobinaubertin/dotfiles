@@ -12,6 +12,7 @@ set shell=/bin/bash
 set showmatch
 set showtabline=2
 set laststatus=2
+let g:loaded_netrwPlugin = 1 " Remove netrw
 
 """ statusline
 set statusline=
@@ -124,7 +125,7 @@ autocmd VimEnter * if &ft == 'man'
             \ |set laststatus=0
             \ |endif
 
-" start in insert mode when opening a terminal buffer
+" start in insert mode when opening a new terminal buffer
 autocmd TermOpen * startinsert
 
 "" Terminal commands
@@ -166,14 +167,10 @@ tnoremap <A-k> <C-\><C-n>:tabmove +1<CR>
 command! SaveSudo :execute ':silent w !sudo tee % > /dev/null' <Bar> :edit!
 
 " Open todo file
-command! Todo execute ":tabe $HOME/.TODO"
+command! Todo execute ":tabe $HOME/data/niels-data/.TODO"
 
 " Space bar un-highlights search
 nnoremap <Space><Space> :silent noh<Bar>echo<CR>
-
-" Vim-dirwish
-" Remove netrw
-let g:loaded_netrwPlugin = 1
 
 " Fzf
 if filereadable(expand("$HOME/.config/nvim/plugged/fzf.vim/autoload/fzf/vim.vim"))

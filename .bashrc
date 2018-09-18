@@ -166,7 +166,7 @@ unalias -a
 
 # some aliases
 alias :q='exit'
-alias todo='nvim ${HOME}/.TODO'
+alias todo='nvim ${HOME}/data/niels-data/.TODO'
 alias grep='grep --color=always'
 alias less='less -RX'
 alias emerge='emerge --color y'
