@@ -96,6 +96,7 @@ if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
     Plug 'mhinz/vim-signify'
     Plug 'sheerun/vim-polyglot'
     Plug 'tpope/vim-fugitive'
+    Plug 'w0rp/ale'
     call plug#end()
 endif
 
@@ -188,6 +189,9 @@ if executable('rg')
     set grepprg=rg\ --vimgrep
     set grepformat^=%f:%l:%c:%m
 endif
+
+" w0rp/Ale
+let g:ale_linters = {'python': 'autopep8'}
 
 " learn vim the hard way
 nnoremap <up> <nop>
