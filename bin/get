@@ -38,7 +38,7 @@ get_time() {
 }
 
 get_cpu() {
-    cpu="$(awk '{ print $1 }' /proc/loadavg)"
+    cpu="$(awk '{ print $1, $2, $3 }' /proc/loadavg)"
     if [ -n "$cpu" ]; then
         printf "%s" "$cpu"
     fi
