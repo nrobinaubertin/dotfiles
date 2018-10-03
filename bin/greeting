@@ -1,43 +1,50 @@
 #!/bin/sh
 
 RCol='\033[0m'
-Cya='\033[0;36m';
-BGre='\033[1;32m';
+BGre='\033[1;32m'
+Green='\033[0;32m'
+Blue='\033[0;34m'
+Red='\033[0;31m'
+Yellow='\033[0;33m'
 
-printf "%b
-                ._,.
-          '..-..pf.
-         -L   ..#'
-       .+_L  .']#
-       ,'j' .+.j'                 -'.__..,.,p.
-      _~ #..<..0.                 .J-.''..._f.
-     .7..#_.. _f.                .....-..,'4'
-     ;' ,#j.  T'      ..         ..J....,'.j'
-    .' ..'^.,-0.,,,,yMMMMM,.    ,-.J...+'.j@
-   .'.'...' .yMMMMM0M@^='''g.. .'..J..'.'.jH
-   j' .'1'  q'^)@@#'^'.''='BNg_...,]_)'...0-
-  .T ...I. j'    .'..+,_.'3#MMM0MggCBf....F.
-  j/.+'.{..+       '^~'-^~~''''''''?'''''1'
-  .... .y.}                  '.._-:'_...jf
-  g-.  .Lg'                 ..,..'-....,'.
- .'.   .Y^                  .....',].._f
- ......-f.                 .-,,.,.-:--&'
-                           .'...'..'_J'
-                           .~......'#'
-                           '..,,.,_]'
-                           .L..'..''.
-%b\\n" "$Cya" "$RCol"
+usage() {
+    n=$((20 * $1 / 100))
+    printf "["
+    if [ $n -gt 10 ]; then
+        printf "%b%08s" "$Green" " " | tr " " "="
+        n=$(( n - 10 ))
+    else
+        printf "%b%0${n}s%b" "$Green" " " "$RCol" | tr " " "="
+        printf "%0$((20 * (100 - $1) / 100))s]"
+        return
+    fi
+    if [ $n -gt 5 ]; then
+        printf "%b%08s" "$Yellow" " " | tr " " "="
+        n=$(( n - 5 ))
+    else
+        printf "%b%0${n}s%b" "$Yellow" " " "$RCol" | tr " " "="
+        printf "%0$((20 * (100 - $1) / 100))s]"
+        return
+    fi
+    printf "%b%0${n}s%b" "$Red" " " "$RCol" | tr " " "="
+    printf "%0$((20 * (100 - $1) / 100))s]"
+}
 
+printf "\\n"
 printf " %bMachine%b\\t%s\\n" "$BGre" "$RCol" "$(cat /proc/sys/kernel/hostname)"
 printf " %bSystem%b\\t\\t%s\\n" "$BGre" "$RCol" "$(grep "PRETTY_NAME" /etc/os-release | cut -d'"' -f2)"
 printf " %bArchitecture%b\\t%s\\n" "$BGre" "$RCol" "$(uname -m)"
 printf " %bKernel%b\\t\\t%s\\n" "$BGre" "$RCol" "$(uname -r)"
-printf " %bCPU%b\\t\\t%s\\n" "$BGre" "$RCol" "$(grep -m1 "model name" /proc/cpuinfo | awk -F": " '{print $2}' | sed 's/\s\+/ /g')"
+printf " %bCPU%b\\t\\t%s\\n" "$BGre" "$RCol" "$(grep -m1 "model name" /proc/cpuinfo | awk -F": " '{print $2}' | tr -s " ")"
 printf " %bMemory%b\\t\\t%s\\n" "$BGre" "$RCol" "$(free -h --si | head -n2 | tail -n1 | awk '{print $2}')"
 printf " %bShell%b\\t\\t%s\\n" "$BGre" "$RCol" "$SHELL"
 printf " %bTerminal%b\\t%s\\n" "$BGre" "$RCol" "$TERM"
-printf " %bIP:%b\\t\\t%s\\n" "$BGre" "$RCol" "$(ip route show | tail -n1 | sed -r 's/.*src(.*)/\1/' | cut -d' ' -f2)"
-printf " %bGeometry:%b\\t%sx%s\\n\\n" "$BGre" "$RCol" "$(tput cols)" "$(tput lines)"
+printf " %bIP%b\\t\\t%s\\n" "$BGre" "$RCol" "$(ip route show | tail -n1 | cut -d" " -f9)"
+printf " %bGeometry%b\\t%sx%s\\n\\n" "$BGre" "$RCol" "$(tput cols)" "$(tput lines)"
 
-printf " %bFilesystem\\tSize\\tAvailable%b\\n" "$BGre" "$RCol"
-df -h | sort | grep -E "^/dev/" | sed -r 's/\s+/ /g' | cut -d' ' -f1,2,4 | tr " " "\\t" | sed -r 's/^/ /'
+printf " %bFilesystem\\tSize\\tUsed%b\\n" "$BGre" "$RCol"
+for i in $(df -h | sort | grep "/sd" | cut -d' ' -f1); do
+    p=$(df | grep "$i" | tr -s " " | cut -d' ' -f5 | tr -d "%")
+    s=$(df -h | grep "$i" | tr -s " " | cut -d" " -f2)
+    printf " %s\\t%s\\t%s\n" "$i" "$s" "$(usage $p)"
+done
