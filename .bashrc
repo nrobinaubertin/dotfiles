@@ -18,30 +18,10 @@ set -o emacs;
 complete -cf sudo
 
 set_prompt() {
-    # some colors
-    RCol='\033[0m'
-    Red='\033[31m';
-    Gre='\033[32m';
-    Yel='\033[33m';
-    Blu='\033[34m';
-
-    # custom prompt
+    RCol='\033[0m'; Red='\033[31m'; Gre='\033[32m'; Yel='\033[33m'; Blu='\033[34m'
     startprompt="$(printf "\\xE2\\x94\\x8C\\xE2\\x94\\x80")"
-    if command -v get >/dev/null; then
-        power="$(get power | tr -d "a-z/%")"
-        case $power in
-            ""|*[!0-9]*) batteryalert="" ;;
-            *)
-                if [ "10" -gt "$power" ]; then
-                    batteryalert="${Red} BATTERY LOW !${RCol}"
-                else
-                    batteryalert=""
-                fi
-                ;;
-        esac
-    fi
     endprompt="$(printf "\\xE2\\x94\\x94\\xE2\\x94\\x80\\xE2\\x95\\xBC")"
-    PS1="\\n\\r${RCol}${startprompt}[\`if [ \$? = 0 ]; then echo ${Gre}; else echo ${Red}; fi\`\\t\\[${RCol}\\] \\[${Blu}\\]\\h\\[${RCol}\\] \\[${Yel}\\]\\w\\[${RCol}\\]]${batteryalert}\\n${endprompt} "
+    PS1="\\n\\r${RCol}${startprompt}[\`if [ \$? = 0 ]; then echo ${Gre}; else echo ${Red}; fi\`\\t\\[${RCol}\\] \\[${Blu}\\]\\h\\[${RCol}\\] \\[${Yel}\\]\\w\\[${RCol}\\]]\\n${endprompt} "
 }
 
 # display gruvbox colors event in a tty
@@ -172,7 +152,7 @@ alias less='less -RX'
 alias emerge='emerge --color y'
 
 [ -n "$(command -v trash-put 2>/dev/null)" ] && alias rr='trash-put'
-[ -n "$(command -v bat 2>/dev/null)" ] && alias cat='bat'
+#[ -n "$(command -v bat 2>/dev/null)" ] && alias cat='bat --paging never'
 [ -n "$(command -v wifi-menu 2>/dev/null)" ] && alias wifi='sudo wifi-menu'
 [ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias ytmp3='youtube-dl -wi --extract-audio --audio-quality 3 --audio-format mp3'
 [ -n "$(command -v mpv 2>/dev/null)" ] && alias play="mpv --no-video --loop-playlist"
@@ -198,8 +178,7 @@ if command -v git >/dev/null; then
         (
         head=$(git ls-files | while read -r f; do git blame --line-porcelain "$f" | grep '^author-mail '; done | sort -f | uniq -ic | sort -n | tr -d '<>' | awk '{print $1, $3}')
         printf "head,commits,inserted,deleted,author\\n"
-        for author in $(git log --pretty="%ce" | sort | uniq)
-        do
+        for author in $(git log --pretty="%ce" | sort | uniq); do
             head_author=$(echo "$head" | grep "$author" | cut -d' ' -f1)
             stat=$(git log --shortstat --author "$author" -i 2> /dev/null | grep -E 'files? changed' | awk 'BEGIN{commits=0;inserted=0;deleted=0} {commits+=1; if($5!~"^insertion") { deleted+=$4 } else { inserted+=$4; deleted+=$6 } } END {print commits, ",", inserted, ",", deleted}')
             printf "%s,%s,%s\\n" "$head_author" "$stat" "$author"
@@ -216,30 +195,19 @@ if command -v git >/dev/null; then
         esac
         (
         printf "commits,files,additions,deletions,author\\n"
-        for name in $(git shortlog -se --all | sed -E 's/.*<(.*)>.*/\1/' | sort | uniq)
-        do
-            count=$(git rev-list --no-merges --author="$name" --max-age="$age" --count --all)
+        for name in $(git shortlog -se --all | sed -E 's/.*<(.*)>.*/\1/' | sort | uniq); do
+            added="0"; deleted="0"; files="0"; count="0"
+            for commit in $(git rev-list --no-merges --author="$name" --max-age="$age" --all); do
+                count=$(( count + 1 ))
+                stats="$(git diff --shortstat "$commit"^ "$commit" 2>/dev/null)"
+                to_files=$(printf "%s" "$stats" | cut -d" " -f2)
+                [ -n "$to_files" ] && files=$(( files + to_files ))
+                to_add=$(printf "%s" "$stats" | cut -d" " -f5)
+                [ -n "$to_add" ] && added=$(( added + to_add ))
+                to_delete=$(printf "%s" "$stats" | cut -d" " -f7)
+                [ -n "$to_delete" ] && deleted=$(( deleted + to_delete ))
+            done
             if [ "$count" -gt 0 ]; then
-                added="0"
-                deleted="0"
-                files="0"
-                for commit in $(git rev-list --no-merges --author="$name" --max-age="$age" --all)
-                do
-                    if [ -n "$commit" ]; then
-                        to_files=$(git diff --shortstat "$commit"^ "$commit" 2>/dev/null | cut -d" " -f2)
-                        if [ -n "$to_files" ]; then
-                            files=$(( files + to_files ))
-                        fi
-                        to_add=$(git diff --shortstat "$commit"^ "$commit" 2>/dev/null | cut -d" " -f5)
-                        if [ -n "$to_add" ]; then
-                            added=$(( added + to_add ))
-                        fi
-                        to_delete=$(git diff --shortstat "$commit"^ "$commit" 2>/dev/null | cut -d" " -f7)
-                        if [ -n "$to_delete" ]; then
-                            deleted=$(( deleted + to_delete ))
-                        fi
-                    fi
-                done
                 m_added=$(( added / count ))
                 m_deleted=$(( deleted / count ))
                 m_files=$(( files / count ))
