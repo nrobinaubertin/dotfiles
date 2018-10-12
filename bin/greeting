@@ -1,33 +1,21 @@
 #!/bin/sh
 
-RCol='\033[0m'
-BGre='\033[1;32m'
-Green='\033[0;32m'
-Blue='\033[0;34m'
-Red='\033[0;31m'
-Yellow='\033[0;33m'
+RCol='\033[0m'; BGre='\033[1;32m'; Green='\033[0;32m'; Blue='\033[0;34m'; Red='\033[0;31m'; Yellow='\033[0;33m'
+
+min() {
+    [ "$1" -gt "$2" ] && echo "$2" || echo "$1"
+}
 
 usage() {
-    n=$((20 * $1 / 100))
-    printf "["
-    if [ $n -gt 10 ]; then
-        printf "%b%08s" "$Green" " " | tr " " "="
-        n=$(( n - 10 ))
-    else
-        printf "%b%0${n}s%b" "$Green" " " "$RCol" | tr " " "="
-        printf "%0$((20 * (100 - $1) / 100))s]"
-        return
+    n=$((20 * $1 / 100)); i="$n"
+    printf "[%b%0$(min $i 10)s" "$Green" " " | tr " " "="
+    i=$(( i - 10 ))
+    if [ $i -gt 0 ]; then
+        printf "%b%0$(min $i 5)s%b" "$Yellow" " " "$RCol" | tr " " "="
+        i=$(( i - 5 ))
     fi
-    if [ $n -gt 5 ]; then
-        printf "%b%08s" "$Yellow" " " | tr " " "="
-        n=$(( n - 5 ))
-    else
-        printf "%b%0${n}s%b" "$Yellow" " " "$RCol" | tr " " "="
-        printf "%0$((20 * (100 - $1) / 100))s]"
-        return
-    fi
-    printf "%b%0${n}s%b" "$Red" " " "$RCol" | tr " " "="
-    printf "%0$((20 * (100 - $1) / 100))s]"
+    [ $i -gt 0 ] && printf "%b%0${i}s%b" "$Red" " " "$RCol" | tr " " "="
+    printf "%0$(( 20 - n ))s]"
 }
 
 printf "\\n"
