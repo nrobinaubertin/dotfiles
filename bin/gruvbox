@@ -1,0 +1,67 @@
+#!/bin/sh
+# display gruvbox colors event in a tty
+
+# if we are in a tty
+if [ "$TERM" = "linux" ]; then
+    if [ "$1" = "light"]; then
+        printf "\033]P0fbf1c7" #bg
+        printf "\033]P77c6f64" #grey
+        printf "\033]P99d0006" #boldred
+        printf "\033]PA79740e" #boldgreen
+        printf "\033]PBb57614" #boldyellow
+        printf "\033]PC076678" #boldblue
+        printf "\033]PD8f3f71" #boldpurple
+        printf "\033]PE427b58" #boldaqua
+        printf "\033]PF3c3836" #fg
+    else
+        printf "\033]P0282828" #bg
+        printf "\033]P7a89984" #grey
+        printf "\033]P9fb4934" #boldred
+        printf "\033]PAb8bb26" #boldgreen
+        printf "\033]PBfabd2f" #boldyellow
+        printf "\033]PC83a598" #boldblue
+        printf "\033]PDd3869b" #boldpurple
+        printf "\033]PE8ec07c" #boldaqua
+        printf "\033]PFebdbb2" #fg
+    fi
+    printf "\033]P1cc241d" #red
+    printf "\033]P298971a" #green
+    printf "\033]P3d79921" #yellow
+    printf "\033]P4458588" #blue
+    printf "\033]P5b16286" #purple
+    printf "\033]P6689d6a" #aqua
+    printf "\033]P8928374" #boldgrey
+
+    clear #for background artifacting
+else
+    printf "\033]4;236;rgb:32/30/2f\033\\"
+    printf "\033]4;234;rgb:1d/20/21\033\\"
+    printf "\033]4;235;rgb:28/28/28\033\\"
+    printf "\033]4;237;rgb:3c/38/36\033\\"
+    printf "\033]4;239;rgb:50/49/45\033\\"
+    printf "\033]4;241;rgb:66/5c/54\033\\"
+    printf "\033]4;243;rgb:7c/6f/64\033\\"
+    printf "\033]4;244;rgb:92/83/74\033\\"
+    printf "\033]4;245;rgb:92/83/74\033\\"
+    printf "\033]4;228;rgb:f2/e5/bc\033\\"
+    printf "\033]4;230;rgb:f9/f5/d7\033\\"
+    printf "\033]4;229;rgb:fb/f1/c7\033\\"
+    printf "\033]4;223;rgb:eb/db/b2\033\\"
+    printf "\033]4;250;rgb:d5/c4/a1\033\\"
+    printf "\033]4;248;rgb:bd/ae/93\033\\"
+    printf "\033]4;246;rgb:a8/99/84\033\\"
+    printf "\033]4;167;rgb:fb/49/34\033\\"
+    printf "\033]4;142;rgb:b8/bb/26\033\\"
+    printf "\033]4;214;rgb:fa/bd/2f\033\\"
+    printf "\033]4;109;rgb:83/a5/98\033\\"
+    printf "\033]4;175;rgb:d3/86/9b\033\\"
+    printf "\033]4;108;rgb:8e/c0/7c\033\\"
+    printf "\033]4;208;rgb:fe/80/19\033\\"
+    printf "\033]4;88;rgb:9d/00/06\033\\"
+    printf "\033]4;100;rgb:79/74/0e\033\\"
+    printf "\033]4;136;rgb:b5/76/14\033\\"
+    printf "\033]4;24;rgb:07/66/78\033\\"
+    printf "\033]4;96;rgb:8f/3f/71\033\\"
+    printf "\033]4;66;rgb:42/7b/58\033\\"
+    printf "\033]4;130;rgb:af/3a/03\033\\"
+fi
