@@ -12,7 +12,7 @@ set shell=/bin/bash
 set showmatch
 set showtabline=2
 set laststatus=2
-let g:loaded_netrwPlugin = 1 " Remove netrw
+set undofile
 
 """ statusline
 set statusline=
@@ -23,10 +23,10 @@ set statusline+=%y\                 " file type
 set statusline+=[%l,%c]\ %p%%       " line, column and percentage
 
 """ ctags
-" if executable('ctags')
-"     command! MakeTags !ctags -R -f ./.git/tags .
-" endif
-" set tags+=,./.git/tags,
+if executable('ctags')
+    command! MakeTags !ctags -R -f ./.git/tags .
+endif
+set tags+=,./.git/tags,
 
 " Use 'correct' php indentation for switch blocks
 let g:PHP_vintage_case_default_indent = 1
@@ -35,7 +35,6 @@ let g:PHP_vintage_case_default_indent = 1
 " - umask is restrictive (something like 077 to avoid security issues)
 " - /tmp is mounted as tmpfs (the idea is to avoid disk writing)
 let g:whoami = system("id -unz")
-set undofile
 let &undodir="/tmp/".g:whoami."/nvim/undo"
 
 " Set the background to red for trailing spaces
@@ -49,63 +48,23 @@ function! SetTabSpaces(...)
     let &tabstop = a:1
     let &shiftwidth = a:1
 endfunction
-command! -nargs=+ SetTabSpaces call SetTabSpaces(<f-args>)
 call SetTabSpaces(4)
 
 " Super vim search
 function! SuperSearch(...)
-    let search = a:1
     let location = a:0 > 1 ? a:2 : '.'
     if executable('rg')
-        execute 'silent! grep --hidden --glob "!.git/*" ' . search . ' ' . location
+        execute 'silent! grep --hidden --glob "!.git/*" ' . a:1 . ' ' . location
     else
-        execute 'silent! grep -srnw --binary-files=without-match --exclude-dir=.git ' . search . ' ' . location
+        execute 'silent! grep -srnw --binary-files=without-match --exclude-dir=.git ' . a:1 . ' ' . location
     endif
-    if len(getqflist())
-        copen
-        redraw!
-        cc
-    else
-        cclose
-        redraw!
-        echo "No match found for " . search
+    cw
+    if !len(getqflist())
+        echo "No match found for " . a:1
     endif
 endfunction
 command! -nargs=+ SuperSearch call SuperSearch(<f-args>)
-map <Leader>s :execute SuperSearch(expand("<cword>"))<CR>
-
-" Get vim-plug
-if !filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
-    echo system("curl -fLo $HOME/.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim")
-endif
-
-" Update plugins
-command! Update execute Update()
-function! Update()
-    PlugUpgrade
-    PlugUpdate
-endfunction
-
-" Vim-plug
-if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
-    call plug#begin('~/.config/nvim/plugged')
-    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --key-bindings --completion --no-update-rc' }
-    Plug 'junegunn/fzf.vim'
-    Plug 'junegunn/gv.vim'
-    Plug 'justinmk/vim-dirvish'
-    Plug 'mhinz/vim-signify'
-    Plug 'sheerun/vim-polyglot'
-    Plug 'tpope/vim-fugitive'
-    Plug 'w0rp/ale'
-    call plug#end()
-endif
-
-" The french keyboard is awesome
-inoremap àà À
-inoremap éé É
-inoremap êê Ê
-inoremap èè È
-inoremap çç Ç
+map <Leader>s :execute SuperSearch(expand("<cword>"))<CR>:cc<CR>
 
 " when in a neovim terminal, add a buffer to the existing vim session
 " instead of nesting (credit justinmk)
@@ -173,6 +132,34 @@ command! Todo execute ":tabe $HOME/data/niels-data/.TODO"
 " Space bar un-highlights search
 nnoremap <Space><Space> :silent noh<Bar>echo<CR>
 
+" Get vim-plug
+if !filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
+    echo system("curl -fLo $HOME/.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim")
+endif
+
+" Update plugins
+function! Update()
+    PlugUpgrade
+    PlugUpdate
+endfunction
+
+" Vim-plug
+if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
+    call plug#begin('~/.config/nvim/plugged')
+    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --key-bindings --completion --no-update-rc' }
+    Plug 'junegunn/fzf.vim'
+    Plug 'junegunn/gv.vim'
+    Plug 'justinmk/vim-dirvish'
+    Plug 'mhinz/vim-signify'
+    Plug 'sheerun/vim-polyglot'
+    Plug 'tpope/vim-fugitive'
+    Plug 'w0rp/ale'
+    call plug#end()
+endif
+
+" Dirvish, hide dotfiles
+autocmd FileType dirvish silent keeppatterns g@\v/\.[^\/]+/?$@d _
+
 " Fzf
 if filereadable(expand("$HOME/.config/nvim/plugged/fzf.vim/autoload/fzf/vim.vim"))
     let $FZF_DEFAULT_COMMAND = 'find . 2>/dev/null'
@@ -184,14 +171,21 @@ endif
 " Vim-signify
 let g:signify_sign_change = '~'
 
+" w0rp/Ale
+let g:ale_linters = {'python': 'autopep8'}
+
 if executable('rg')
     let $FZF_DEFAULT_COMMAND = 'rg . --files --color=never --hidden --glob "!.git/*" 2>/dev/null'
     set grepprg=rg\ --vimgrep
     set grepformat^=%f:%l:%c:%m
 endif
 
-" w0rp/Ale
-let g:ale_linters = {'python': 'autopep8'}
+" The french keyboard is awesome
+inoremap àà À
+inoremap éé É
+inoremap êê Ê
+inoremap èè È
+inoremap çç Ç
 
 " learn vim the hard way
 nnoremap <up> <nop>
