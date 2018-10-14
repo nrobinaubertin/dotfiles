@@ -27,7 +27,7 @@ printf " %bCPU%b\\t\\t%s\\n" "$BGre" "$RCol" "$(grep -m1 "model name" /proc/cpui
 printf " %bMemory%b\\t\\t%s\\n" "$BGre" "$RCol" "$(free -h --si | head -n2 | tail -n1 | awk '{print $2}')"
 printf " %bShell%b\\t\\t%s\\n" "$BGre" "$RCol" "$SHELL"
 printf " %bTerminal%b\\t%s\\n" "$BGre" "$RCol" "$TERM"
-printf " %bIP%b\\t\\t%s\\n" "$BGre" "$RCol" "$(ip route show | tail -n1 | cut -d" " -f9)"
+printf " %bIP%b\\t\\t%s\\n" "$BGre" "$RCol" "$(ip route | tail -n1 | cut -d" " -f9)"
 printf " %bGeometry%b\\t%sx%s\\n\\n" "$BGre" "$RCol" "$(tput cols)" "$(tput lines)"
 
 printf " %bFilesystem\\tSize\\tUsed%b\\n" "$BGre" "$RCol"
