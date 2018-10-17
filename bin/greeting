@@ -15,7 +15,7 @@ usage() {
         i=$(( i - 5 ))
     fi
     [ $i -gt 0 ] && printf "%b%0${i}s%b" "$Red" " " "$RCol" | tr " " "="
-    printf "%0$(( 20 - n ))s]"
+    printf "%0$(( 20 - n ))s]" | tr " " "-"
 }
 
 printf "\\n"
