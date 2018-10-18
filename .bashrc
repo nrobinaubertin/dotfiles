@@ -40,8 +40,7 @@ fi
 # PATH
 . "${HOME}/.config/pathrc"
 
-# FZF and EDITOR
-[ -f "${HOME}/.fzf.bash" ] && . "${HOME}/.fzf.bash"
+# EDITOR
 command -v nvim >/dev/null && export EDITOR="/usr/bin/nvim"
 
 # open man in neovim
@@ -84,6 +83,15 @@ alias emerge='emerge --color y'
 [ -n "$(command -v trash-put 2>/dev/null)" ] && alias rr='trash-put'
 [ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias ytmp3='youtube-dl -wi --extract-audio --audio-quality 3 --audio-format mp3'
 [ -n "$(command -v mpv 2>/dev/null)" ] && alias play="mpv --no-video --loop-playlist"
+
+if command -v fzy >/dev/null; then
+    # Required to refresh the prompt after fzy
+    bind '"\er": redraw-current-line'
+    bind '"\e^": history-expand-line'
+    alias ss='HISTTIMEFORMAT= history | cut -c 8- | fzy'
+    # CTRL-R - Paste the selected command from history into the command line
+    bind '"\C-r": " \C-e\C-u\C-y\ey\C-u`ss`\e\C-e\er\e^"'
+fi
 
 # git aliases
 if command -v git >/dev/null; then
