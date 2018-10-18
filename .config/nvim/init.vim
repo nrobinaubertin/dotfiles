@@ -146,8 +146,6 @@ endfunction
 " Vim-plug
 if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
     call plug#begin('~/.config/nvim/plugged')
-    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --key-bindings --completion --no-update-rc' }
-    Plug 'junegunn/fzf.vim'
     Plug 'junegunn/gv.vim'
     Plug 'justinmk/vim-dirvish'
     Plug 'mhinz/vim-signify'
@@ -160,22 +158,51 @@ endif
 " Dirvish, hide dotfiles
 autocmd FileType dirvish silent keeppatterns g@\v/\.[^\/]+/?$@d _
 
-" Fzf
-if filereadable(expand("$HOME/.config/nvim/plugged/fzf.vim/autoload/fzf/vim.vim"))
-    let $FZF_DEFAULT_COMMAND = 'find . 2>/dev/null'
-    nnoremap <A-f> :FZF<CR>
-    tnoremap <A-f> <C-\><C-n>:FZF<CR>
-    inoremap <A-f> <Esc>:FZF<CR>
-endif
-
 " Vim-signify
 let g:signify_sign_change = '~'
 
 " w0rp/Ale
 let g:ale_linters = {'python': 'autopep8'}
 
+if executable('fzy')
+    function! FzyCommand(choice_command, vim_command) abort
+        let l:callback = {
+                    \ 'window_id': win_getid(),
+                    \ 'filename': tempname(),
+                    \  'vim_command':  a:vim_command
+                    \ }
+
+        function! l:callback.on_exit(job_id, data, event) abort
+            bdelete!
+            call win_gotoid(self.window_id)
+            if filereadable(self.filename)
+                try
+                    let l:selected_filename = readfile(self.filename)[0]
+                    exec self.vim_command . l:selected_filename
+                catch /E684/
+                endtry
+            endif
+            call delete(self.filename)
+        endfunction
+
+        botright 10 new
+        let l:term_command = a:choice_command . ' | fzy > ' .  l:callback.filename
+        silent call termopen(l:term_command, l:callback)
+        setlocal nonumber norelativenumber
+        startinsert
+    endfunction
+    if executable('rg')
+        nnoremap <A-f> :call FzyCommand('rg --files --color=never --hidden --glob "!.git/*"', ":e ")<CR>
+        tnoremap <A-f> <C-\><C-n>:call FzyCommand('rg --files --color=never --hidden --glob "!.git/*"', ":e ")<CR>
+        inoremap <A-f> <Esc>:call FzyCommand('rg --files --color=never --hidden --glob "!.git/*"', ":e ")<CR>
+    else
+        nnoremap <A-f> :call FzyCommand("find -type f", ":e ")<CR>
+        tnoremap <A-f> <C-\><C-n>:call FzyCommand("find -type f", ":e ")<CR>
+        inoremap <A-f> <Esc>:call FzyCommand("find -type f", ":e ")<CR>
+    endif
+endif
+
 if executable('rg')
-    let $FZF_DEFAULT_COMMAND = 'rg . --files --color=never --hidden --glob "!.git/*" 2>/dev/null'
     set grepprg=rg\ --vimgrep
     set grepformat^=%f:%l:%c:%m
 endif
