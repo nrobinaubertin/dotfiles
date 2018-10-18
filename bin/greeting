@@ -8,7 +8,7 @@ min() {
 
 usage() {
     n=$((20 * $1 / 100)); i="$n"
-    printf "[%b%0$(min $i 10)s" "$Green" " " | tr " " "="
+    printf "[%b%0$(min $i 10)s%b" "$Green" " " "$RCol" | tr " " "="
     i=$(( i - 10 ))
     if [ $i -gt 0 ]; then
         printf "%b%0$(min $i 5)s%b" "$Yellow" " " "$RCol" | tr " " "="
