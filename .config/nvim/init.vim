@@ -28,6 +28,17 @@ if executable('ctags')
 endif
 set tags+=,./.git/tags,
 
+""" rg
+if executable('rg')
+    set grepprg=rg\ --vimgrep
+    set grepformat^=%f:%l:%c:%m
+    let g:list_files_function = 'rg --files --color=never --hidden --glob "!.git/*"'
+    let g:search_function = 'silent! grep --hidden --glob "!.git/*" '
+else
+    let g:list_files_function = 'find -type f'
+    let g:search_function = 'silent! grep -srnw --binary-files=without-match --exclude-dir=.git '
+endif
+
 " Use 'correct' php indentation for switch blocks
 let g:PHP_vintage_case_default_indent = 1
 
@@ -53,11 +64,7 @@ call SetTabSpaces(4)
 " Super vim search
 function! SuperSearch(...)
     let location = a:0 > 1 ? a:2 : '.'
-    if executable('rg')
-        execute 'silent! grep --hidden --glob "!.git/*" ' . a:1 . ' ' . location
-    else
-        execute 'silent! grep -srnw --binary-files=without-match --exclude-dir=.git ' . a:1 . ' ' . location
-    endif
+    execute g:search_function . a:1 . ' ' . location
     cw
     if !len(getqflist())
         echo "No match found for " . a:1
@@ -191,20 +198,15 @@ if executable('fzy')
         setlocal nonumber norelativenumber
         startinsert
     endfunction
-    if executable('rg')
-        nnoremap <A-f> :call FzyCommand('rg --files --color=never --hidden --glob "!.git/*"', ":e ")<CR>
-        tnoremap <A-f> <C-\><C-n>:call FzyCommand('rg --files --color=never --hidden --glob "!.git/*"', ":e ")<CR>
-        inoremap <A-f> <Esc>:call FzyCommand('rg --files --color=never --hidden --glob "!.git/*"', ":e ")<CR>
-    else
-        nnoremap <A-f> :call FzyCommand("find -type f", ":e ")<CR>
-        tnoremap <A-f> <C-\><C-n>:call FzyCommand("find -type f", ":e ")<CR>
-        inoremap <A-f> <Esc>:call FzyCommand("find -type f", ":e ")<CR>
-    endif
-endif
-
-if executable('rg')
-    set grepprg=rg\ --vimgrep
-    set grepformat^=%f:%l:%c:%m
+    nnoremap <A-f> :call FzyCommand(g:list_files_function, ":tabe ")<CR>
+    tnoremap <A-f> <C-\><C-n>:call FzyCommand(g:list_files_function, ":tabe ")<CR>
+    inoremap <A-f> <Esc>:call FzyCommand(g:list_files_function, ":tabe ")<CR>
+    nnoremap <A-e> :call FzyCommand(g:list_files_function, ":e ")<CR>
+    tnoremap <A-e> <C-\><C-n>:call FzyCommand(g:list_files_function, ":e ")<CR>
+    inoremap <A-e> <Esc>:call FzyCommand(g:list_files_function, ":e ")<CR>
+    nnoremap <A-v> :call FzyCommand(g:list_files_function, ":vsp ")<CR>
+    tnoremap <A-v> <C-\><C-n>:call FzyCommand(g:list_files_function, ":vsp ")<CR>
+    inoremap <A-v> <Esc>:call FzyCommand(g:list_files_function, ":vsp ")<CR>
 endif
 
 " The french keyboard is awesome
