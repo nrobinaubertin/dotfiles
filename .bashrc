@@ -189,7 +189,7 @@ fi
 
 # go to the root of the git repository
 cdroot() {
-    ! [ -d ".git" ] && [ "$(pwd)" != "/" ] && cd .. && cdroot
+    ! [ -d ".git" ] && [ "$(pwd)" != "/" ] && cd .. && cdroot || return 0
 }
 
 # get number of files for each extension in a dir
