@@ -170,6 +170,7 @@ let g:signify_sign_change = '~'
 
 " w0rp/Ale
 let g:ale_linters = {'python': 'autopep8'}
+let g:ale_lint_on_text_changed = 'never'
 
 if executable('fzy')
     function! FzyCommand(choice_command, vim_command) abort
