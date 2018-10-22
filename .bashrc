@@ -158,7 +158,7 @@ fi
 
 if command -v curl >/dev/null; then
     ww() {
-        curl -s "wttr.in/$1" | head -n -3
+        curl -s "wttr.in/$1" | head -n -2
     }
 fi
 
