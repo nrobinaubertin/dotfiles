@@ -35,7 +35,7 @@ if executable('rg')
     let g:list_files_function = 'rg --files --color=never --hidden --glob "!.git/*"'
     let g:search_function = 'silent! grep --hidden --glob "!.git/*" '
 else
-    let g:list_files_function = 'find -type f'
+    let g:list_files_function = "find -type f -not -path '*/\.*'"
     let g:search_function = 'silent! grep -srnw --binary-files=without-match --exclude-dir=.git '
 endif
 
