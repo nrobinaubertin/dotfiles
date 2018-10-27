@@ -1,7 +1,7 @@
 " general configuration
 colors gruvbox
 set background=dark
-set clipboard+=unnamedplus " Use the clipboard for all operations
+set clipboard=unnamedplus " Use the clipboard for all operations
 set expandtab
 set fillchars=vert:\ ,stl:\ ,stlnc:\ 
 set mat=2
