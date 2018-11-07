@@ -204,6 +204,11 @@ md5dirsum() {
     cd - >/dev/null || exit
 }
 
+# start syncthing container
+syncthing() {
+    sudo docker run -it --rm --net=host -v /home/niels/data/:/data -e UID=$(id -u) -e GID=$(id -g) --name syncthing syncthing
+}
+
 # Colors & Greetings
 [ -n "$(command -v gruvbox 2>/dev/null)" ] && gruvbox 2>/dev/null
 [ -n "$(command -v greeting 2>/dev/null)" ] && greeting 2>/dev/null
