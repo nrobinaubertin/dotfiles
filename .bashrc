@@ -46,6 +46,10 @@ command -v nvim >/dev/null && export EDITOR="/usr/bin/nvim"
 # open man in neovim
 export MANPAGER="nvim -Rc 'set ft=man' -"
 
+# let [Tab] and [Shift]+[Tab] cycle through all completions:
+bind '"\t": menu-complete'
+bind '"\033[Z": menu-complete-backward'
+
 ##############
 ## HISTORY ###
 ##############
