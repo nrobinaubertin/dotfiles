@@ -210,6 +210,7 @@ md5dirsum() {
 
 # start syncthing container
 syncthing() {
+    sudo systemctl start docker
     sudo docker run -it --rm --net=host -v /home/niels/data/:/data -e UID=$(id -u) -e GID=$(id -g) --name syncthing syncthing
 }
 
