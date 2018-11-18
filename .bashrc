@@ -168,15 +168,18 @@ fi
 
 if command -v exa >/dev/null; then
     alias ll='exa -gl --git --color=always'
-    alias lll='exa -gl --git --color=always | less -R'
     alias lla='exa -agl --git --color=always'
     alias llt='exa -gl --git -s modified --color=always'
 else
     alias ll='ls -lhb --color'
-    alias lll='ls -lhb --color | less -R'
     alias lla='ls -alhb --color'
     alias llt='ls -lhbt --color'
 fi
+
+lll() {
+    [ -z "$1" ] && t="." || t="$1"
+    ll "$t" | less -R
+}
 
 if command -v openssl >/dev/null; then
     alias htpass='openssl passwd -apr1'
