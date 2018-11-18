@@ -1,7 +1,7 @@
 #!/bin/sh
 
 usage() {
-	printf "todo: write usage"
+	printf "$0 <volume|power|date|time|cpu|latency|heat|dot|ip|ram|status|temp|uptime|status_with_cache> [separator]"
 }
 
 get_volume() {
