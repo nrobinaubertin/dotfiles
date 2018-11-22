@@ -24,9 +24,9 @@ set statusline+=[%l,%c]\ %p%%       " line, column and percentage
 
 """ ctags
 if executable('ctags')
-    command! MakeTags !ctags -R -f ./.git/tags .
+    command! MakeTags !ctags -R -f .tags .
 endif
-set tags+=,./.git/tags,
+set tags+=,.tags,
 
 """ rg
 if executable('rg')
