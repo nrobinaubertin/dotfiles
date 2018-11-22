@@ -13,7 +13,6 @@ set showmatch
 set showtabline=2
 set laststatus=2
 set undofile
-set showbreak=↪\ 
 
 """ statusline
 set statusline=
