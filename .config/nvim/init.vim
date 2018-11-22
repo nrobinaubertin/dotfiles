@@ -134,7 +134,7 @@ tnoremap <A-k> <C-\><C-n>:tabmove +1<CR>
 command! SaveSudo :execute ':silent w !sudo tee % > /dev/null' <Bar> :edit!
 
 " Open todo file
-command! Todo execute ":tabe $HOME/data/niels-data/.TODO"
+command! Todo execute ":tabe $HOME/data/niels-data/.TODO" <Bar> :set ft=markdown
 
 " Space bar un-highlights search
 nnoremap <Space><Space> :silent noh<Bar>echo<CR>
