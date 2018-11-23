@@ -107,7 +107,7 @@ if command -v git >/dev/null; then
     fi
     . "${HOME}/.local/share/git/git-completion.bash" 2>/dev/null
 
-    alias gl='git log --pretty=medium --abbrev-commit --date=relative'
+    alias gl='git log --pretty=medium --abbrev-commit --date=relative --first-parent'
     alias gs='git status -sb'
     alias gf='git fetch -p --all'
     alias gd='git diff --color --color-moved'
