@@ -23,9 +23,7 @@ set statusline+=%y\                 " file type
 set statusline+=[%l,%c]\ %p%%       " line, column and percentage
 
 """ ctags
-if executable('ctags')
-    command! MakeTags !ctags -R -f .tags .
-endif
+command! MakeTags !ctags -R -f .tags .
 set tags+=,.tags,
 
 """ rg
