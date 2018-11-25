@@ -110,6 +110,7 @@ if command -v git >/dev/null; then
     alias gs='git status -sb'
     alias gf='git fetch -p --all'
     alias gd='git diff --color --color-moved'
+    alias gdd='git diff --color --color-moved --staged'
     alias gg='git log --graph --abbrev-commit --decorate --format=format:"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)" --all'
 
     # get stats of a git repo
