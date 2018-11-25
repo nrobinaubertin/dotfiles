@@ -59,18 +59,6 @@ function! SetTabSpaces(...)
 endfunction
 call SetTabSpaces(4)
 
-" Super vim search
-function! SuperSearch(...)
-    let location = a:0 > 1 ? a:2 : '.'
-    execute g:search_function . a:1 . ' ' . location
-    cw
-    if !len(getqflist())
-        echo "No match found for " . a:1
-    endif
-endfunction
-command! -nargs=+ SuperSearch call SuperSearch(<f-args>)
-map <Leader>s :execute SuperSearch(expand("<cword>"))<CR>:cc<CR>
-
 " when in a neovim terminal, add a buffer to the existing vim session
 " instead of nesting (credit justinmk)
 " You need socat to do this
