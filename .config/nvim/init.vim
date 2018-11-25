@@ -139,7 +139,6 @@ endfunction
 " Vim-plug
 if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
     call plug#begin('~/.config/nvim/plugged')
-    Plug 'junegunn/gv.vim'
     Plug 'justinmk/vim-dirvish'
     Plug 'mhinz/vim-signify'
     Plug 'sheerun/vim-polyglot'
