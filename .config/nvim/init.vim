@@ -1,8 +1,8 @@
 " general configuration
 colors gruvbox
+set tabstop=4 shiftwidth=4 expandtab
 set background=dark
 set clipboard=unnamedplus " Use the clipboard for all operations
-set expandtab
 set fillchars=vert:\ ,stl:\ ,stlnc:\ 
 set mat=2
 set mouse=
@@ -10,8 +10,7 @@ set noshowmode
 set nu
 set shell=/bin/bash
 set showmatch
-set showtabline=2
-set laststatus=2
+set showtabline=2 laststatus=2
 set undofile
 
 """ statusline
@@ -37,27 +36,14 @@ else
     let g:search_function = 'silent! grep -srnw --binary-files=without-match --exclude-dir=.git '
 endif
 
-" Use 'correct' php indentation for switch blocks
-let g:PHP_vintage_case_default_indent = 1
-
-" The following options are good only if:
-" - umask is restrictive (something like 077 to avoid security issues)
-" - /tmp is mounted as tmpfs (the idea is to avoid disk writing)
-let g:whoami = system("id -unz")
-let &undodir="/tmp/".g:whoami."/nvim/undo"
-
 " Set the background to red for trailing spaces
 match ErrorMsg "\s\+$"
-
-" Remap leader key
-let mapleader=" "
 
 " Set tab spaces
 function! SetTabSpaces(...)
     let &tabstop = a:1
     let &shiftwidth = a:1
 endfunction
-call SetTabSpaces(4)
 
 " when in a neovim terminal, add a buffer to the existing vim session
 " instead of nesting (credit justinmk)
@@ -137,6 +123,9 @@ function! Opendir(cmd) abort
         call search(pattern, 'wc')
     endif
 endfunction
+
+" Use 'correct' php indentation for switch blocks
+let g:PHP_vintage_case_default_indent = 1
 
 " Get vim-plug
 if !filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
