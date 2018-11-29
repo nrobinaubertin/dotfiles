@@ -125,6 +125,19 @@ command! Todo execute ':tabe `=resolve(expand("~/.TODO"))`' <Bar> :set ft=markdo
 " Space bar un-highlights search
 nnoremap <Space><Space> :silent noh<Bar>echo<CR>
 
+" netrw config, based on tpope/vinegar
+let g:netrw_banner = 0
+nmap - :call Opendir('edit')<CR>
+function! Opendir(cmd) abort
+    if expand('%') =~# '^$\|^term:[\/][\/]'
+        execute a:cmd '.'
+    else
+        execute a:cmd '%:h'
+        let pattern = '^\%(| \)*'.escape(expand('#:t'), '.*[]~\').'[/*|@=]\=\%($\|\t\)'
+        call search(pattern, 'wc')
+    endif
+endfunction
+
 " Get vim-plug
 if !filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
     echo system("curl -fLo $HOME/.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim")
@@ -139,16 +152,12 @@ endfunction
 " Vim-plug
 if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
     call plug#begin('~/.config/nvim/plugged')
-    Plug 'justinmk/vim-dirvish'
     Plug 'mhinz/vim-signify'
     Plug 'sheerun/vim-polyglot'
     Plug 'tpope/vim-fugitive'
     Plug 'w0rp/ale'
     call plug#end()
 endif
-
-" Dirvish, hide dotfiles
-autocmd FileType dirvish silent keeppatterns g@\v/\.[^\/]+/?$@d _
 
 " Vim-signify
 let g:signify_sign_change = '~'
