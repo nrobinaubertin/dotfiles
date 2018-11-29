@@ -67,7 +67,7 @@ if executable('socat')
                 \ |let g:r=jobstart(['socat', '-', 'UNIX-CLIENT:'.$NVIM_LISTEN_ADDRESS],{'rpc':v:true})
                 \ |let g:f=fnameescape(expand('%:p'))
                 \ |noau bwipe
-                \ |call rpcrequest(g:r, "nvim_command", "edit ".g:f)
+                \ |call rpcrequest(g:r, "nvim_command", "tabe ".g:f)
                 \ |qa
                 \ |endif
 endif
