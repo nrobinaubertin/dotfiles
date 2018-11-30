@@ -1,4 +1,4 @@
-" general configuration
+""" general configuration
 colors gruvbox
 set tabstop=4 shiftwidth=4 expandtab
 set background=dark
@@ -6,7 +6,6 @@ set clipboard=unnamedplus " Use the clipboard for all operations
 set fillchars=vert:\ ,stl:\ ,stlnc:\ 
 set mat=2
 set mouse=
-set noshowmode
 set nu
 set shell=/bin/bash
 set showmatch
@@ -157,11 +156,7 @@ let g:ale_lint_on_text_changed = 'never'
 
 if executable('fzy')
     function! FzyCommand(choice_command, vim_command) abort
-        let l:callback = {
-                    \ 'window_id': win_getid(),
-                    \ 'filename': tempname(),
-                    \  'vim_command':  a:vim_command
-                    \ }
+        let l:callback = {'window_id': win_getid(), 'filename': tempname(), 'vim_command': a:vim_command}
 
         function! l:callback.on_exit(job_id, data, event) abort
             bdelete!
@@ -179,7 +174,6 @@ if executable('fzy')
         botright 10 new
         let l:term_command = a:choice_command . ' | fzy > ' .  l:callback.filename
         silent call termopen(l:term_command, l:callback)
-        setlocal nonumber norelativenumber
         startinsert
     endfunction
     nnoremap <A-f> :call FzyCommand(g:list_files_function, ":tabe ")<CR>
