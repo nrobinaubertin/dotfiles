@@ -24,8 +24,6 @@ set_prompt() {
     PS1="\\n\\r${RCol}${startprompt}[\`if [ \$? = 0 ]; then echo ${Gre}; else echo ${Red}; fi\`\\t\\[${RCol}\\] \\[${Blu}\\]\\h\\[${RCol}\\] \\[${Yel}\\]\\w\\[${RCol}\\]]\\n${endprompt} "
 }
 
-set_prompt
-
 # set a restrictive umask
 umask 077
 
@@ -199,24 +197,13 @@ cdroot() {
     ! [ -d ".git" ] && [ "$(pwd)" != "/" ] && cd .. && cdroot || return 0
 }
 
-# get number of files for each extension in a dir
-scan() {
-    find "$1" -type f -not -path '*/\.*' 2>/dev/null | awk -F . '{print $NF}' | grep -v "/" | sort | uniq -c | sort -t " " -k 1 -g -r
-}
-
-# get md5sum of directory
-md5dirsum() {
-    cd "$1" || exit
-    find . -type f -print0 | sort -z | uniq -z | xargs -0 -n 1 md5sum | sort | md5sum
-    cd - >/dev/null || exit
-}
-
 # start syncthing container
 syncthing() {
     sudo systemctl start docker
     sudo docker run -it --rm --net=host -v /home/niels/data/:/data -e UID=$(id -u) -e GID=$(id -g) --name syncthing syncthing
 }
 
-# Colors & Greetings
+# Prompt & Colors & Greetings
+set_prompt
 [ -n "$(command -v gruvbox 2>/dev/null)" ] && gruvbox 2>/dev/null
 [ -n "$(command -v greeting 2>/dev/null)" ] && greeting 2>/dev/null
