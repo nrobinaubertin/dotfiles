@@ -112,21 +112,8 @@ if command -v git >/dev/null; then
     alias gdd='git diff --color --color-moved --staged'
     alias gg='git log --graph --abbrev-commit --decorate --format=format:"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)" --all'
 
-    # get stats of a git repo
-    git_stats() {
-        (
-        head=$(git ls-files | while read -r f; do git blame --line-porcelain "$f" | grep '^author-mail '; done | sort -f | uniq -ic | sort -n | tr -d '<>' | awk '{print $1, $3}')
-        printf "head,commits,inserted,deleted,author\\n"
-        for author in $(git log --pretty="%ce" | sort | uniq); do
-            head_author=$(echo "$head" | grep "$author" | cut -d' ' -f1)
-            stat=$(git log --shortstat --author "$author" -i 2> /dev/null | grep -E 'files? changed' | awk 'BEGIN{commits=0;inserted=0;deleted=0} {commits+=1; if($5!~"^insertion") { deleted+=$4 } else { inserted+=$4; deleted+=$6 } } END {print commits, ",", inserted, ",", deleted}')
-            printf "%s,%s,%s\\n" "$head_author" "$stat" "$author"
-        done
-        ) | column -t -s ','
-    }
-
     # get number of commit last week/day for each author
-    git_pulse() {
+    gp() {
         case "$1" in
             "day") age=$(( $(date +%s) - (60 * 60 * 24) ));;
             "month") age=$(( $(date +%s) - (60 * 60 * 24 * 30) ));;
@@ -155,8 +142,6 @@ if command -v git >/dev/null; then
         done
         ) | column -t -s ','
     }
-
-    alias gp='git_pulse'
 fi
 
 if command -v curl >/dev/null; then
