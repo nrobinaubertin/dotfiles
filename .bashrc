@@ -80,6 +80,7 @@ alias todo='nvim ${HOME}/data/niels-data/.TODO'
 alias grep='grep --color=always'
 alias less='less -RX'
 alias emerge='emerge --color y'
+alias archive='tar zcvf "$(date +%Y-%d-%m)-archive.tar.gz" --remove-files'
 
 [ -n "$(command -v trash-put 2>/dev/null)" ] && alias rr='trash-put'
 [ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias ytmp3='youtube-dl -wi --extract-audio --audio-quality 3 --audio-format mp3'
