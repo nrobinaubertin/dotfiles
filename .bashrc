@@ -92,7 +92,7 @@ if command -v fzy >/dev/null; then
     bind '"\er": redraw-current-line'
     bind '"\e^": history-expand-line'
     # CTRL-R - Paste the selected command from history into the command line
-    bind '"\C-r": " \C-e\C-u\C-y\ey\C-u`ss`\e\C-e\er\e^"'
+    bind '"\C-r": " \C-e\C-u\C-y\ey\C-u`HISTTIMEFORMAT= history | cut -c 8- | fzy`\e\C-e\er\e^"'
 fi
 
 # git aliases
