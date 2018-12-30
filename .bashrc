@@ -76,7 +76,7 @@ unalias -a
 
 # some aliases
 alias :q='exit'
-alias todo='nvim ${HOME}/data/niels-data/.TODO'
+alias todo='nvim -c "set ft=markdown" ${HOME}/.TODO'
 alias grep='grep --color=always'
 alias less='less -RX'
 alias emerge='emerge --color y'
