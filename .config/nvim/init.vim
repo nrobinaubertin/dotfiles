@@ -1,18 +1,13 @@
-""" general configuration
+" General configuration
 colors gruvbox
 set tabstop=4 shiftwidth=4 expandtab
-set background=dark
 set clipboard=unnamedplus " Use the clipboard for all operations
 set fillchars=vert:\ ,stl:\ ,stlnc:\ 
-set mat=2
-set mouse=
-set nu
+set showmatch mat=2 background=dark mouse= nu showtabline=2 laststatus=2
 set shell=/bin/bash
-set showmatch
-set showtabline=2 laststatus=2
 set undofile
 
-""" statusline
+" Statusline
 set statusline=
 set statusline+=[%n%H%M%R%W]\       " flags and buf no
 set statusline+=\ %f\               " path
@@ -20,32 +15,20 @@ set statusline+=%=                  " switch to right side
 set statusline+=%y\                 " file type
 set statusline+=[%l,%c]\ %p%%       " line, column and percentage
 
-""" ctags
+" Ctags
 command! MakeTags !ctags -R -f .tags .
 set tags+=,.tags,
-
-""" rg
-if executable('rg')
-    set grepprg=rg\ --vimgrep
-    set grepformat^=%f:%l:%c:%m
-    let g:list_files_function = 'rg --files --color=never --hidden --glob "!.git/*"'
-    let g:search_function = 'silent! grep --hidden --glob "!.git/*" '
-else
-    let g:list_files_function = "find -type f -not -path '*/\.*'"
-    let g:search_function = 'silent! grep -srnw --binary-files=without-match --exclude-dir=.git '
-endif
 
 " Set the background to red for trailing spaces
 match ErrorMsg "\s\+$"
 
-" Set tab spaces
+" Function to set tab spaces
 function! SetTabSpaces(...)
     let &tabstop = a:1
     let &shiftwidth = a:1
 endfunction
 
-" when in a neovim terminal, add a buffer to the existing vim session
-" instead of nesting (credit justinmk)
+" When in a neovim terminal, add a buffer to the existing vim session instead of nesting (credit justinmk)
 " You need socat to do this
 if executable('socat')
     autocmd VimEnter * if &ft != 'man' && !&diff && !empty($NVIM_LISTEN_ADDRESS) && $NVIM_LISTEN_ADDRESS !=# v:servername
@@ -73,21 +56,7 @@ noremap <A-t> <C-\><C-n>:tabe<CR>:term<CR>
 tnoremap <A-c> <C-\><C-n>:tabe<CR>
 noremap <A-c> <C-\><C-n>:tabe<CR>
 
-"" Windows commands
-nnoremap <C-k> :wincmd k<CR>
-inoremap <C-k> <Esc>:wincmd k<CR>
-tnoremap <C-k> <C-\><C-n>:wincmd k<CR>
-nnoremap <C-j> :wincmd j<CR>
-inoremap <C-j> <Esc>:wincmd j<CR>
-tnoremap <C-j> <C-\><C-n>:wincmd j<CR>
-nnoremap <C-h> :wincmd h<CR>
-inoremap <C-h> <Esc>:wincmd h<CR>
-tnoremap <C-h> <C-\><C-n>:wincmd h<CR>
-nnoremap <C-l> :wincmd l<CR>
-inoremap <C-l> <Esc>:wincmd l<CR>
-tnoremap <C-l> <C-\><C-n>:wincmd l<CR>
-
-"" Tabs commands
+" Tabs commands
 nnoremap <A-l> :tabnext<CR>
 inoremap <A-l> <Esc>:tabnext<CR>
 tnoremap <A-l> <C-\><C-n>:tabnext<CR>
@@ -110,7 +79,7 @@ command! Todo execute ':tabe `=resolve(expand("~/.TODO"))`' <Bar> :set ft=markdo
 " Space bar un-highlights search
 nnoremap <Space><Space> :silent noh<Bar>echo<CR>
 
-" netrw config, based on tpope/vinegar
+" Netrw config, based on tpope/vinegar
 let g:netrw_banner = 0
 nmap - :call Opendir('edit')<CR>
 function! Opendir(cmd) abort
@@ -153,6 +122,17 @@ let g:signify_sign_change = '~'
 " w0rp/Ale
 let g:ale_linters = {'python': 'autopep8'}
 let g:ale_lint_on_text_changed = 'never'
+
+" rg
+if executable('rg')
+    set grepprg=rg\ --vimgrep
+    set grepformat^=%f:%l:%c:%m
+    let g:list_files_function = 'rg --files --color=never --hidden --glob "!.git/*"'
+    let g:search_function = 'silent! grep --hidden --glob "!.git/*" '
+else
+    let g:list_files_function = "find -type f -not -path '*/\.*'"
+    let g:search_function = 'silent! grep -srnw --binary-files=without-match --exclude-dir=.git '
+endif
 
 if executable('fzy')
     function! FzyCommand(choice_command, vim_command) abort
