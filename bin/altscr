@@ -1,6 +1,6 @@
 #!/bin/sh
 
-current=$(xrandr | grep ' co' | grep 'mm x' | awk '{print $1}')
+current=$(xrandr | grep ' co' | grep 'mm x' | awk '{print $1}' | head -n1)
 found=false
 for output in $(xrandr | grep ' co' | awk '{print $1}')
 do
