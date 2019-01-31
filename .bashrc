@@ -14,8 +14,9 @@ shopt -s globstar 2> /dev/null
 # Force Bash's Emacs Mode
 set -o emacs;
 
-# completion with sudo
+# completion with some commands
 complete -cf sudo
+complete -cf man
 
 set_prompt() {
     RCol='\033[0m'; Red='\033[31m'; Gre='\033[32m'; Yel='\033[33m'; Blu='\033[34m'
@@ -80,8 +81,9 @@ alias todo='nvim -c "set ft=markdown" ${HOME}/.TODO'
 alias grep='grep --color=always'
 alias less='less -RX'
 alias emerge='emerge --color y'
-alias archive='tar zcvf "$(date +%Y-%d-%m)-archive.tar.gz" --remove-files'
-alias rnvim='nvim -u NORC -c "setlocal syntax=off"'
+alias archive='tar zcvf "$(date +%Y-%d-%m).archive.tar.gz" --remove-files'
+alias nraw='nvim -u NORC -c "setlocal syntax=off"'
+alias nterm='nvim -c term'
 
 [ -n "$(command -v trash-put 2>/dev/null)" ] && alias rr='trash-put'
 [ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias ytmp3='youtube-dl -wi --extract-audio --audio-quality 3 --audio-format mp3'
