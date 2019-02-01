@@ -43,7 +43,7 @@ fi
 command -v nvim >/dev/null && export EDITOR="/usr/bin/nvim"
 
 # open man in neovim
-export MANPAGER="nvim -Rc 'set ft=man' -"
+command -v nvim >/dev/null && export MANPAGER="nvim -Rc 'set ft=man' -"
 
 # let [Shift]+[Tab] cycle through all completions:
 bind '"\033[Z": menu-complete'
@@ -84,6 +84,7 @@ alias emerge='emerge --color y'
 alias archive='tar zcvf "$(date +%Y-%d-%m).archive.tar.gz" --remove-files'
 alias nraw='nvim -u NORC -c "setlocal syntax=off"'
 alias nterm='nvim -c term'
+alias :tabe='nvim'
 
 [ -n "$(command -v trash-put 2>/dev/null)" ] && alias rr='trash-put'
 [ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias ytmp3='youtube-dl -wi --extract-audio --audio-quality 3 --audio-format mp3'
@@ -195,3 +196,6 @@ syncthing() {
 set_prompt
 [ -n "$(command -v gruvbox 2>/dev/null)" ] && gruvbox 2>/dev/null
 [ -n "$(command -v greeting 2>/dev/null)" ] && greeting 2>/dev/null
+
+# Secondary bashrc for local configurations
+[ -f "${HOME}/.config/.bashrc" ] && . "${HOME}/.config/.bashrc"
