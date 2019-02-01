@@ -34,7 +34,7 @@ printf " %bIP%b\\t\\t\\t%s\\n" "$BGre" "$RCol" "$(ip route | tail -n1 | cut -d" 
 printf " %bGeometry%b\\t\\t%sx%s\\n\\n" "$BGre" "$RCol" "$(tput cols)" "$(tput lines)"
 
 printf " %bFilesystem\\t\\tSize\\tUsed%b\\n" "$BGre" "$RCol"
-for i in $(df -h | sort | grep -E "/(sd|nvme)" | cut -d' ' -f1); do
+for i in $(df -h | sort | grep -E "/(sd|nvme|drbd)" | cut -d' ' -f1); do
     p=$(df | grep "$i" | tr -s " " | cut -d' ' -f5 | tr -d "%")
     s=$(df -h | grep "$i" | tr -s " " | cut -d" " -f2)
     printf " %s\\t\\t%s\\t%s\\n" "$i" "$s" "$(usage "$p")"
