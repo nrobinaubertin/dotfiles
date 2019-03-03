@@ -175,7 +175,7 @@ if command -v openssl >/dev/null; then
         user=$(printf "%s" "$1" | cut -d'@' -f1)
         host=$(printf "%s" "$1" | cut -d'@' -f2 | cut -d':' -f1)
         # port=$(printf "%s" "$1" | cut -d'@' -f2 | cut -d':' -f2)
-        ssh-keygen -t ed25519 -C "$user@$host-$(date -I)" -f "$HOME/.ssh/id_ed25519.$user@$host" -a 100
+        ssh-keygen -t ed25519 -C "$user@$host-$(date -I)-ed25519" -f "$HOME/.ssh/$user@$host" -a 100
     }
 fi
 
