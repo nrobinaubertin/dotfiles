@@ -1,13 +1,29 @@
 #!/bin/sh
 
 usage() {
-	printf "$0 <volume|power|date|time|cpu|latency|heat|dot|ip|ram|status|temp|uptime|status_with_cache> [separator]"
+	echo "$0:"
+    echo "  volume"
+    echo "  power"
+    echo "  date"
+    echo "  time"
+    echo "  cpu"
+    echo "  latency"
+    echo "  heat"
+    echo "  dot"
+    echo "  ip"
+    echo "  ram"
+    echo "  status"
+    echo "  temp"
+    echo "  uptime"
+    echo "  status_with_cache [separator]"
 }
 
 get_volume() {
-    vol="$(amixer get Master,0 | grep -Po "\d+%")"
-    if [ -n "$vol" ]; then
-        printf "%s" "${vol}"
+    if command -v amixer >/dev/null; then
+        vol="$(amixer get Master,0 | grep -Po "\d+%")"
+        if [ -n "$vol" ]; then
+            printf "%s" "${vol}"
+        fi
     fi
 }
 
