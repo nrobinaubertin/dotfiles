@@ -80,8 +80,6 @@ alias :q='exit'
 alias todo='nvim -c "set ft=markdown" ${HOME}/.TODO'
 alias grep='grep --color=always'
 alias less='less -RX'
-alias emerge='emerge --color y'
-alias archive='tar zcvf "$(date +%Y-%d-%m).archive.tar.gz" --remove-files'
 alias nraw='nvim -u NORC -c "setlocal syntax=off"'
 alias nterm='nvim -c term'
 alias :tabe='nvim'
@@ -186,6 +184,13 @@ if command -v abduco >/dev/null; then
         abduco -A "niels-$(date +%Y-%m-%d)" nvim -c term
     }
 fi
+
+
+archive() {
+    name="archive"
+    [ -n "$2" ] && name="$2"
+    tar zcvf "$(date +%Y-%d-%m).$name.tar.gz" --remove-files "$1"
+}
 
 # go to the root of the git repository
 cdroot() {
