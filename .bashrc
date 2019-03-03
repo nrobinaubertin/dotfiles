@@ -37,7 +37,7 @@ if command -v systemctl >/dev/null; then
 fi
 
 # PATH
-. "${HOME}/.config/pathrc"
+[ -f "${HOME}/.config/pathrc" ] && . "${HOME}/.config/pathrc"
 
 # EDITOR
 command -v nvim >/dev/null && export EDITOR="/usr/bin/nvim"
@@ -192,10 +192,10 @@ syncthing() {
     sudo docker run -it --rm --net=host -v /home/niels/data/:/data -e UID=$(id -u) -e GID=$(id -g) --name syncthing syncthing
 }
 
+# Secondary bashrc for local configurations
+[ -f "${HOME}/.config/bashrc" ] && . "${HOME}/.config/bashrc"
+
 # Prompt & Colors & Greetings
 set_prompt
 [ -n "$(command -v gruvbox 2>/dev/null)" ] && gruvbox 2>/dev/null
 [ -n "$(command -v greeting 2>/dev/null)" ] && greeting 2>/dev/null
-
-# Secondary bashrc for local configurations
-[ -f "${HOME}/.config/.bashrc" ] && . "${HOME}/.config/.bashrc"
