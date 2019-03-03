@@ -183,7 +183,7 @@ fi
 
 # go to the root of the git repository
 cdroot() {
-    ! [ -d ".git" ] && [ "$(pwd)" != "/" ] && cd .. && cdroot || return 0
+    ! [ -e ".git" ] && [ "$(pwd)" != "/" ] && cd .. && cdroot || return 0
 }
 
 # start syncthing container
