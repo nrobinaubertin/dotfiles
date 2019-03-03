@@ -181,6 +181,12 @@ if command -v openssl >/dev/null; then
     }
 fi
 
+if command -v abduco >/dev/null; then
+    attach() {
+        abduco -A "niels-$(date +%Y-%m-%d)" nvim -c term
+    }
+fi
+
 # go to the root of the git repository
 cdroot() {
     ! [ -e ".git" ] && [ "$(pwd)" != "/" ] && cd .. && cdroot || return 0
