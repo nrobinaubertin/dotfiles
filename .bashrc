@@ -28,14 +28,6 @@ set_prompt() {
 # set a restrictive umask
 umask 077
 
-# enables user services and start them
-if command -v systemctl >/dev/null; then
-    if ! [ -h ${HOME}/.config/systemd/user/default.target.wants/ssh-agent.service ]; then
-        systemctl --user enable ssh-agent.service
-        systemctl --user start ssh-agent.service
-    fi
-fi
-
 # PATH
 [ -f "${HOME}/.config/pathrc" ] && . "${HOME}/.config/pathrc"
 
