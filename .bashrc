@@ -28,14 +28,6 @@ set_prompt() {
 # set a restrictive umask
 umask 077
 
-# enables user services and start them
-if command -v systemctl >/dev/null; then
-    if ! [ -h ${HOME}/.config/systemd/user/default.target.wants/ssh-agent.service ]; then
-        systemctl --user enable ssh-agent.service
-        systemctl --user start ssh-agent.service
-    fi
-fi
-
 # PATH
 [ -f "${HOME}/.config/pathrc" ] && . "${HOME}/.config/pathrc"
 
@@ -104,13 +96,15 @@ if command -v git >/dev/null; then
         curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o "${HOME}/.local/share/git/git-completion.bash" 2>/dev/null
         chmod +x "${HOME}/.local/share/git/git-completion.bash"
     fi
-    . "${HOME}/.local/share/git/git-completion.bash" 2>/dev/null
+    if [ -f "${HOME}/.local/share/git/git-completion.bash" ]; then
+	. "${HOME}/.local/share/git/git-completion.bash" 2>/dev/null
+    fi
 
     alias gl='git log --pretty=medium --abbrev-commit --date=relative --first-parent'
     alias gs='git status -sb'
     alias gf='git fetch -p --all'
-    alias gd='git diff --color --color-moved'
-    alias gdd='git diff --color --color-moved --staged'
+    alias gd='git diff --color'
+    alias gdd='git diff --color --staged'
     alias gg='git log --graph --abbrev-commit --decorate --format=format:"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)" --all'
 
     # get number of commit last week/day for each author
