@@ -27,6 +27,15 @@ function! SetTabSpaces(...)
     let &tabstop = a:1
     let &shiftwidth = a:1
 endfunction
+call SetTabSpaces(4)
+
+" Retab the file
+function! Retab()
+    set noexpandtab
+    retab!
+    set expandtab
+    retab!
+endfunction
 
 " When in a neovim terminal, add a buffer to the existing vim session instead of nesting (credit justinmk)
 " You need socat to do this
@@ -60,15 +69,29 @@ noremap <A-c> <C-\><C-n>:tabe<CR>
 nnoremap <A-l> :tabnext<CR>
 inoremap <A-l> <Esc>:tabnext<CR>
 tnoremap <A-l> <C-\><C-n>:tabnext<CR>
-nnoremap <A-h> :tabprevious<CR>
-inoremap <A-h> <Esc>:tabprevious<CR>
-tnoremap <A-h> <C-\><C-n>:tabprevious<CR>
-nnoremap <A-j> :tabmove -1<CR>
-inoremap <A-j> <Esc>:tabmove -1<CR>
-tnoremap <A-j> <C-\><C-n>:tabmove -1<CR>
 nnoremap <A-k> :tabmove +1<CR>
 inoremap <A-k> <Esc>:tabmove +1<CR>
 tnoremap <A-k> <C-\><C-n>:tabmove +1<CR>
+nnoremap <A-j> :tabmove -1<CR>
+inoremap <A-j> <Esc>:tabmove -1<CR>
+tnoremap <A-j> <C-\><C-n>:tabmove -1<CR>
+nnoremap <A-h> :tabprevious<CR>
+inoremap <A-h> <Esc>:tabprevious<CR>
+tnoremap <A-h> <C-\><C-n>:tabprevious<CR>
+
+" Windows commands
+nnoremap <C-l> :wincmd l<CR>
+inoremap <C-l> <Esc>:wincmd l<CR>
+tnoremap <C-l> <C-\><c-n>:wincmd l<CR>
+nnoremap <C-k> :wincmd k<CR>
+inoremap <C-k> <Esc>:wincmd k<CR>
+tnoremap <C-k> <C-\><c-n>:wincmd k<CR>
+nnoremap <C-j> :wincmd j<CR>
+inoremap <C-j> <Esc>:wincmd j<CR>
+tnoremap <C-j> <C-\><c-n>:wincmd j<CR>
+nnoremap <C-h> :wincmd h<CR>
+inoremap <C-h> <Esc>:wincmd h<CR>
+tnoremap <C-h> <C-\><c-n>:wincmd h<CR>
 
 " Force writing with sudo
 command! SaveSudo :execute ':silent w !sudo tee % > /dev/null' <Bar> :edit!
