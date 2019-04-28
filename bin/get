@@ -20,7 +20,7 @@ usage() {
 
 get_volume() {
     if command -v amixer >/dev/null; then
-        vol="$(amixer get Master,0 | grep -Po "\d+%")"
+        vol="$(amixer get Master,0 | grep -Po "\d+%" | head -n1)"
         if [ -n "$vol" ]; then
             printf "%s" "${vol}"
         fi
@@ -28,7 +28,7 @@ get_volume() {
 }
 
 get_power() {
-    BAT="$(find /sys/class/power_supply -name "BAT*" | head -1)"
+    BAT="$(find /sys/class/power_supply -name "BAT*" | head -n1)"
     if [ -n "$BAT" ]; then
         power="$(cat ${BAT}/capacity)"
     fi
