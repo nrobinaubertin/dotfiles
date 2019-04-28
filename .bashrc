@@ -78,7 +78,6 @@ alias :tabe='nvim'
 
 [ -n "$(command -v trash-put 2>/dev/null)" ] && alias rr='trash-put'
 [ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias ytmp3='youtube-dl -wi --extract-audio --audio-quality 3 --audio-format mp3'
-[ -n "$(command -v mpv 2>/dev/null)" ] && alias play="mpv --no-video --loop-playlist"
 
 if command -v fzy >/dev/null; then
     # Required to refresh the prompt after fzy
@@ -169,7 +168,7 @@ if command -v openssl >/dev/null; then
         user=$(printf "%s" "$1" | cut -d'@' -f1)
         host=$(printf "%s" "$1" | cut -d'@' -f2 | cut -d':' -f1)
         # port=$(printf "%s" "$1" | cut -d'@' -f2 | cut -d':' -f2)
-        ssh-keygen -t ed25519 -C "$user@$host-$(date -I)-ed25519" -f "$HOME/.ssh/$user@$host" -a 100
+        ssh-keygen -t ed25519 -C "$user@$host-$(date -I)-ed25519" -f "$user@$host" -a 100
     }
 fi
 
@@ -196,6 +195,21 @@ syncthing() {
     sudo systemctl start docker
     sudo docker run -it --rm --net=host -v /home/niels/data/:/data -e UID=$(id -u) -e GID=$(id -g) --name syncthing syncthing
 }
+
+
+if [ -n "$(command -v mpv 2>/dev/null)" ]; then
+    play() {
+        if [ -d "$1" ] && [ -f "$1/index.m3u" ]; then
+            to_play="$1/index.m3u"
+        else
+            to_play="$1"
+        fi
+        mpv --no-video "$to_play" "$2"
+    }
+fi
+
+# remove Ips from known_hosts
+alias clean_known_host="sed -i '/^[0-9.]\\+ /d' $HOME/.ssh/known_hosts"
 
 # Secondary bashrc for local configurations
 [ -f "${HOME}/.config/bashrc" ] && . "${HOME}/.config/bashrc"
