@@ -179,18 +179,6 @@ get_status() {
     ifprint "$(get_brightness)" "$1"
 }
 
-get_status_with_cache() {
-    tmpdir="$(dirname $(mktemp))"
-    filename="system_status"
-	timestamp=$(cat "$tmpdir/$filename" | awk 'BEGIN{RS="";FS="\n"}{print $1}')
-    status="$(cat "$tmpdir/$filename" | awk 'BEGIN{RS="";FS="\n"}{print $2}')"
-    current="$(date +%s)"
-    printf "%s" "$status"
-	if [ $(( timestamp + 60 )) -lt $current ]; then
-		printf "%s\n%s" "$current" "$(get_status "$1")" > "$tmpdir/$filename"
-	fi
-}
-
 case "$1" in
 	"cpu") get_cpu;;
 	"date") get_date;;
@@ -201,7 +189,6 @@ case "$1" in
 	"power") get_power;;
 	"ram") get_ram;;
 	"status") get_status "$2";;
-	"status_with_cache") get_status_with_cache "$2";;
 	"temp") get_temp;;
 	"time") get_time;;
 	"uptime") get_uptime;;
