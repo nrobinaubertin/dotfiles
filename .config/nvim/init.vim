@@ -37,6 +37,13 @@ function! Retab()
     retab!
 endfunction
 
+function! Retab()
+    set noexpandtab
+    retab!
+    set expandtab
+    retab!
+endfunction
+
 " When in a neovim terminal, add a buffer to the existing vim session instead of nesting (credit justinmk)
 " You need socat to do this
 if executable('socat')
