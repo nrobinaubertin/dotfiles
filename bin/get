@@ -15,7 +15,15 @@ usage() {
     echo "  status"
     echo "  temp"
     echo "  uptime"
+    echo "  brightness"
     echo "  status_with_cache [separator]"
+}
+
+get_brightness() {
+    handler="/sys/class/backlight/$(ls /sys/class/backlight)/"
+    brightness="$(cat "$handler/brightness")"
+    max_brightness="$(cat "$handler/max_brightness")"
+    printf "%s%%" "$(( 100 * brightness / max_brightness ))"
 }
 
 get_volume() {
@@ -168,6 +176,7 @@ get_status() {
     ifprint "$(get_uptime)" "$1"
     ifprint "$(get_latency)" "$1"
     ifprint "$(get_ip)" "$1"
+    ifprint "$(get_brightness)" "$1"
 }
 
 get_status_with_cache() {
@@ -197,5 +206,6 @@ case "$1" in
 	"time") get_time;;
 	"uptime") get_uptime;;
     "volume") get_volume;;
+    "brightness") get_brightness;;
 	*) usage;;
 esac
