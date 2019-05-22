@@ -99,6 +99,9 @@ command! SaveSudo :execute ':silent w !sudo tee % > /dev/null' <Bar> :edit!
 " Open todo file
 command! Todo execute ':tabe `=resolve(expand("~/.TODO"))`' <Bar> :set ft=markdown
 
+" Output random string of 50 chars
+command! Rand execute ':read! tr -dc a-zA-Z0-9 < /dev/urandom | head -c 50'
+
 " Space bar un-highlights search
 nnoremap <Space><Space> :silent noh<Bar>echo<CR>
 
