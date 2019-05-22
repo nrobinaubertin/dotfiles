@@ -75,6 +75,7 @@ alias less='less -RX'
 alias nraw='nvim -u NORC -c "setlocal syntax=off"'
 alias nterm='nvim -c term'
 alias :tabe='nvim'
+alias archive='tar zcvf "$(date +%Y-%d-%m).tar.gz" --remove-files'
 
 [ -n "$(command -v trash-put 2>/dev/null)" ] && alias rr='trash-put'
 [ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias ytmp3='youtube-dl -wi --extract-audio --audio-quality 3 --audio-format mp3'
@@ -177,13 +178,6 @@ if command -v abduco >/dev/null; then
         abduco -A "niels-$(date +%Y-%m-%d)" nvim -c term
     }
 fi
-
-
-archive() {
-    name="archive"
-    [ -n "$2" ] && name="$2"
-    tar zcvf "$(date +%Y-%d-%m).$name.tar.gz" --remove-files "$1"
-}
 
 # go to the root of the git repository
 cdroot() {
