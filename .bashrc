@@ -32,7 +32,7 @@ umask 077
 [ -f "${HOME}/.config/pathrc" ] && . "${HOME}/.config/pathrc"
 
 # EDITOR
-command -v nvim >/dev/null && export EDITOR="/usr/bin/nvim"
+command -v nvim >/dev/null && export EDITOR="$(command -v nvim)"
 
 # open man in neovim
 command -v nvim >/dev/null && export MANPAGER="nvim -Rc 'set ft=man' -"
@@ -90,16 +90,6 @@ fi
 
 # git aliases
 if command -v git >/dev/null; then
-    # git autocompletion file
-    if ! [ -f "${HOME}/.local/share/git/git-completion.bash" ]; then
-        mkdir -p "${HOME}/.local/share/git/"
-        curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash -o "${HOME}/.local/share/git/git-completion.bash" 2>/dev/null
-        chmod +x "${HOME}/.local/share/git/git-completion.bash"
-    fi
-    if [ -f "${HOME}/.local/share/git/git-completion.bash" ]; then
-	. "${HOME}/.local/share/git/git-completion.bash" 2>/dev/null
-    fi
-
     alias gl='git log --pretty=medium --abbrev-commit --date=relative --first-parent'
     alias gs='git status -sb'
     alias gf='git fetch -p --all'
@@ -202,7 +192,7 @@ if [ -n "$(command -v mpv 2>/dev/null)" ]; then
     }
 fi
 
-# remove Ips from known_hosts
+# remove bare IPs from known_hosts
 alias clean_known_host="sed -i '/^[0-9.]\\+ /d' $HOME/.ssh/known_hosts"
 
 # Secondary bashrc for local configurations
