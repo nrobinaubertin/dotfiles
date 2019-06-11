@@ -103,6 +103,8 @@ get_heat() {
 get_ip() {
     if [ -n "$(command -v dig 2>/dev/null)" ]; then
         ip="$(dig +short myip.opendns.com @resolver1.opendns.com 2>/dev/null)"
+        #ipv6="$(dig +short -6 @resolver1.ipv6-sandbox.opendns.com myip.opendns.com AAAA)"
+        #reverse="$(dig +short -4 -x ${ip})"
     fi
     if [ -z "$ip" ] && [ -n "$(command -v curl 2>/dev/null)" ]; then
         ip="$(curl -s "http://whatismyip.akamai.com" 2>/dev/null)"
