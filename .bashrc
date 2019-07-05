@@ -160,7 +160,11 @@ lll() {
 if command -v openssl >/dev/null; then
     alias htpass='openssl passwd -apr1'
     checkCertificate() {
-        openssl s_client -connect "$1":443 < /dev/null 2>/dev/null | openssl x509 -noout -enddate | cut -d'=' -f2
+        if [ -f "$1" ]; then
+            openssl x509 -enddate -noout -in "$1" | cut -d'=' -f2
+        else
+            openssl s_client -connect "$1":443 < /dev/null 2>/dev/null | openssl x509 -noout -enddate | cut -d'=' -f2
+        fi
     }
     genSSHKey() {
         user=$(printf "%s" "$1" | cut -d'@' -f1)
