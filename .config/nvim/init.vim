@@ -7,6 +7,8 @@ set showmatch mat=2 background=dark mouse= nu showtabline=2 laststatus=2
 set shell=/bin/bash
 set undofile
 set nomodeline " Can be a security issue
+set autoindent
+set smartindent
 
 " Statusline
 set statusline=
