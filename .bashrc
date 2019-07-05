@@ -77,6 +77,13 @@ alias nterm='nvim -c term'
 alias :tabe='nvim'
 alias archive='tar zcvf "$(date +%Y-%d-%m).tar.gz" --remove-files'
 
+# start cal on mondays
+if command -v ncal >/dev/null; then
+    alias cal="ncal -M -b"
+else
+    alias cal="cal -m"
+fi
+
 [ -n "$(command -v trash-put 2>/dev/null)" ] && alias rr='trash-put'
 [ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias ytmp3='youtube-dl -wi --extract-audio --audio-quality 3 --audio-format mp3'
 
