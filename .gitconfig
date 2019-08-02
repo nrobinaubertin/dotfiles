@@ -1,6 +1,5 @@
-[user]
-    email = git@niels.fr
-    name = Niels Robin-Aubertin
+[include]
+    path = ~/.config/gitconfig
 [color]
     ui = true
 [color "diff"]
@@ -26,6 +25,7 @@
     cmd = nvim -d $LOCAL $BASE $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
 [core]
     editor = nvim
+    page = nvim -R
 [color "diff-highlight"]
     oldNormal = red bold
     oldHighlight = red bold 52
