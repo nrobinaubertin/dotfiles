@@ -1,15 +1,21 @@
 #!/bin/sh
 
+# set keyboard map
+setxkbmap fr
+
+# start ssh-agent
+eval $(ssh-agent)
+
 # PATH
 . "${HOME}/.config/pathrc"
 
-# statusbar
+# statusbar for dwm
 while true; do
     xsetroot -name "$(get status ' | ' 2>/dev/null)"
     sleep 1m
 done &
 
-# autostart st with neovim in terminal mode
+# autostart st
 st &
 
 exec dwm
