@@ -48,7 +48,6 @@ unset HISTFILESIZE
 export HISTSIZE="10000"
 export HISTCONTROL=ignoreboth:erasedups
 export HISTIGNORE="fg:bg:&:[ ]*:exit:ls:clear:ll:cd:\\[A*:nvim:gs:gd:gf:gg:gl"
-export HISTTIMEFORMAT='%F %T '
 # Append to the history file, don't overwrite it
 shopt -s histappend
 # Save multi-line commands as one command
