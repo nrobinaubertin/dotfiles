@@ -26,12 +26,24 @@
     --autocomplete-popup-highlight-background: var(--selected) !important;
 }
 
-#navigator-toolbox * .tabbrowser-tab[selected="true"] {
-    background-color: #fff !important;
+.autocomplete-richlistitem[selected=true],
+.urlbarView-row[selected] {
+    background-color: #ddd !important;
+    color: #000 !important;
 }
+
+#navigator-toolbox {}
 
 #urlbar {
     background-color: #ddd !important;
+}
+
+#tabbrowser-tabs {
+    margin-bottom: 1px !important;
+}
+
+.tabbrowser-tab[selected="true"] {
+    background-color: #fff !important;
 }
 
 /* Make tab close buttons appear on tab hover, replacing the tab icon */
@@ -62,6 +74,16 @@
     filter: grayscale(0%) !important;
 }
 
+/* Hide tab seperator line */
+.tabbrowser-tab::after, .tabbrowser-tab::before {
+    border-left: none !important;
+}
+
+/* Tab width */
+.tabbrowser-tab[fadein][selected="true"]:not([pinned]) {
+    min-width: 140px !important;
+}
+
 /* Hide bookmarks bar until hover */
 #PersonalToolbar {
     opacity: 0 !important;
@@ -72,12 +94,7 @@
 #navigator-toolbox:hover > #PersonalToolbar {
     transition: all 0.2s !important;
     opacity: 1 !important;
-    margin-top: 0px !important;
-}
-
-/* Hide tab seperator line */
-.tabbrowser-tab::after, .tabbrowser-tab::before {
-    border-left: none !important;
+    margin: 0px !important;
 }
 
 /***   Tabs-only OneLiner   ***?
@@ -86,19 +103,24 @@
     height: 0 !important;
     transition: all 200ms !important;
     overflow-y: hidden;
+    opacity: 0 !important;
     margin: 0 !important;
-    opacity: 0;
+    margin-top: -22px !important;
+}
+
+#navigator-toolbox:not([customizing]) {
+    margin-bottom: 21px !important;
+}
+
+#navigator-toolbox:not([customizing]):focus-within,
+#navigator-toolbox:not([customizing]):hover {
+    margin: 0 !important;
 }
 
 /* When navbar is focused, bring it into view */
 #navigator-toolbox:not([customizing]):focus-within #nav-bar,
 #navigator-toolbox:not([customizing]):hover #nav-bar {
-    height: auto !important;
     margin: 0 !important;
+    height: auto !important;
     opacity: 1 !important;
-}
-
-/* Tab width */
-.tabbrowser-tab[fadein][selected="true"]:not([pinned]) {
-    min-width: 140px !important;
 }
