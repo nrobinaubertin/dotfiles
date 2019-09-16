@@ -34,5 +34,5 @@ if [ "$new_brightness" -lt 0 ]; then
 fi
 
 # set the new brightness value
-#sudo chmod 666 "$handler/brightness"
+sudo chmod 666 "$handler/brightness"
 echo $new_brightness > "$handler/brightness"
