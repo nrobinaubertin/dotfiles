@@ -3,6 +3,7 @@
 ### SSYNC ###
 # Needs ssh, rsync and realpath to work properly
 # This script is a wrapper around rsync to allow incremental backups using hard links
+# This syncs the target with the source: files/dirs removed on the source will be removed on the target
 
 # print out help
 usage() {
@@ -49,7 +50,7 @@ if [ -n "$2" ] && [ "$(echo "$2" | grep -E "[^@:]+@[^@:]+:.*")" != "" ]; then
     target_dir=$(echo "$2" | cut -d: -f2)
     user=$(echo "$2" | cut -d@ -f1)
     domain=$(echo "$2" | cut -d: -f1 | cut -d@ -f2)
-	target_dir="$(ssh -p "${port}" "${user}"@"${domain}" realpath "$target_dir")"
+    target_dir="$(ssh -p "${port}" "${user}"@"${domain}" realpath "$target_dir")"
 else
     printf "Second argument should be a network location\\n"
     printf "Example: test@example.com:~/\\n"
@@ -61,11 +62,11 @@ shadow=".shadow-rsync"
 
 # first, sync/create the shadow directories
 if ! {
-	rsync -a --delete --link-dest="${source_dir}" --exclude="/${shadow}" "${source_dir}/" "${source_dir}/${shadow}"
-	ssh -p "${port}" "${user}"@"${domain}" rsync -a --delete --link-dest="$target_dir" --exclude="/${shadow}" "${target_dir}/" "${target_dir}/${shadow}"
+    rsync -a --delete --link-dest="${source_dir}" --exclude="/${shadow}" "${source_dir}/" "${source_dir}/${shadow}"
+    ssh -p "${port}" "${user}"@"${domain}" rsync -a --delete --link-dest="$target_dir" --exclude="/${shadow}" "${target_dir}/" "${target_dir}/${shadow}"
 }; then
-	echo "Could not sync shadow directories. Aborting"
-	exit 1
+    echo "Could not sync shadow directories. Aborting"
+    exit 1
 fi
 
 # sync the directory with the distant one (with the shadow directory).

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# produces a system summary
+
 RCol='\033[0m'; BGre='\033[1;32m'; Green='\033[0;32m'; Red='\033[0;31m'; Yellow='\033[0;33m'
 
 min() {

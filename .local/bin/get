@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# get various infos about the system
+
 usage() {
     echo "$0:"
     echo "  volume"

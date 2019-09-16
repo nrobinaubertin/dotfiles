@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# control screen brightness directly with the backlight files
+
 # base dir for backlight class
 basedir="/sys/class/backlight"
 
