@@ -23,21 +23,30 @@ usage() {
     printf "%0$(( 20 - n ))s]" | tr " " "-"
 }
 
-printf "\\n"
-printf " %bMachine%b\\t\\t%s\\n" "$BGre" "$RCol" "$(cat /proc/sys/kernel/hostname)"
-printf " %bSystem%b\\t\\t\\t%s\\n" "$BGre" "$RCol" "$(grep "PRETTY_NAME" /etc/os-release | cut -d'"' -f2)"
-printf " %bArchitecture%b\\t\\t%s\\n" "$BGre" "$RCol" "$(uname -m)"
-printf " %bKernel%b\\t\\t\\t%s\\n" "$BGre" "$RCol" "$(uname -r)"
-printf " %bCPU%b\\t\\t\\t%s\\n" "$BGre" "$RCol" "$(grep -m1 "model name" /proc/cpuinfo | awk -F": " '{print $2}' | tr -s " ")"
-printf " %bMemory%b\\t\\t\\t%s\\n" "$BGre" "$RCol" "$(free -h --si | head -n2 | tail -n1 | awk '{print $2}')"
-printf " %bShell%b\\t\\t\\t%s\\n" "$BGre" "$RCol" "$SHELL"
-printf " %bTerminal%b\\t\\t%s\\n" "$BGre" "$RCol" "$TERM"
-printf " %bIP%b\\t\\t\\t%s\\n" "$BGre" "$RCol" "$(awk '/32 host/ { print f } {f=$2}' < /proc/net/fib_trie | tail -n1)"
-printf " %bGeometry%b\\t\\t%sx%s\\n\\n" "$BGre" "$RCol" "$(tput cols)" "$(tput lines)"
+echo
 
-printf " %bFilesystem\\t\\tSize\\tUsed%b\\n" "$BGre" "$RCol"
-for i in $(df -h | sort | grep -E "/(sd|nvme|drbd)" | cut -d' ' -f1); do
-    p=$(df | grep "$i" | tr -s " " | cut -d' ' -f5 | tr -d "%")
-    s=$(df -h | grep "$i" | tr -s " " | cut -d" " -f2)
-    printf " %s\\t\\t%s\\t%s\\n" "$i" "$s" "$(usage "$p")"
-done
+(
+    printf "\\n"
+    printf " %bMachine%b,%s\\n" "$BGre" "$RCol" "$(cat /proc/sys/kernel/hostname)"
+    printf " %bSystem%b,%s\\n" "$BGre" "$RCol" "$(grep "PRETTY_NAME" /etc/os-release | cut -d'"' -f2)"
+    printf " %bArchitecture%b,%s\\n" "$BGre" "$RCol" "$(uname -m)"
+    printf " %bKernel%b,%s\\n" "$BGre" "$RCol" "$(uname -r)"
+    printf " %bCPU%b,%s\\n" "$BGre" "$RCol" "$(grep -m1 "model name" /proc/cpuinfo | awk -F": " '{print $2}' | tr -s " ")"
+    printf " %bMemory%b,%s\\n" "$BGre" "$RCol" "$(free -h --si | head -n2 | tail -n1 | awk '{print $2}')"
+    printf " %bShell%b,%s\\n" "$BGre" "$RCol" "$SHELL"
+    printf " %bTerminal%b,%s\\n" "$BGre" "$RCol" "$TERM"
+    printf " %bIP%b,%s\\n" "$BGre" "$RCol" "$(awk '/32 host/ { print f } {f=$2}' < /proc/net/fib_trie | tail -n1)"
+    printf " %bGeometry%b,%sx%s\\n" "$BGre" "$RCol" "$(tput cols)" "$(tput lines)"
+) | column -t -s ','
+
+echo
+
+(
+    printf " %bFilesystem,Size,Used%b\\n" "$BGre" "$RCol"
+    for i in $(df -h | sort | grep -E "/(sd|nvme|drbd|mapper|root)" | cut -d' ' -f1); do
+        id=$(echo "$i" | rev | cut -d"/" -f1 | rev)
+        p=$(df | grep "$i" | tr -s " " | cut -d' ' -f5 | tr -d "%")
+        s=$(df -h | grep "$i" | tr -s " " | cut -d" " -f2)
+        printf " %s,%s,%s\\n" "$id" "$s" "$(usage "$p")"
+    done
+) | column -t -s ','
