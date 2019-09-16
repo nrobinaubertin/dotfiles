@@ -40,6 +40,7 @@
 
 #tabbrowser-tabs {
     margin-bottom: 1px !important;
+    z-index: 2 !important;
 }
 
 .tabbrowser-tab[selected="true"] {
@@ -80,8 +81,9 @@
 }
 
 /* Tab width */
+.tabbrowser-tab[fadein]:not([pinned]):hover,
 .tabbrowser-tab[fadein][selected="true"]:not([pinned]) {
-    min-width: 140px !important;
+    min-width: 160px !important;
 }
 
 /* Hide bookmarks bar until hover */
@@ -89,12 +91,7 @@
     opacity: 0 !important;
     transition: all 0.2s !important;
     margin-top: -22px !important;
-}
-
-#navigator-toolbox:hover > #PersonalToolbar {
-    transition: all 0.2s !important;
-    opacity: 1 !important;
-    margin: 0px !important;
+    z-index: -1 !important;
 }
 
 /***   Tabs-only OneLiner   ***?
@@ -106,21 +103,28 @@
     opacity: 0 !important;
     margin: 0 !important;
     margin-top: -22px !important;
+    z-index: -1 !important;
 }
 
 #navigator-toolbox:not([customizing]) {
     margin-bottom: 21px !important;
 }
 
-#navigator-toolbox:not([customizing]):focus-within,
-#navigator-toolbox:not([customizing]):hover {
+#navigator-toolbox:not([customizing]):focus-within {
     margin: 0 !important;
 }
 
 /* When navbar is focused, bring it into view */
-#navigator-toolbox:not([customizing]):focus-within #nav-bar,
-#navigator-toolbox:not([customizing]):hover #nav-bar {
+#navigator-toolbox:not([customizing]):focus-within #nav-bar {
     margin: 0 !important;
     height: auto !important;
     opacity: 1 !important;
+    z-index: 0 !important;
+}
+
+#navigator-toolbox:not([customizing]):focus-within #PersonalToolbar {
+    transition: all 0.2s !important;
+    opacity: 1 !important;
+    margin: 0px !important;
+    z-index: 0 !important;
 }
