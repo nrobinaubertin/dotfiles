@@ -75,6 +75,12 @@ alias nraw='nvim -u NORC -c "setlocal syntax=off"'
 alias nterm='nvim -c term'
 alias :tabe='nvim'
 alias archive='tar zcvf "$(date +%Y-%d-%m).tar.gz" --remove-files'
+alias ll='ls -lhb --color'
+
+lll() {
+    [ -z "$1" ] && t="." || t="$1"
+    ll "$t" | less -R
+}
 
 # start cal on mondays
 if command -v ncal >/dev/null; then
@@ -135,27 +141,6 @@ if command -v git >/dev/null; then
     }
 fi
 
-if command -v curl >/dev/null; then
-    ww() {
-        curl -s "wttr.in/$1" | head -n -2
-    }
-fi
-
-if command -v exa >/dev/null; then
-    alias ll='exa -gl --git --color=always'
-    alias lla='exa -agl --git --color=always'
-    alias llt='exa -gl --git -s modified --color=always'
-else
-    alias ll='ls -lhb --color'
-    alias lla='ls -alhb --color'
-    alias llt='ls -lhbt --color'
-fi
-
-lll() {
-    [ -z "$1" ] && t="." || t="$1"
-    ll "$t" | less -R
-}
-
 if command -v openssl >/dev/null; then
     alias htpass='openssl passwd -apr1'
     checkCertificate() {
@@ -189,7 +174,6 @@ syncthing() {
     sudo systemctl start docker
     sudo docker run -it --rm --net=host -v /home/niels/data/:/data -e UID=$(id -u) -e GID=$(id -g) --name syncthing syncthing
 }
-
 
 if [ -n "$(command -v mpv 2>/dev/null)" ]; then
     play() {
