@@ -42,6 +42,7 @@ endfunction
 
 " When in a neovim terminal, add a buffer to the existing vim session instead of nesting (credit justinmk)
 " You need socat to do this
+" Nest when opening in man mode
 if executable('socat')
     autocmd VimEnter * if @% != '' && &ft != 'man' && !&diff && !empty($NVIM_LISTEN_ADDRESS) && $NVIM_LISTEN_ADDRESS !=# v:servername
                 \ |let g:r=jobstart(['socat', '-', 'UNIX-CLIENT:'.$NVIM_LISTEN_ADDRESS],{'rpc':v:true})
@@ -59,10 +60,11 @@ autocmd VimEnter * if &ft == 'man'
             \ |endif
 
 " start in insert mode when opening a new terminal buffer
-autocmd TermOpen * startinsert
+autocmd TermOpen * let b:stopInsert = "no" | startinsert
+autocmd BufEnter * if &buftype == 'terminal' && b:stopInsert != "yes" | startinsert | endif
 
 "" Terminal commands
-tnoremap <A-q> <C-\><C-n>
+tnoremap <A-q> <C-\><C-n>:let b:stopInsert = "yes"<CR>
 tnoremap <A-t> <C-\><C-n>:tabe<CR>:term<CR>
 noremap <A-t> <C-\><C-n>:tabe<CR>:term<CR>
 tnoremap <A-c> <C-\><C-n>:tabe<CR>
@@ -81,6 +83,14 @@ tnoremap <A-j> <C-\><C-n>:tabmove -1<CR>
 nnoremap <A-h> :tabprevious<CR>
 inoremap <A-h> <Esc>:tabprevious<CR>
 tnoremap <A-h> <C-\><C-n>:tabprevious<CR>
+
+" Tab navigation shortcuts
+nnoremap <A-&> :1tabnext<CR>
+inoremap <A-&> <Esc>:1tabnext<CR>
+tnoremap <A-&> <C-\><C-n>:1tabnext<CR>
+nnoremap <A-$> :$tabnext<CR>
+inoremap <A-$> <Esc>:$tabnext<CR>
+tnoremap <A-$> <C-\><C-n>:$tabnext<CR>
 
 " Windows commands
 nnoremap <C-l> :wincmd l<CR>
