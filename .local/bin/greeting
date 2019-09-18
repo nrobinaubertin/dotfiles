@@ -12,34 +12,34 @@ usage() {
     n=$((20 * $1 / 100)); i="$n"
     printf "["
     if [ $i -gt 0 ]; then
-        printf "%b%0$(min $i 10)s%b" "$Green" " " "$RCol" | tr " " "="
+        printf "%b%0$(min $i 10)s%b" "$Green" " " "$White" | tr " " "="
         i=$(( i - 10 ))
     fi
     if [ $i -gt 0 ]; then
-        printf "%b%0$(min $i 5)s%b" "$Yellow" " " "$RCol" | tr " " "="
+        printf "%b%0$(min $i 5)s%b" "$Yellow" " " "$White" | tr " " "="
         i=$(( i - 5 ))
     fi
-    [ $i -gt 0 ] && printf "%b%0${i}s%b" "$Red" " " "$RCol" | tr " " "="
+    [ $i -gt 0 ] && printf "%b%0${i}s%b" "$Red" " " "$White" | tr " " "="
     printf "%0$(( 20 - n ))s]" | tr " " "-"
 }
 
-echo
+printf "\\n%b" "$RCol"
 
 (
     printf "\\n"
-    printf " %bMachine%b,%s\\n" "$BGre" "$RCol" "$(cat /proc/sys/kernel/hostname)"
-    printf " %bSystem%b,%s\\n" "$BGre" "$RCol" "$(grep "PRETTY_NAME" /etc/os-release | cut -d'"' -f2)"
-    printf " %bArchitecture%b,%s\\n" "$BGre" "$RCol" "$(uname -m)"
-    printf " %bKernel%b,%s\\n" "$BGre" "$RCol" "$(uname -r)"
-    printf " %bCPU%b,%s\\n" "$BGre" "$RCol" "$(grep -m1 "model name" /proc/cpuinfo | awk -F": " '{print $2}' | tr -s " ")"
-    printf " %bMemory%b,%s\\n" "$BGre" "$RCol" "$(free -h --si | head -n2 | tail -n1 | awk '{print $2}')"
-    printf " %bShell%b,%s\\n" "$BGre" "$RCol" "$SHELL"
-    printf " %bTerminal%b,%s\\n" "$BGre" "$RCol" "$TERM"
-    printf " %bIP%b,%s\\n" "$BGre" "$RCol" "$(awk '/32 host/ { print f } {f=$2}' < /proc/net/fib_trie | tail -n1)"
-    printf " %bGeometry%b,%sx%s\\n" "$BGre" "$RCol" "$(tput cols)" "$(tput lines)"
+    printf " %bMachine%b,%s\\n" "$BGre" "$White" "$(cat /proc/sys/kernel/hostname)"
+    printf " %bSystem%b,%s\\n" "$BGre" "$White" "$(grep "PRETTY_NAME" /etc/os-release | cut -d'"' -f2)"
+    printf " %bArchitecture%b,%s\\n" "$BGre" "$White" "$(uname -m)"
+    printf " %bKernel%b,%s\\n" "$BGre" "$White" "$(uname -r)"
+    printf " %bCPU%b,%s\\n" "$BGre" "$White" "$(grep -m1 "model name" /proc/cpuinfo | awk -F": " '{print $2}' | tr -s " ")"
+    printf " %bMemory%b,%s\\n" "$BGre" "$White" "$(free -h --si | head -n2 | tail -n1 | awk '{print $2}')"
+    printf " %bShell%b,%s\\n" "$BGre" "$White" "$SHELL"
+    printf " %bTerminal%b,%s\\n" "$BGre" "$White" "$TERM"
+    printf " %bIP%b,%s\\n" "$BGre" "$White" "$(awk '/32 host/ { print f } {f=$2}' < /proc/net/fib_trie | tail -n1)"
+    printf " %bGeometry%b,%sx%s\\n" "$BGre" "$White" "$(tput cols)" "$(tput lines)"
 ) | column -t -s,
 
-echo
+printf "\\n%b" "$RCol"
 
 (
     printf " %bFilesystem,Size,Used%b\\n" "$BGre" "$RCol"
@@ -51,3 +51,5 @@ echo
         printf " %b%s,%s,%s%b\\n" "$White" "$id" "$s" "$(usage "$p")" "$RCol"
     done
 ) | column -t -s,
+
+printf "%b" "$RCol"
