@@ -39,6 +39,7 @@
 }
 
 #tabbrowser-tabs {
+    background-color: #eee !important;
     margin-bottom: 1px !important;
     z-index: 2 !important;
 }
