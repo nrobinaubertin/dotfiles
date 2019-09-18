@@ -2,7 +2,7 @@
 
 # produces a system summary
 
-RCol='\033[0m'; BGre='\033[1;32m'; Green='\033[0;32m'; Red='\033[0;31m'; Yellow='\033[0;33m'
+RCol='\033[0m'; BGre='\033[1;32m'; Green='\033[0;32m'; Red='\033[0;31m'; Yellow='\033[0;33m'; White='\033[0;97m'
 
 min() {
     [ "$1" -gt "$2" ] && echo "$2" || echo "$1"
@@ -37,7 +37,7 @@ echo
     printf " %bTerminal%b,%s\\n" "$BGre" "$RCol" "$TERM"
     printf " %bIP%b,%s\\n" "$BGre" "$RCol" "$(awk '/32 host/ { print f } {f=$2}' < /proc/net/fib_trie | tail -n1)"
     printf " %bGeometry%b,%sx%s\\n" "$BGre" "$RCol" "$(tput cols)" "$(tput lines)"
-) | column -t -s ','
+) | column -t -s,
 
 echo
 
@@ -47,6 +47,7 @@ echo
         id=$(echo "$i" | rev | cut -d"/" -f1 | rev)
         p=$(df | grep "$i" | tr -s " " | cut -d' ' -f5 | tr -d "%")
         s=$(df -h | grep "$i" | tr -s " " | cut -d" " -f2)
-        printf " %s,%s,%s\\n" "$id" "$s" "$(usage "$p")"
+        # white color trick to have the same number of characters for `column` that does not take escape sequences into account
+        printf " %b%s,%s,%s%b\\n" "$White" "$id" "$s" "$(usage "$p")" "$RCol"
     done
-) | column -t -s ','
+) | column -t -s,
