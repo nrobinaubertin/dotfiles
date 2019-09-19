@@ -22,11 +22,13 @@ user_pref("_user.js.parrot", "START");
 user_pref("privacy.resistFingerprinting", true); // canvas always return blank image
 user_pref("privacy.firstparty.isolate", true); // isolate cookie, cache, data to the domain level
 user_pref("identity.sync.tokenserver.uri", "https://firefox-syncserver.niels.fr/token/1.0/sync/1.5"); // my own syncserver
-user_pref("lightweightThemes.selectedThemeID", "firefox-compact-dark@mozilla.org"); // dark theme
+// user_pref("lightweightThemes.selectedThemeID", "firefox-compact-dark@mozilla.org"); // dark theme
 user_pref("browser.startup.homepage", "about:blank"); // home page
-user_pref ("accessibility.typeaheadfind", false); // remove typeahead
+user_pref("accessibility.typeaheadfind", false); // remove typeahead
+user_pref("toolkit.cosmeticAnimations.enabled", false); // remove ui animations
 
 /* 0000: disable about:config warning ***/
+user_pref("_user.js.parrot", "0000 syntax error");
 user_pref("general.warnOnAboutConfig", false);
 
 /*** 0100: STARTUP ***/
