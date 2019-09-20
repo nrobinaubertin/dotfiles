@@ -195,4 +195,4 @@ alias clean_known_host="sed -i '/^[0-9.]\\+ /d' $HOME/.ssh/known_hosts"
 # Prompt & Colors & Greetings
 set_prompt
 [ -n "$(command -v gruvbox 2>/dev/null)" ] && gruvbox 2>/dev/null
-[ -n "$(command -v greeting 2>/dev/null)" ] && greeting 2>/dev/null
+[ -n "$(command -v glimpse 2>/dev/null)" ] && glimpse 2>/dev/null
