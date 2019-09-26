@@ -26,6 +26,10 @@ user_pref("identity.sync.tokenserver.uri", "https://firefox-syncserver.niels.fr/
 user_pref("browser.startup.homepage", "about:blank"); // home page
 user_pref("accessibility.typeaheadfind", false); // remove typeahead
 user_pref("toolkit.cosmeticAnimations.enabled", false); // remove ui animations
+user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true); // allow userChrome.css
+user_pref("browser.ctrlTab.recentlyUsedOrder", false); // normal ctrlTab (not by last used)
+user_pref("browser.urlbar.placeholderName", "DuckDuckGo"); // use DuckDuckGo as search engine
+user_pref("browser.download.dir", "~/downloads"); // change the downloads directory (I don't want a capitalized name)
 
 /* 0000: disable about:config warning ***/
 user_pref("_user.js.parrot", "0000 syntax error");
