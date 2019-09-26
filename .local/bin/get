@@ -18,7 +18,17 @@ usage() {
     echo "  temp"
     echo "  uptime"
     echo "  brightness"
+    echo "  resolution"
     echo "  status_with_cache [separator]"
+}
+
+get_resolution() {
+    if command -v xrandr >/dev/null; then
+        resolution="$(xrandr | tail -n +2 | head -n1 | awk '{print $4}' | cut -d'+' -f1)"
+        if [ -n "$resolution" ]; then
+            printf "%s" "${resolution}"
+        fi
+    fi
 }
 
 get_brightness() {
@@ -198,5 +208,6 @@ case "$1" in
     "uptime") get_uptime;;
     "volume") get_volume;;
     "brightness") get_brightness;;
+    "resolution") get_resolution;;
     *) usage;;
 esac
