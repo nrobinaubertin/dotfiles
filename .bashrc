@@ -89,8 +89,8 @@ else
     alias cal="cal -m"
 fi
 
-[ -n "$(command -v trash-put 2>/dev/null)" ] && alias rr='trash-put'
-[ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias ytmp3='youtube-dl -wi --extract-audio --audio-quality 3 --audio-format mp3'
+command -v trash-put >/dev/null && alias rr='trash-put'
+command -v youtube-dl >/dev/null && alias ytmp3='youtube-dl -wi --extract-audio --audio-quality 3 --audio-format mp3'
 
 if command -v fzy >/dev/null; then
     # Required to refresh the prompt after fzy
@@ -175,7 +175,25 @@ syncthing() {
     sudo docker run -it --rm --net=host -v /home/niels/data/:/data -e UID=$(id -u) -e GID=$(id -g) --name syncthing syncthing
 }
 
-if [ -n "$(command -v mpv 2>/dev/null)" ]; then
+if command -v tar >/dev/null && command -v bzip2 >/dev/null; then
+    archive() {
+        mkdir -p "$HOME/data/archives"
+        if [ -e "$1" ]; then
+            tar jcvf "$HOME/data/archives/$(basename $1).$(date +%Y-%d-%m).tar.bz2" --remove-files "$1" -C "$(dirname "$1")/"
+        fi
+    }
+fi
+
+if command -v mpv >/dev/null; then
+    if command -v youtube-dl >/dev/null; then
+        youtube() {
+            if echo "$1" | grep "https://www.youtube.com" >/dev/null; then
+                min="$(get resolution | cut -d'x' -f2)"
+                id="$(youtube-dl -F "$1" | tail -n +5 | grep -v "audio only" | awk 'int(substr($4, 1, length($4)-1)) > '$min' { print $1}' | head -n1)"
+                mpv --ytdl-format="$id+bestaudio" "$1"
+            fi
+        }
+    fi
     play() {
         if [ -d "$1" ] && [ -f "$1/index.m3u" ]; then
             to_play="$1/index.m3u"
@@ -194,5 +212,5 @@ alias clean_known_host="sed -i '/^[0-9.]\\+ /d' $HOME/.ssh/known_hosts"
 
 # Prompt & Colors & Greetings
 set_prompt
-[ -n "$(command -v gruvbox 2>/dev/null)" ] && gruvbox 2>/dev/null
-[ -n "$(command -v glimpse 2>/dev/null)" ] && glimpse 2>/dev/null
+command -v gruvbox >/dev/null && gruvbox 2>/dev/null
+command -v glimpse >/dev/null && glimpse 2>/dev/null
