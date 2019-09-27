@@ -74,7 +74,6 @@ alias less='less -RX'
 alias nraw='nvim -u NORC -c "setlocal syntax=off"'
 alias nterm='nvim -c term'
 alias :tabe='nvim'
-alias archive='tar zcvf "$(date +%Y-%d-%m).tar.gz" --remove-files'
 alias ll='ls -lhb --color'
 
 lll() {
@@ -190,6 +189,9 @@ if command -v mpv >/dev/null; then
             if echo "$1" | grep "https://www.youtube.com" >/dev/null; then
                 min="$(get resolution | cut -d'x' -f2)"
                 id="$(youtube-dl -F "$1" | tail -n +5 | grep -v "audio only" | awk 'int(substr($4, 1, length($4)-1)) > '$min' { print $1}' | head -n1)"
+                if [ -z $id ]; then
+                    id="best"
+                fi
                 mpv --ytdl-format="$id+bestaudio" "$1"
             fi
         }
