@@ -60,11 +60,13 @@ autocmd VimEnter * if &ft == 'man'
             \ |endif
 
 " start in insert mode when opening a new terminal buffer
-autocmd TermOpen * let b:stopInsert = "no" | startinsert
-autocmd BufEnter * if &buftype == 'terminal' && b:stopInsert != "yes" | startinsert | endif
+autocmd TermOpen * startinsert
+autocmd TermEnter * let b:insertMode = "yes"
+" autocmd TermLeave * let b:insertMode = "no"
+autocmd BufEnter * if &buftype == 'terminal' && b:insertMode != "no" | startinsert | endif
 
 "" Terminal commands
-tnoremap <A-q> <C-\><C-n>:let b:stopInsert = "yes"<CR>
+tnoremap <A-q> <C-\><C-n>:let b:insertMode = "no"<CR>
 tnoremap <A-t> <C-\><C-n>:tabe<CR>:term<CR>
 noremap <A-t> <C-\><C-n>:tabe<CR>:term<CR>
 tnoremap <A-c> <C-\><C-n>:tabe<CR>
@@ -107,7 +109,8 @@ inoremap <C-h> <Esc>:wincmd h<CR>
 tnoremap <C-h> <C-\><c-n>:wincmd h<CR>
 
 " Force writing with sudo
-command! SaveSudo :execute ':silent w !sudo tee % > /dev/null' <Bar> :edit!
+" Doesn't work for now: https://github.com/neovim/neovim/issues/1496
+" command! SaveSudo :execute ':silent w !sudo tee % > /dev/null' <Bar> :edit!
 
 " Open todo file
 command! Todo execute ':tabe `=resolve(expand("~/.TODO"))`' <Bar> :set ft=markdown
