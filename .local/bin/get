@@ -24,7 +24,7 @@ usage() {
 
 get_resolution() {
     if command -v xrandr >/dev/null; then
-        resolution="$(xrandr | tail -n +2 | head -n1 | awk '{print $4}' | cut -d'+' -f1)"
+        resolution="$(xrandr | head -n1 | cut -d',' -f2 | awk '{print $2$3$4}')"
         if [ -n "$resolution" ]; then
             printf "%s" "${resolution}"
         fi
