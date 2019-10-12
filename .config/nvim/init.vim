@@ -123,6 +123,7 @@ nnoremap <Space><Space> :silent noh<Bar>echo<CR>
 
 " Netrw config, based on tpope/vinegar
 let g:netrw_banner = 0
+let g:netrw_browsex_viewer= "firefox"
 nmap - :call Opendir('edit')<CR>
 function! Opendir(cmd) abort
     if expand('%') =~# '^$\|^term:[\/][\/]'
