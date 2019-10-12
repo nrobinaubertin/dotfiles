@@ -32,16 +32,19 @@
     color: #000 !important;
 }
 
-#navigator-toolbox {}
-
 #urlbar {
     background-color: #ddd !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
 #tabbrowser-tabs {
     background-color: #eee !important;
     margin-bottom: 1px !important;
     z-index: 2 !important;
+    --tab-line-color: -moz-win-accentcolor !important;
+    --tab-loading-fill: -moz-win-accentcolor !important;
+    box-shadow: none !important;
 }
 
 .tabbrowser-tab[selected="true"] {
@@ -52,9 +55,6 @@
 .tabbrowser-tab .tab-close-button {
     -moz-box-ordinal-group: 0 !important;
     margin: 0px 5px 0px -2px !important;
-}
-
-.tabbrowser-tab .tab-close-button {
     display: none !important;
 }
 
@@ -87,45 +87,23 @@
     min-width: 160px !important;
 }
 
-/* Hide bookmarks bar until hover */
-#PersonalToolbar {
-    opacity: 0 !important;
-    transition: all 0.2s !important;
-    margin-top: -22px !important;
-    z-index: -1 !important;
-}
-
-/***   Tabs-only OneLiner   ***?
-/* Hide navbar and move it up into the same line as the tab bar */
+/* Hide bookmarks and navbar bar until focused */
+#PersonalToolbar:not([customizing]),
 #nav-bar:not([customizing]) {
     height: 0 !important;
-    transition: all 200ms !important;
-    overflow-y: hidden;
+    margin: 0 !important;
+    margin-bottom: -20px !important;
     opacity: 0 !important;
-    margin: 0 !important;
-    margin-top: -22px !important;
+    transition: all 0.2s !important;
     z-index: -1 !important;
-}
-
-#navigator-toolbox:not([customizing]) {
-    margin-bottom: 21px !important;
-}
-
-#navigator-toolbox:not([customizing]):focus-within {
-    margin: 0 !important;
 }
 
 /* When navbar is focused, bring it into view */
-#navigator-toolbox:not([customizing]):focus-within #nav-bar {
-    margin: 0 !important;
-    height: auto !important;
-    opacity: 1 !important;
-    z-index: 0 !important;
-}
-
+#navigator-toolbox:not([customizing]):focus-within #nav-bar,
 #navigator-toolbox:not([customizing]):focus-within #PersonalToolbar {
-    transition: all 0.2s !important;
+    height: auto !important;
+    margin: 0 !important;
     opacity: 1 !important;
-    margin: 0px !important;
+    transition: all 0.2s !important;
     z-index: 0 !important;
 }
