@@ -91,8 +91,8 @@
 #PersonalToolbar:not([customizing]),
 #nav-bar:not([customizing]) {
     height: 0 !important;
-    margin: 0 !important;
-    margin-bottom: -20px !important;
+    margin-top: -30px !important;
+    margin-bottom: 10px !important;
     opacity: 0 !important;
     transition: all 0.2s !important;
     z-index: -1 !important;
