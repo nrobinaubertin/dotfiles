@@ -8,6 +8,20 @@ min() {
     [ "$1" -gt "$2" ] && echo "$2" || echo "$1"
 }
 
+kb_to_human() {
+    kb=$1
+    mb=$(( kb / 1024 ))
+    gb=$(( kb / 1024 / 1024 ))
+    if [ -n "$kb" ]; then
+        if [ "$gb" -gt 0 ]; then
+            r=$(( (mb - gb * 1024) / 100 ))
+            printf "%s.%sGB" "$gb" "$r";
+            exit
+        fi
+        printf "%sMB" "$mb";
+    fi
+}
+
 usage() {
     n=$((20 * $1 / 100)); i="$n"
     printf "["
@@ -42,6 +56,23 @@ printf "\\n%b" "$RCol"
 printf "\\n%b" "$RCol"
 
 (
+    mem_total=$(grep -E "^MemTotal:" < /proc/meminfo | awk '{print $2}')
+    swap_total=$(grep -E "^SwapTotal:" < /proc/meminfo | awk '{print $2}')
+    mem_free=$(grep -E "^MemFree:" < /proc/meminfo | awk '{print $2}')
+    swap_free=$(grep -E "^SwapFree:" < /proc/meminfo | awk '{print $2}')
+    mem_buffers=$(grep -E "^Buffers:" < /proc/meminfo | awk '{print $2}')
+    mem_cached=$(grep -E "^Cached:" < /proc/meminfo | awk '{print $2}')
+    mem_reclaimable=$(grep -E "^SReclaimable:" < /proc/meminfo | awk '{print $2}')
+    mem_used=$(( mem_total - mem_free - mem_buffers - mem_cached - mem_reclaimable ))
+    swap_used=$(( swap_total - swap_free ))
+    mem_p=$(( 100 * mem_used / mem_total ))
+    swap_p=$(( 100 * swap_used / swap_total ))
+    printf " %bType,Size,Used%b\\n" "$BGre" "$RCol"
+    printf " %bMem,%s,%s%b\\n" "$White" "$(kb_to_human $mem_total)" "$(usage "$mem_p")" "$RCol"
+    printf " %bSwap,%s,%s%b\\n" "$White" "$(kb_to_human $swap_total)" "$(usage "$swap_p")" "$RCol"
+
+    printf ",,\\n"
+
     printf " %bFilesystem,Size,Used%b\\n" "$BGre" "$RCol"
     for i in $(cat /proc/mounts | sort | grep "^/dev" | cut -d' ' -f1 | uniq); do
         id=$(echo "$i" | rev | cut -d"/" -f1 | rev)
