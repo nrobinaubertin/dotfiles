@@ -78,10 +78,10 @@ inoremap <A-l> <Esc>:tabnext<CR>
 tnoremap <A-l> <C-\><C-n>:tabnext<CR>
 nnoremap <A-k> :tabmove +1<CR>
 inoremap <A-k> <Esc>:tabmove +1<CR>
-tnoremap <A-k> <C-\><C-n>:tabmove +1<CR>
+tnoremap <A-k> <C-\><C-n>:tabmove +1 <BAR> startinsert<CR>
 nnoremap <A-j> :tabmove -1<CR>
 inoremap <A-j> <Esc>:tabmove -1<CR>
-tnoremap <A-j> <C-\><C-n>:tabmove -1<CR>
+tnoremap <A-j> <C-\><C-n>:tabmove -1 <BAR> startinsert<CR>
 nnoremap <A-h> :tabprevious<CR>
 inoremap <A-h> <Esc>:tabprevious<CR>
 tnoremap <A-h> <C-\><C-n>:tabprevious<CR>
