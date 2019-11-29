@@ -81,6 +81,8 @@ lll() {
     ll "$t" | less -R
 }
 
+command -v brightness >/dev/null && alias b='brightness'
+
 # start cal on mondays
 if command -v ncal >/dev/null; then
     alias cal="ncal -M -b"
@@ -89,7 +91,16 @@ else
 fi
 
 command -v trash-put >/dev/null && alias rr='trash-put'
-command -v youtube-dl >/dev/null && alias ytmp3='youtube-dl -wi --extract-audio --audio-quality 3 --audio-format mp3'
+
+if command -v youtube-dl >/dev/null; then
+    alias ytmp3='youtube-dl -wi --extract-audio --audio-quality 3 --audio-format mp3'
+    ytgif() {
+        ffmpeg -ss "$1" -t "$2" \
+            -i "$(youtube-dl -g "$3" | head -n1)" \
+            -filter_complex "[0:v] fps=12,scale=w=480:h=-1" \
+            -f gif $(date +%Y-%m-%d-%H%M%S)-ytgif.gif
+    }
+fi
 
 if command -v fzy >/dev/null; then
     # Required to refresh the prompt after fzy
@@ -186,9 +197,9 @@ fi
 if command -v mpv >/dev/null; then
     if command -v youtube-dl >/dev/null; then
         youtube() {
-            if echo "$1" | grep "https://www.youtube.com" >/dev/null; then
+            if echo "$1" | grep "https://.*youtu" >/dev/null; then
                 min="$(get resolution | cut -d'x' -f2)"
-                id="$(youtube-dl -F "$1" | tail -n +5 | grep -v "audio only" | awk 'int(substr($4, 1, length($4)-1)) > '$min' { print $1}' | head -n1)"
+                id="$(youtube-dl -F "$1" | tail -n +5 | grep -v "audio only" | awk 'int(substr($4, 1, length($4)-1)) >= '$min' { print $1}' | head -n1)"
                 if [ -z $id ]; then
                     id="best"
                 fi
