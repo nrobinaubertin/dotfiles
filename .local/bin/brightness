@@ -21,6 +21,10 @@ max_brightness="$(cat "$handler/max_brightness")"
 # get current brightness %
 old_brightness_p="$(( 100 * old_brightness / max_brightness ))"
 
+if [ -z "$1" ]; then
+    echo $old_brightness_p
+fi
+
 # calculate new brightness %
 new_brightness_p="$(( old_brightness_p $1 ))"
 
@@ -40,5 +44,4 @@ if [ "$new_brightness" -lt 0 ]; then
 fi
 
 # set the new brightness value
-#sudo chmod 666 "$handler/brightness"
 echo $new_brightness > "$handler/brightness"
