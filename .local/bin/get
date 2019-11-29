@@ -118,9 +118,10 @@ get_ip() {
         #ipv6="$(dig +short -6 @resolver1.opendns.com myip.opendns.com AAAA 2>/dev/null)"
         #reverse="$(dig +short -4 -x ${ip})"
     fi
-    if [ -z "$ip" ] && [ -n "$(command -v curl 2>/dev/null)" ]; then
-        ip="$(curl -s "http://whatismyip.akamai.com" 2>/dev/null)"
-        #ip="$(curl -s https://4.ifcfg.me/)"
+    if command -v curl >/dev/null && [ -z "$ip" ]; then
+        [ -z "$ip" ] && ip="$(curl -s "https://niels.fr/ip" 2>/dev/null)"
+        [ -z "$ip" ] && ip="$(curl -s "http://whatismyip.akamai.com" 2>/dev/null)"
+        [ -z "$ip" ] && ip="$(curl -s "https://ipinfo.io/ip" 2>/dev/null)"
     fi
     if [ -n "$ip" ]; then
         printf "%s" "$ip"
