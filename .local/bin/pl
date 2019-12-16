@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import datetime
+from pathlib import Path
+
+
+homeDir = str(Path.home())
+if not homeDir:
+    sys.exit("No home directory found !")
+
+logFile = homeDir + os.sep + ".LOG"
+
+if len(sys.argv) > 1:
+    with open(logFile, "a") as log_file:
+        log_file.write("{}{} {}".format(
+            "\n" if os.path.isfile(logFile) and os.path.getsize(logFile) > 0 else "",
+            datetime.datetime.now(),
+            " ".join(sys.argv[1:]))
+        )
+else:
+    with open(logFile, "r") as log_file:
+        print(log_file.read())
