@@ -31,9 +31,12 @@ user_pref("browser.ctrlTab.recentlyUsedOrder", false); // normal ctrlTab (not by
 user_pref("browser.urlbar.placeholderName", "DuckDuckGo"); // use DuckDuckGo as search engine
 user_pref("browser.download.dir", "~/downloads"); // change the downloads directory (I don't want a capitalized name)
 
-/* 0000: disable about:config warning ***/
 user_pref("_user.js.parrot", "0000 syntax error");
-user_pref("general.warnOnAboutConfig", false);
+/* 0000: disable about:config warning
+ * The XUL version can still be accessed in FF71+ @ chrome://global/content/config.xul
+ * and in FF73+ @ chrome://global/content/config.xhtml ***/
+user_pref("general.warnOnAboutConfig", false); // for the XUL version
+user_pref("browser.aboutConfig.showWarning", false); // for the new HTML version [FF71+]
 
 /*** 0100: STARTUP ***/
 user_pref("_user.js.parrot", "0100 syntax error");
