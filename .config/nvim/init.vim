@@ -156,14 +156,19 @@ if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
     Plug 'sheerun/vim-polyglot'
     Plug 'tpope/vim-fugitive'
     Plug 'w0rp/ale'
+    Plug 'numirias/semshi'
     call plug#end()
 endif
+
+" disable polyglot on some languages
+let g:polyglot_disabled = ['python']
 
 " Vim-signify
 let g:signify_sign_change = '~'
 
 " w0rp/Ale
-let g:ale_linters = {'python': 'autopep8'}
+let g:ale_linters = {'python': ['pylint', 'flake8', 'autopep8']}
+let g:ale_fixers = {'python': ['autopep8', 'yapf']}
 let g:ale_lint_on_text_changed = 'never'
 
 " rg
