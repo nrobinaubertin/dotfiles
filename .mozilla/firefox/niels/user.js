@@ -30,6 +30,10 @@ user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true); // allow
 user_pref("browser.ctrlTab.recentlyUsedOrder", false); // normal ctrlTab (not by last used)
 user_pref("browser.urlbar.placeholderName", "DuckDuckGo"); // use DuckDuckGo as search engine
 user_pref("browser.download.dir", "~/downloads"); // change the downloads directory (I don't want a capitalized name)
+user_pref("network.IDN_show_punycode", true); // show punycode instead of unicode in URLs
+user_pref("full-screen-api.warning.timeout", 0); // don't display the fullscreen popup
+// user_pref("accessibility.blockautorefresh", true); // block webpages from autorefreshing
+user_pref("browser.tabs.allowTabDetach", false); // Don't allow tabs to be dragged out to create a new window
 
 user_pref("_user.js.parrot", "0000 syntax error");
 /* 0000: disable about:config warning
@@ -92,7 +96,8 @@ user_pref("app.update.enabled", false);
 user_pref("app.update.auto", false);
 /* 0302b: disable auto update installing for extensions (after the check in 0301b)
  * [SETTING] about:addons>Extensions>[cog-wheel-icon]>Update Add-ons Automatically (toggle) ***/
-user_pref("extensions.update.autoUpdateDefault", false);
+// @Niels I enable the auto update for extensions because I forget to update them and I trust them
+user_pref("extensions.update.autoUpdateDefault", true);
 /* 0306: disable extension metadata updating
  * sends daily pings to Mozilla about extensions and recent startups ***/
 user_pref("extensions.getAddons.cache.enabled", false);
