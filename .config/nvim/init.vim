@@ -87,9 +87,9 @@ inoremap <A-h> <Esc>:tabprevious<CR>
 tnoremap <A-h> <C-\><C-n>:tabprevious<CR>
 
 " Tab navigation shortcuts
-nnoremap <A-&> :1tabnext<CR>
-inoremap <A-&> <Esc>:1tabnext<CR>
-tnoremap <A-&> <C-\><C-n>:1tabnext<CR>
+nnoremap <A-^> :1tabnext<CR>
+inoremap <A-^> <Esc>:1tabnext<CR>
+tnoremap <A-^> <C-\><C-n>:1tabnext<CR>
 nnoremap <A-$> :$tabnext<CR>
 inoremap <A-$> <Esc>:$tabnext<CR>
 tnoremap <A-$> <C-\><C-n>:$tabnext<CR>
