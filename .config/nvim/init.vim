@@ -221,3 +221,9 @@ inoremap éé É
 inoremap êê Ê
 inoremap èè È
 inoremap çç Ç
+
+" tabs & spaces autocommands
+autocmd FileType python setlocal shiftwidth=4 softtabstop=4 expandtab
+autocmd FileType javascript setlocal shiftwidth=2 softtabstop=2 expandtab
+autocmd FileType yaml setlocal shiftwidth=2 softtabstop=2 expandtab
+autocmd FileType terraform setlocal shiftwidth=2 softtabstop=2 expandtab
