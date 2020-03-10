@@ -67,20 +67,21 @@ printf "\\n%b" "$RCol"
     swap_used=$(( swap_total - swap_free ))
     mem_p=$(( 100 * mem_used / mem_total ))
     swap_p=$(( 100 * swap_used / swap_total ))
-    printf " %bType,Size,Used%b\\n" "$BGre" "$RCol"
-    printf " %bMem,%s,%s%b\\n" "$White" "$(kb_to_human $mem_total)" "$(usage "$mem_p")" "$RCol"
-    printf " %bSwap,%s,%s%b\\n" "$White" "$(kb_to_human $swap_total)" "$(usage "$swap_p")" "$RCol"
+    printf " %bType,Size,Free,Used%b\\n" "$BGre" "$RCol"
+    printf " %bMem,%s,%s,%s%b\\n" "$White" "$(kb_to_human $mem_total)" "$(kb_to_human $((mem_total - mem_used)))" "$(usage "$mem_p")" "$RCol"
+    printf " %bSwap,%s,%s,%s%b\\n" "$White" "$(kb_to_human $swap_total)" "$(kb_to_human $((swap_total - swap_used)))" "$(usage "$swap_p")" "$RCol"
 
     printf ",,\\n"
 
-    printf " %bFilesystem,Size,Used%b\\n" "$BGre" "$RCol"
+    printf " %bFilesystem,Size,Free,Used%b\\n" "$BGre" "$RCol"
     for i in $(cat /proc/mounts | sort | grep "^/dev" | cut -d' ' -f1 | uniq); do
         id=$(echo "$i" | rev | cut -d"/" -f1 | rev)
         p=$(df "$i" 2>/dev/null | tail -n1 | tr -s " " | cut -d' ' -f5 | tr -d "%")
         s=$(df -h "$i" 2>/dev/null | tail -n1 | tr -s " " | cut -d" " -f2)
+        u=$(df -h "$i" 2>/dev/null | tail -n1 | tr -s " " | cut -d" " -f4)
         if [ -n "$s" ] && [ -n "$p" ]; then
             # white color trick to have the same number of characters for `column` that does not take escape sequences into account
-            printf " %b%s,%s,%s%b\\n" "$White" "$id" "$s" "$(usage "$p")" "$RCol"
+            printf " %b%s,%s,%s,%s%b\\n" "$White" "$id" "$s" "$u" "$(usage "$p")" "$RCol"
         fi
     done
 ) | column -t -s,
