@@ -13,11 +13,11 @@ set list
 
 " Statusline
 set statusline=
-set statusline+=[%n%H%M%R%W]\       " flags and buf no
+set statusline+=\ [%n%H%M%R%W]\     " flags and buf no
 set statusline+=\ %f\               " path
 set statusline+=%=                  " switch to right side
 set statusline+=%y\                 " file type
-set statusline+=[%l,%c]\ %p%%       " line, column and percentage
+set statusline+=[%l,%c]\ %p%%\      " line, column and percentage
 
 " Ctags
 command! MakeTags !ctags -R -f .tags .
@@ -63,7 +63,6 @@ autocmd VimEnter * if &ft == 'man'
 " start in insert mode when opening a new terminal buffer
 autocmd TermOpen * startinsert
 autocmd TermEnter * let b:insertMode = "yes"
-" autocmd TermLeave * let b:insertMode = "no"
 autocmd BufEnter * if &buftype == 'terminal' && b:insertMode != "no" | startinsert | endif
 
 "" Terminal commands
