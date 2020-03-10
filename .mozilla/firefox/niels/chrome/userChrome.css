@@ -81,12 +81,6 @@
     border-left: none !important;
 }
 
-/* Tab width */
-.tabbrowser-tab[fadein]:not([pinned]):hover,
-.tabbrowser-tab[fadein][selected="true"]:not([pinned]) {
-    min-width: 160px !important;
-}
-
 /* Hide bookmarks and navbar bar until focused */
 /* The mix of top/margin-bottom hides the bars without leaving a margin or going over the alltabs-button */
 #PersonalToolbar:not([customizing]),
