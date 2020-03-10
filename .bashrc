@@ -92,15 +92,10 @@ fi
 
 command -v trash-put >/dev/null && alias rr='trash-put'
 
-if command -v youtube-dl >/dev/null; then
-    alias ytmp3='youtube-dl -wi --extract-audio --audio-quality 3 --audio-format mp3'
-    ytgif() {
-        ffmpeg -ss "$1" -t "$2" \
-            -i "$(youtube-dl -g "$3" | head -n1)" \
-            -filter_complex "[0:v] fps=12,scale=w=480:h=-1" \
-            -f gif $(date +%Y-%m-%d-%H%M%S)-ytgif.gif
-    }
-fi
+# go to the root of the git repository
+cdroot() {
+    ! [ -e ".git" ] && [ "$(pwd)" != "/" ] && cd .. && cdroot || return 0
+}
 
 if command -v fzy >/dev/null; then
     # Required to refresh the prompt after fzy
@@ -161,12 +156,57 @@ if command -v openssl >/dev/null; then
         fi
     }
     genSSHKey() {
-        user=$(printf "%s" "$1" | cut -d'@' -f1)
-        host=$(printf "%s" "$1" | cut -d'@' -f2 | cut -d':' -f1)
-        # port=$(printf "%s" "$1" | cut -d'@' -f2 | cut -d':' -f2)
-        ssh-keygen -t ed25519 -C "$user@$host-$(date -I)-ed25519" -f "$user@$host" -a 100
+        for arg in "$@"; do
+            case "$arg" in
+            --rsa)
+                rsa="1";;
+            --home)
+                home="1";;
+            *)
+                user=$(printf "%s" "$arg" | cut -d'@' -f1)
+                host=$(printf "%s" "$arg" | cut -d'@' -f2 | cut -d':' -f1)
+                # port=$(printf "%s" "$arg" | cut -d'@' -f2 | cut -d':' -f2)
+                ;;
+            esac
+        done
+        [ "$home" = "1" ] && cd "$HOME/.ssh"
+        if [ "$rsa" = "1" ]; then
+            ssh-keygen -t rsa -C "$user@$host-$(date -I)-rsa" -f "$user@$host" -a 100
+        else
+            ssh-keygen -t ed25519 -C "$user@$host-$(date -I)-ed25519" -f "$user@$host" -a 100
+        fi
+        [ "$home" = "1" ] && cd -
     }
 fi
+
+if command -v youtube-dl >/dev/null; then
+    alias ytmp3='youtube-dl -wi --extract-audio --audio-quality 3 --audio-format mp3'
+    ytclip() {
+        ffmpeg -ss "$1" \
+            -i "$(youtube-dl -g "$3" | head -n1)" \
+            -t "$2" \
+            -f mp4 $(date +%Y-%m-%d-%H%M%S)-ytmp4.mp4
+    }
+    ytgif() {
+        ffmpeg -ss "$1" -t "$2" \
+            -i "$(youtube-dl -g "$3" | head -n1)" \
+            -filter_complex "[0:v] fps=12,scale=w=480:h=-1" \
+            -f gif $(date +%Y-%m-%d-%H%M%S)-ytgif.gif
+    }
+    youtube() {
+        if echo "$1" | grep "https://.*youtu" >/dev/null; then
+            min="$(get resolution | cut -d'x' -f2)"
+            id="$(youtube-dl -F "$1" | tail -n +5 | grep -v "audio only" | awk 'int(substr($4, 1, length($4)-1)) >= '$min' { print $1}' | head -n1)"
+            if [ -z $id ]; then
+                id="best"
+            fi
+            mpv --ytdl-format="$id+bestaudio" "$1"
+        fi
+    }
+fi
+
+# remove bare IPs from known_hosts
+alias clean_known_host="sed -i '/^[0-9.]\\+ /d' $HOME/.ssh/known_hosts"
 
 if command -v abduco >/dev/null; then
     attach() {
@@ -174,16 +214,9 @@ if command -v abduco >/dev/null; then
     }
 fi
 
-# go to the root of the git repository
-cdroot() {
-    ! [ -e ".git" ] && [ "$(pwd)" != "/" ] && cd .. && cdroot || return 0
-}
-
-# start syncthing container
-syncthing() {
-    sudo systemctl start docker
-    sudo docker run -it --rm --net=host -v /home/niels/data/:/data -e UID=$(id -u) -e GID=$(id -g) --name syncthing syncthing
-}
+if command -v syncthing >/dev/null; then
+    alias syncthing="syncthing -home $HOME/data/syncthing -gui-address 0.0.0.0:8384"
+fi
 
 if command -v tar >/dev/null && command -v bzip2 >/dev/null; then
     archive() {
@@ -194,31 +227,20 @@ if command -v tar >/dev/null && command -v bzip2 >/dev/null; then
     }
 fi
 
-if command -v mpv >/dev/null; then
-    if command -v youtube-dl >/dev/null; then
-        youtube() {
-            if echo "$1" | grep "https://.*youtu" >/dev/null; then
-                min="$(get resolution | cut -d'x' -f2)"
-                id="$(youtube-dl -F "$1" | tail -n +5 | grep -v "audio only" | awk 'int(substr($4, 1, length($4)-1)) >= '$min' { print $1}' | head -n1)"
-                if [ -z $id ]; then
-                    id="best"
-                fi
-                mpv --ytdl-format="$id+bestaudio" "$1"
-            fi
-        }
-    fi
-    play() {
-        if [ -d "$1" ] && [ -f "$1/index.m3u" ]; then
-            to_play="$1/index.m3u"
-        else
-            to_play="$1"
-        fi
-        mpv --no-video "$to_play" "$2"
+if command -v socat >/dev/null; then
+    isopen() {
+        socat /dev/null "TCP4:$1,connect-timeout=2" 2>/dev/null
     }
 fi
 
-# remove bare IPs from known_hosts
-alias clean_known_host="sed -i '/^[0-9.]\\+ /d' $HOME/.ssh/known_hosts"
+alias maze='for i in $(seq 1 $(tput lines)); do for i in $(seq 1 $(tput cols)); do printf "\xE2\x95\xB$(( ( RANDOM % 2 ) + 1 ))"; done; printf "\n"; done'
+
+bim() {
+    tmp=$(mktemp -d)
+    cd $tmp
+    ytmp3 "$1"
+    beet im $tmp
+}
 
 # Secondary bashrc for local configurations
 [ -f "${HOME}/.config/bashrc" ] && . "${HOME}/.config/bashrc"
