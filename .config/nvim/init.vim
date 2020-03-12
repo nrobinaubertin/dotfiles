@@ -28,37 +28,37 @@ match ErrorMsg "\s\+$"
 
 " Function to set tab spaces
 function! SetTabSpaces(...)
-    let &tabstop = a:1
-    let &shiftwidth = a:1
+  let &tabstop = a:1
+  let &shiftwidth = a:1
 endfunction
 call SetTabSpaces(4)
 
 " Retab the file
 function! Retab()
-    set noexpandtab
-    retab!
-    set expandtab
-    retab!
+  set noexpandtab
+  retab!
+  set expandtab
+  retab!
 endfunction
 
 " When in a neovim terminal, add a buffer to the existing vim session instead of nesting (credit justinmk)
 " You need socat to do this
 " Nest when opening in man mode
 if executable('socat')
-    autocmd VimEnter * if @% != '' && &ft != 'man' && !&diff && !empty($NVIM_LISTEN_ADDRESS) && $NVIM_LISTEN_ADDRESS !=# v:servername
-                \ |let g:r=jobstart(['socat', '-', 'UNIX-CLIENT:'.$NVIM_LISTEN_ADDRESS],{'rpc':v:true})
-                \ |let g:f=fnameescape(expand('%:p'))
-                \ |noau bwipe
-                \ |call rpcrequest(g:r, "nvim_command", "tabe ".g:f)
-                \ |qa
-                \ |endif
+  autocmd VimEnter * if @% != '' && &ft != 'man' && !&diff && !empty($NVIM_LISTEN_ADDRESS) && $NVIM_LISTEN_ADDRESS !=# v:servername
+        \ |let g:r=jobstart(['socat', '-', 'UNIX-CLIENT:'.$NVIM_LISTEN_ADDRESS],{'rpc':v:true})
+        \ |let g:f=fnameescape(expand('%:p'))
+        \ |noau bwipe
+        \ |call rpcrequest(g:r, "nvim_command", "tabe ".g:f)
+        \ |qa
+        \ |endif
 endif
 
 " Don't show tabline and statusline on a man page
 autocmd VimEnter * if &ft == 'man'
-            \ |set showtabline=0
-            \ |set laststatus=0
-            \ |endif
+      \ |set showtabline=0
+      \ |set laststatus=0
+      \ |endif
 
 " start in insert mode when opening a new terminal buffer
 autocmd TermOpen * startinsert
@@ -126,63 +126,21 @@ let g:netrw_banner = 0
 let g:netrw_browsex_viewer= "firefox"
 nmap - :call Opendir('edit')<CR>
 function! Opendir(cmd) abort
-    if expand('%') =~# '^$\|^term:[\/][\/]'
-        execute a:cmd '.'
-    else
-        execute a:cmd '%:h'
-        let pattern = '^\%(| \)*'.escape(expand('#:t'), '.*[]~\').'[/*|@=]\=\%($\|\t\)'
-        call search(pattern, 'wc')
-    endif
+  if expand('%') =~# '^$\|^term:[\/][\/]'
+    execute a:cmd '.'
+  else
+    execute a:cmd '%:h'
+    let pattern = '^\%(| \)*'.escape(expand('#:t'), '.*[]~\').'[/*|@=]\=\%($\|\t\)'
+    call search(pattern, 'wc')
+  endif
 endfunction
 
 " Use 'correct' php indentation for switch blocks
 let g:PHP_vintage_case_default_indent = 1
 
-" Get vim-plug
-if !filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
-    echo system("curl -fLo $HOME/.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim")
-endif
-
-" Update plugins
-function! Update()
-    PlugUpgrade
-    PlugUpdate
-endfunction
-
-" Vim-plug
-if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
-    call plug#begin('~/.config/nvim/plugged')
-    Plug 'mhinz/vim-signify'
-    Plug 'sheerun/vim-polyglot'
-    Plug 'tpope/vim-fugitive'
-    Plug 'w0rp/ale'
-    Plug 'numirias/semshi'
-    call plug#end()
-endif
-
-" disable polyglot on some languages
-let g:polyglot_disabled = ['python']
-
-" Vim-signify
-let g:signify_sign_change = '~'
-
-" w0rp/Ale
-let g:ale_linters = {'python': ['pylint', 'flake8', 'autopep8']}
-let g:ale_fixers = {'python': ['autopep8', 'yapf']}
-let g:ale_lint_on_text_changed = 'never'
-
-" rg
-if executable('rg')
-    set grepprg=rg\ --vimgrep
-    set grepformat^=%f:%l:%c:%m
-    let g:list_files_function = 'rg --files --color=never --hidden --glob "!.git/*"'
-    let g:search_function = 'silent! grep --hidden --glob "!.git/*" '
-else
-    let g:list_files_function = "find -type f -not -path '*/\.*'"
-    let g:search_function = 'silent! grep -srnw --binary-files=without-match --exclude-dir=.git '
-endif
-
+" file-searching
 if executable('fzy')
+    let g:list_files_function = "git ls-files -o -X .gitignore"
     function! FzyCommand(choice_command, vim_command) abort
         let l:callback = {'window_id': win_getid(), 'filename': tempname(), 'vim_command': a:vim_command}
 
@@ -213,6 +171,34 @@ if executable('fzy')
     nnoremap <A-v> :call FzyCommand(g:list_files_function, ":vsp ")<CR>
     tnoremap <A-v> <C-\><C-n>:call FzyCommand(g:list_files_function, ":vsp ")<CR>
     inoremap <A-v> <Esc>:call FzyCommand(g:list_files_function, ":vsp ")<CR>
+else
+  set path=**
+  function WildignoreFromGitignore()
+    let gitignore = '.gitignore'
+    if filereadable(gitignore)
+      let igstring = ''
+      for oline in readfile(gitignore)
+        let line = substitute(oline, '\s|\n|\r', '', "g")
+        if line =~ '^#' | con | endif
+        if line == ''   | con | endif
+        if line =~ '^!' | con | endif
+        if line =~ '/$' | let igstring .= "," . line . "*" | con | endif
+        let igstring .= "," . line
+      endfor
+      let execstring = "set wildignore+=".substitute(igstring, '^,', '', "g")
+      execute execstring
+    endif
+  endfunction
+  call WildignoreFromGitignore()
+  nnoremap <A-f> :tabfind 
+  tnoremap <A-f> <C-\><C-n>:tabfind 
+  inoremap <A-f> <Esc>:tabfind 
+  nnoremap <A-e> :find 
+  tnoremap <A-e> <C-\><C-n>:find 
+  inoremap <A-e> <Esc>:find 
+  nnoremap <A-v> :sfind 
+  tnoremap <A-v> <C-\><C-n>:sfind 
+  inoremap <A-v> <Esc>:sfind 
 endif
 
 " The french keyboard is awesome
@@ -227,3 +213,33 @@ autocmd FileType python setlocal shiftwidth=4 softtabstop=4 expandtab
 autocmd FileType javascript setlocal shiftwidth=2 softtabstop=2 expandtab
 autocmd FileType yaml setlocal shiftwidth=2 softtabstop=2 expandtab
 autocmd FileType terraform setlocal shiftwidth=2 softtabstop=2 expandtab
+autocmd FileType vim setlocal shiftwidth=2 softtabstop=2 expandtab
+autocmd FileType sh setlocal shiftwidth=2 softtabstop=2 expandtab
+
+" Vim-plug
+if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
+  call plug#begin('~/.config/nvim/plugged')
+  Plug 'mhinz/vim-signify'
+  Plug 'sheerun/vim-polyglot'
+  Plug 'tpope/vim-fugitive'
+  Plug 'w0rp/ale'
+  Plug 'numirias/semshi'
+  call plug#end()
+
+  " Update plugins
+  function! Update()
+    PlugUpgrade
+    PlugUpdate
+  endfunction
+endif
+
+" disable polyglot on some languages
+let g:polyglot_disabled = ['python']
+
+" Vim-signify
+let g:signify_sign_change = '~'
+
+" w0rp/Ale
+let g:ale_linters = {'python': ['pylint', 'flake8', 'autopep8']}
+let g:ale_fixers = {'python': ['autopep8', 'yapf']}
+let g:ale_lint_on_text_changed = 'never'
