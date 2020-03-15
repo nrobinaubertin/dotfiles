@@ -140,7 +140,14 @@ let g:PHP_vintage_case_default_indent = 1
 
 " file-searching
 if executable('fzy')
-    let g:list_files_function = "git ls-files -o -X .gitignore"
+    if executable('rg')
+        set grepprg=rg\ --vimgrep
+        set grepformat^=%f:%l:%c:%m
+        let g:list_files_function = 'rg --files --color=never --hidden --glob "!.git/*"'
+    else
+        let g:list_files_function = "find -type f -not -path '*/\.*'"
+        " let g:list_files_function = "git ls-files -o -X .gitignore"
+    endif
     function! FzyCommand(choice_command, vim_command) abort
         let l:callback = {'window_id': win_getid(), 'filename': tempname(), 'vim_command': a:vim_command}
 
