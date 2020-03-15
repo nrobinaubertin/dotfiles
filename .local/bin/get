@@ -11,7 +11,6 @@ usage() {
     echo "  cpu"
     echo "  latency"
     echo "  heat"
-    echo "  dot"
     echo "  ip"
     echo "  ram"
     echo "  status"
@@ -19,7 +18,6 @@ usage() {
     echo "  uptime"
     echo "  brightness"
     echo "  resolution"
-    echo "  status_with_cache [separator]"
 }
 
 get_resolution() {
@@ -167,43 +165,24 @@ get_uptime() {
     fi
 }
 
-get_dot() {
-    printf "\\xE2\\x80\\xA2"
-}
-
-ifprint() {
-    if [ -n "$1" ]; then
-        if [ "$2" = "start" ]; then
-            printf "%s" "$1"
-        else
-            printf "%s%s" "$2" "$1"
-        fi
-    fi
-}
-
 get_status() {
-    ifprint "$(get_time)" "start"
-    ifprint "$(get_date)" "$1"
-    ifprint "$(get_cpu)" "$1"
-    ifprint "$(get_ram)" "$1"
-    ifprint "$(get_power)" "$1"
-    ifprint "$(get_heat)" "$1"
-    ifprint "$(get_uptime)" "$1"
-    ifprint "$(get_latency)" "$1"
-    ifprint "$(get_ip)" "$1"
-    ifprint "$(get_brightness)" "$1"
+    printf "%s \\xE2\\x80\\xA2 %s | %s \\xE2\\x80\\xA2 %s \\xE2\\x80\\xA2 %s | %s \\xE2\\x80\\xA2 %s | %s \\xE2\\x80\\xA2 %s" \
+      "$(get_ip)" "$(get_latency)" \
+      "$(get_cpu)" "$(get_ram)" "$(get heat)"\
+      "$(get_uptime)" \
+      "$(get_power)" \
+      "$(get_date)" "$(get_time)"
 }
 
 case "$1" in
     "cpu") get_cpu;;
     "date") get_date;;
-    "dot") get_dot;;
     "heat") get_heat;;
     "ip") get_ip;;
     "latency") get_latency;;
     "power") get_power;;
     "ram") get_ram;;
-    "status") get_status "$2";;
+    "status") get_status;;
     "temp") get_temp;;
     "time") get_time;;
     "uptime") get_uptime;;
