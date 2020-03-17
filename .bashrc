@@ -82,6 +82,7 @@ lll() {
 }
 
 command -v brightness >/dev/null && alias b='brightness'
+command -v volume >/dev/null && alias v='volume'
 
 # start cal on mondays
 if command -v ncal >/dev/null; then
