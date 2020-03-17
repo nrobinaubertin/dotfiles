@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# control volume using amixer
+if command -v amixer >/dev/null; then
+  if [ -z "$1" ]; then
+    echo "$(amixer get Master,0 | grep -Po "\d+%" | head -n1)"
+  else
+    amixer sset 'Master' "$1"% >/dev/null
+  fi
+else
+  echo "You need amixer to set the volume"
+fi
