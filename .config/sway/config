@@ -18,20 +18,14 @@ set $term st
 set $browser firefox
 set $lock swaylock -c 000000
 
+set $keyboard "1:1:AT_Translated_Set_2_keyboard"
+
 # Your preferred application launcher
 # Note: it's recommended that you pass the final command to sway
 set $menu dmenu_path | dmenu | xargs swaymsg exec --
 
-### Output configuration
-#
-# Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
-output * bg /usr/share/backgrounds/f31/default/normalish/f31.png fill
-#
-# Example configuration:
-#
-#   output HDMI-A-1 resolution 1920x1080 position 1920,0
-#
-# You can get the names of your outputs by running: swaymsg -t get_outputs
+### Output configuration [man 5 sway-output]
+output * bg #000000 solid_color
 
 ### Idle configuration
 #
@@ -61,11 +55,13 @@ output * bg /usr/share/backgrounds/f31/default/normalish/f31.png fill
 # You can get the names of your inputs by running: swaymsg -t get_inputs
 # Read `man 5 sway-input` for more information about this section.
 
-input "1:1:AT_Translated_Set_2_keyboard" {
+input $keyboard {
     xkb_layout fr
     xkb_variant ,nodeadkeys
     xkb_options grp:alt_shift_toggle
 }
+
+#input "Synaptics TM3075-002" events disabled
 
 ### Key bindings
 #
@@ -73,12 +69,12 @@ input "1:1:AT_Translated_Set_2_keyboard" {
 #
     # basic shortcuts
     bindsym $mod+t exec $term
+    #bindsym $mod+Return exec $term
     bindsym $mod+p exec $menu
     bindsym $mod+z exec $lock
 
     # kill focused window
     bindsym $mod+Shift+c kill
-
 
     # Drag floating windows by holding down $mod and left mouse button.
     # Resize them with right mouse button + $mod.
@@ -100,6 +96,7 @@ input "1:1:AT_Translated_Set_2_keyboard" {
     bindsym $mod+$down focus down
     bindsym $mod+$up focus up
     bindsym $mod+$right focus right
+
     # or use $mod+[up|down|left|right]
     bindsym $mod+Left focus left
     bindsym $mod+Down focus down
@@ -111,6 +108,7 @@ input "1:1:AT_Translated_Set_2_keyboard" {
     bindsym $mod+Shift+$down move down
     bindsym $mod+Shift+$up move up
     bindsym $mod+Shift+$right move right
+
     # ditto, with arrow keys
     bindsym $mod+Shift+Left move left
     bindsym $mod+Shift+Down move down
@@ -196,6 +194,17 @@ mode "resize" {
     bindsym Escape mode "default"
 }
 bindsym $mod+r mode "resize"
+
+# THINKPAD buttons
+bindsym XF86AudioRaiseVolume exec volume +5
+bindsym XF86AudioLowerVolume exec volume -5
+bindsym XF86AudioMute exec amixer set Master toggle
+bindsym XF86AudioMicMute exec amixer set Capture toggle
+bindsym XF86MonBrightnessDown exec brightness -10
+bindsym XF86MonBrightnessUp exec brightness +10
+#bindsym XF86AudioPlay exec playerctl play-pause
+#bindsym XF86AudioNext exec playerctl next
+#bindsym XF86AudioPrev exec playerctl previous
 
 #
 # Status Bar:
