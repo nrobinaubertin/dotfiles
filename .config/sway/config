@@ -1,9 +1,3 @@
-# Default config for sway
-#
-# Copy this to ~/.config/sway/config and edit it to your liking.
-#
-# Read `man 5 sway` for a complete reference.
-
 ### Variables
 
 # Logo key. Use Mod1 for Alt.
@@ -11,17 +5,6 @@ set $mod Mod4
 
 # theme
 include ~/.config/sway/themes/gruvbox
-
-# gruvbox colors
-#set $bg_color #282828
-#set $red_color #cc241d
-#set $green_color #98971a
-#set $yellow_color #d79921
-#set $blue_color #458588
-#set $purple_color #b16286
-#set $aqua_color #689d6a
-#set $gray_color #a89984
-#set $fg_color #ebdbb2
 
 set $left h
 set $down j
@@ -72,14 +55,10 @@ input $keyboard {
     xkb_options grp:alt_shift_toggle
 }
 
-#input "Synaptics TM3075-002" events disabled
-
 bindsym $mod+t exec $term
-#bindsym $mod+Return exec $term
 bindsym $mod+p exec $menu
 bindsym $mod+z exec $lock
 
-# kill focused window
 bindsym $mod+Shift+c kill
 
 # Drag floating windows by holding down $mod and left mouse button.
@@ -125,8 +104,8 @@ bindsym $mod+eacute workspace 2
 bindsym $mod+quotedbl workspace 3
 bindsym $mod+apostrophe workspace 4
 bindsym $mod+parenleft workspace 5
-bindsym $mod+egrave workspace 6
-bindsym $mod+minus workspace 7
+bindsym $mod+minus workspace 6
+bindsym $mod+egrave workspace 7
 bindsym $mod+underscore workspace 8
 bindsym $mod+ccedilla workspace 9
 bindsym $mod+agrave workspace 10
@@ -137,8 +116,8 @@ bindsym $mod+Shift+eacute move container to workspace 2
 bindsym $mod+Shift+quotedbl move container to workspace 3
 bindsym $mod+Shift+apostrophe move container to workspace 4
 bindsym $mod+Shift+parenleft move container to workspace 5
-bindsym $mod+Shift+egrave move container to workspace 6
-bindsym $mod+Shift+minus move container to workspace 7
+bindsym $mod+Shift+minus move container to workspace 6
+bindsym $mod+Shift+egrave move container to workspace 7
 bindsym $mod+Shift+underscore move container to workspace 8
 bindsym $mod+Shift+ccedilla move container to workspace 9
 bindsym $mod+Shift+agrave move container to workspace 10
@@ -151,40 +130,41 @@ bindsym $mod+Shift+tab workspace prev_on_output
 #
 # Layout stuff:
 #
-    # You can "split" the current object of your focus with
-    # $mod+b or $mod+v, for horizontal and vertical splits
-    # respectively.
-    bindsym $mod+b splith
-    bindsym $mod+v splitv
+# You can "split" the current object of your focus with
+# $mod+b or $mod+v, for horizontal and vertical splits
+# respectively.
+bindsym $mod+b splith
+bindsym $mod+v splitv
 
-    # Switch the current container between different layout styles
-    bindsym $mod+s layout stacking
-    bindsym $mod+w layout tabbed
-    bindsym $mod+e layout toggle split
+# Switch the current container between different layout styles
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
 
-    # Make the current focus fullscreen
-    bindsym $mod+f fullscreen
+# Make the current focus fullscreen
+bindsym $mod+f fullscreen
 
-    # Toggle the current focus between tiling and floating mode
-    bindsym $mod+Shift+space floating toggle
+# Toggle the current focus between tiling and floating mode
+bindsym $mod+Shift+space floating toggle
 
-    # Swap focus between the tiling area and the floating area
-    bindsym $mod+space focus mode_toggle
+# Swap focus between the tiling area and the floating area
+bindsym $mod+space focus mode_toggle
 
-    # move focus to the parent container
-    #bindsym $mod+a focus parent
+# move focus to the parent container
+#bindsym $mod+a focus parent
+
 #
 # Scratchpad:
 #
-    # Sway has a "scratchpad", which is a bag of holding for windows.
-    # You can send windows there and get them back later.
+# Sway has a "scratchpad", which is a bag of holding for windows.
+# You can send windows there and get them back later.
 
-    # Move the currently focused window to the scratchpad
-    #bindsym $mod+Shift+minus move scratchpad
+# Move the currently focused window to the scratchpad
+#bindsym $mod+Shift+minus move scratchpad
 
-    # Show the next scratchpad window or hide the focused scratchpad window.
-    # If there are multiple scratchpad windows, this command cycles through them.
-    #bindsym $mod+minus scratchpad show
+# Show the next scratchpad window or hide the focused scratchpad window.
+# If there are multiple scratchpad windows, this command cycles through them.
+#bindsym $mod+minus scratchpad show
 
 mode "resize" {
     bindsym 9 resize shrink width 20px
@@ -205,6 +185,7 @@ bindsym XF86AudioMute exec amixer set Master toggle
 bindsym XF86AudioMicMute exec amixer set Capture toggle
 bindsym XF86MonBrightnessDown exec brightness -10
 bindsym XF86MonBrightnessUp exec brightness +10
+bindsym XF86Tools exec red
 #bindsym XF86AudioPlay exec playerctl play-pause
 #bindsym XF86AudioNext exec playerctl next
 #bindsym XF86AudioPrev exec playerctl previous
