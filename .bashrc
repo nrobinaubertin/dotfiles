@@ -74,7 +74,14 @@ alias less='less -RX'
 alias nraw='nvim -u NORC -c "setlocal syntax=off"'
 alias nterm='nvim -c term'
 alias :tabe='nvim'
-alias ll='ls -lhb --color'
+
+if command -v exa >/dev/null; then
+  alias ll='exa -gl --git --color=always'
+  alias lla='exa -agl --git --color=always'
+  alias llt='exa -gl --git -s modified --color=always'
+else
+  alias ll='ls -lhb --color'
+fi
 
 lll() {
   [ -z "$1" ] && t="." || t="$1"
