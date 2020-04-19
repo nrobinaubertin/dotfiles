@@ -113,10 +113,10 @@ tnoremap <C-h> <C-\><c-n>:wincmd h<CR>
 " command! SaveSudo :execute ':silent w !sudo tee % > /dev/null' <Bar> :edit!
 
 " Open todo file
-command! Todo execute ':tabe `=resolve(expand("~/.TODO"))`' <Bar> :set ft=markdown
+command! Todo execute ':tabe `=resolve(expand("~/.TODO.md"))`' <Bar> :set ft=markdown
 
 " Output random string of 50 chars
-command! Rand execute ':read! tr -dc a-zA-Z0-9 < /dev/urandom | head -c 50'
+" command! Rand execute ':read! tr -dc a-zA-Z0-9 < /dev/urandom | head -c 50'
 
 " Space bar un-highlights search
 nnoremap <Space><Space> :silent noh<Bar>echo<CR>
@@ -226,11 +226,11 @@ autocmd FileType sh setlocal shiftwidth=2 softtabstop=2 expandtab
 " Vim-plug
 if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
   call plug#begin('~/.config/nvim/plugged')
-  Plug 'mhinz/vim-signify'
+  Plug 'airblade/vim-gitgutter'
+  Plug 'numirias/semshi'
   Plug 'sheerun/vim-polyglot'
   Plug 'tpope/vim-fugitive'
   Plug 'w0rp/ale'
-  Plug 'numirias/semshi'
   call plug#end()
 
   " Update plugins

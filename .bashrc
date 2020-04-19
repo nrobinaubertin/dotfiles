@@ -68,7 +68,7 @@ unalias -a
 
 # some aliases
 alias :q='exit'
-alias todo='nvim -c "set ft=markdown" ${HOME}/.TODO'
+alias todo='nvim -c "set ft=markdown" ${HOME}/.TODO.md'
 alias grep='grep --color=always'
 alias less='less -RX'
 alias nraw='nvim -u NORC -c "setlocal syntax=off"'
@@ -83,9 +83,9 @@ else
   alias ll='ls -lhb --color'
 fi
 
-lll() {
-  [ -z "$1" ] && t="." || t="$1"
-  ll "$t" | less -R
+lll () {
+    [ -z "$1" ] && t="." || t="$1";
+    exa -gl --git --color=always "$t" | less -RX -R
 }
 
 command -v brightness >/dev/null && alias b='brightness'
@@ -189,27 +189,31 @@ fi
 
 if command -v youtube-dl >/dev/null; then
   alias ytmp3='youtube-dl -wi --extract-audio --audio-quality 3 --audio-format mp3'
-  ytclip() {
-    ffmpeg -ss "$1" \
-      -i "$(youtube-dl -g "$3" | head -n1)" \
-      -t "$2" \
-      -f mp4 $(date +%Y-%m-%d-%H%M%S)-ytmp4.mp4
-    }
-  ytgif() {
-    ffmpeg -ss "$1" -t "$2" \
-      -i "$(youtube-dl -g "$3" | head -n1)" \
-      -filter_complex "[0:v] fps=12,scale=w=480:h=-1" \
-      -f gif $(date +%Y-%m-%d-%H%M%S)-ytgif.gif
-    }
-  youtube() {
-    if echo "$1" | grep "https://.*youtu" >/dev/null; then
-      min="$(get resolution | cut -d'x' -f2)"
-      id="$(youtube-dl -F "$1" | tail -n +5 | grep -v "audio only" | awk 'int(substr($4, 1, length($4)-1)) >= '$min' { print $1}' | head -n1)"
-      if [ -z $id ]; then
-        id="best"
+  yt () {
+      if echo "$1" | grep --color=always "https://.*youtu" > /dev/null; then
+          min="$(get resolution | cut -d'x' -f2)";
+          id="$(youtube-dl -F "$1" | tail -n +5 | grep -v "audio only" | awk 'int(substr($4, 1, length($4)-1)) >= '$min' { print $1}' | head -n1)";
+          if [ -z $id ]; then
+              id="best";
+          fi;
+          mpv --ytdl-format="$id+bestaudio" "$1";
       fi
-      mpv --ytdl-format="$id+bestaudio" "$1"
-    fi
+  }
+  ytclip () {
+      ffmpeg -ss "$1" -i "$(youtube-dl -g "$3" | head -n1)" -t "$2" -f mp4 $(date +%Y-%m-%d-%H%M%S)-ytmp4.mp4
+  }
+  ytdl () {
+      if echo "$1" | grep --color=always "https://.*youtu" > /dev/null; then
+          min="$(get resolution | cut -d'x' -f2)";
+          id="$(youtube-dl -F "$1" | tail -n +5 | grep -v "audio only" | awk 'int(substr($4, 1, length($4)-1)) >= '$min' { print $1}' | head -n1)";
+          if [ -z $id ]; then
+              id="best";
+          fi;
+          youtube-dl -f "$id+bestaudio" --merge-output-format mkv "$1";
+      fi
+  }
+  ytgif () {
+      ffmpeg -ss "$1" -t "$2" -i "$(youtube-dl -g "$3" | head -n1)" -filter_complex "[0:v] fps=12,scale=w=480:h=-1" -f gif $(date +%Y-%m-%d-%H%M%S)-ytgif.gif
   }
 fi
 
@@ -225,6 +229,20 @@ if command -v socat >/dev/null; then
     socat /dev/null "TCP4:$1,connect-timeout=2" 2>/dev/null
   }
 fi
+
+clean_containers () {
+    if command -v podman > /dev/null; then
+        pgrm="podman";
+    fi;
+    if command -v docker > /dev/null; then
+        pgrm="docker";
+    fi;
+    "$pgrm" stop $("$pgrm" ps -q);
+    "$pgrm" rm $("$pgrm" ps -aq);
+    "$pgrm" system prune -af;
+    "$pgrm" volume prune -f;
+    "$pgrm" rmi -af
+}
 
 #bim() {
 #    tmp=$(mktemp -d)
