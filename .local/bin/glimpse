@@ -74,7 +74,7 @@ printf "\\n%b" "$RCol"
     printf ",,\\n"
 
     printf " %bFilesystem,Size,Free,Used%b\\n" "$BGre" "$RCol"
-    for i in $(cat /proc/mounts | sort | grep "^/dev" | cut -d' ' -f1 | uniq); do
+    for i in $(df -hT | awk '$2 !~ "tmpfs$" && NR!=1 {print $1}'); do
         id=$(echo "$i" | rev | cut -d"/" -f1 | rev)
         p=$(df "$i" 2>/dev/null | tail -n1 | tr -s " " | cut -d' ' -f5 | tr -d "%")
         s=$(df -h "$i" 2>/dev/null | tail -n1 | tr -s " " | cut -d" " -f2)
