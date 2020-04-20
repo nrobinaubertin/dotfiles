@@ -74,7 +74,7 @@ printf "\\n%b" "$RCol"
     printf ",,\\n"
 
     printf " %bFilesystem,Size,Free,Used%b\\n" "$BGre" "$RCol"
-    for i in $(df -hT | awk '$2 !~ "tmpfs$" && NR!=1 {print $7}'); do
+    for i in $(df -hT | awk '$2 !~ "(tmpfs|squshfs|overlay)$" && NR!=1 {print $7}'); do
         p=$(df "$i" 2>/dev/null | tail -n1 | tr -s " " | cut -d' ' -f5 | tr -d "%")
         s=$(df -h "$i" 2>/dev/null | tail -n1 | tr -s " " | cut -d" " -f2)
         u=$(df -h "$i" 2>/dev/null | tail -n1 | tr -s " " | cut -d" " -f4)
