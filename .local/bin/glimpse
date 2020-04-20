@@ -85,4 +85,4 @@ printf "\\n%b" "$RCol"
     done
 ) | column -t -s,
 
-printf "%b" "$RCol"
+printf "\\n%b" "$RCol"
