@@ -9,10 +9,6 @@ then
 
   if command -v sway >/dev/null; then
     exec sway
-  else
-    if command -v startx >/dev/null; then
-      exec startx
-    fi
   fi
 fi
 
