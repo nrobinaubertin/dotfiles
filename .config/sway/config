@@ -11,7 +11,7 @@ set $down j
 set $up k
 set $right l
 
-set $term st
+set $term alacritty
 set $browser firefox
 set $lock swaylock -c 000000
 
