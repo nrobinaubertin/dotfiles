@@ -3,191 +3,199 @@
 # get various infos about the system
 
 usage() {
-    echo "$0:"
-    echo "  volume"
-    echo "  power"
-    echo "  date"
-    echo "  time"
-    echo "  cpu"
-    echo "  latency"
-    echo "  heat"
-    echo "  ip"
-    echo "  ram"
-    echo "  status"
-    echo "  temp"
-    echo "  uptime"
-    echo "  brightness"
-    echo "  resolution"
+  echo "$0:"
+  echo "  battery"
+  echo "  brightness"
+  echo "  cpu"
+  echo "  date"
+  echo "  heat"
+  echo "  ip"
+  echo "  latency"
+  echo "  power"
+  echo "  ram"
+  echo "  resolution"
+  echo "  status"
+  echo "  temp"
+  echo "  time"
+  echo "  uptime"
+  echo "  volume"
 }
 
 get_resolution() {
-    if command -v xrandr >/dev/null; then
-        resolution="$(xrandr | head -n1 | cut -d',' -f2 | awk '{print $2$3$4}')"
-        if [ -n "$resolution" ]; then
-            printf "%s" "${resolution}"
-        fi
+  if command -v xrandr >/dev/null; then
+    resolution="$(xrandr | head -n1 | cut -d',' -f2 | awk '{print $2$3$4}')"
+    if [ -n "$resolution" ]; then
+      printf "%s" "${resolution}"
     fi
+  fi
 }
 
 get_brightness() {
-    handler="/sys/class/backlight/$(ls /sys/class/backlight)/"
-    brightness="$(cat "$handler/brightness")"
-    max_brightness="$(cat "$handler/max_brightness")"
-    printf "%s%%" "$(( 100 * brightness / max_brightness ))"
+  handler="/sys/class/backlight/$(ls /sys/class/backlight)/"
+  brightness="$(cat "$handler/brightness")"
+  max_brightness="$(cat "$handler/max_brightness")"
+  printf "%s%%" "$(( 100 * brightness / max_brightness ))"
 }
 
 get_volume() {
-    if command -v amixer >/dev/null; then
-        vol="$(amixer get Master,0 | grep -Po "\d+%" | head -n1)"
-        if [ -n "$vol" ]; then
-            printf "%s" "${vol}"
-        fi
+  if command -v amixer >/dev/null; then
+    vol="$(amixer get Master,0 | grep -Po "\d+%" | head -n1)"
+    if [ -n "$vol" ]; then
+      printf "%s" "${vol}"
     fi
+  fi
 }
 
 get_power() {
-    BAT="$(find /sys/class/power_supply -name "BAT*" | head -n1)"
-    if [ -n "$BAT" ]; then
-        power="$(cat ${BAT}/capacity)"
-    fi
-    if [ -n "$power" ]; then
-        printf "%s%%" "${power}"
-    else
-        printf "AC/DC"
-    fi
+  BAT="$(find /sys/class/power_supply -name "BAT*" | head -n1)"
+  if [ -n "$BAT" ]; then
+    power="$(cat ${BAT}/capacity)"
+  fi
+  if [ -n "$power" ]; then
+    printf "%s%%" "${power}"
+  else
+    printf "AC/DC"
+  fi
+}
+
+get_battery() {
+  if command -v acpi >/dev/null; then
+    printf "%s" "$(acpi | awk '{print $5}')"
+  fi
 }
 
 get_date() {
-    currentDate="$(date +"%F")"
-    if [ -n "$currentDate" ]; then
-        printf "%s" "$currentDate"
-    fi
+  currentDate="$(date +"%F")"
+  if [ -n "$currentDate" ]; then
+    printf "%s" "$currentDate"
+  fi
 }
 
 get_time() {
-    currentTime="$(date +"%R")"
-    if [ -n "$currentTime" ]; then
-        printf "%s" "$currentTime"
-    fi
+  currentTime="$(date +"%R")"
+  if [ -n "$currentTime" ]; then
+    printf "%s" "$currentTime"
+  fi
 }
 
 get_cpu() {
-    cpu="$(awk '{ print $1, $2, $3 }' /proc/loadavg)"
-    if [ -n "$cpu" ]; then
-        printf "%s" "$cpu"
-    fi
+  cpu="$(awk '{ print $1, $2, $3 }' /proc/loadavg)"
+  if [ -n "$cpu" ]; then
+    printf "%s" "$cpu"
+  fi
 }
 
 get_latency() {
-    # LDN (France)
-    latency="$(ping -W 1 -c 3 -l 3 80.67.188.188 2>/dev/null | tail -n1 | awk '{print $4}' | tr '/' ' ' | cut -d'.' -f1)"
+  # LDN (France)
+  latency="$(ping -W 1 -c 3 -l 3 80.67.188.188 2>/dev/null | tail -n1 | awk '{print $4}' | tr '/' ' ' | cut -d'.' -f1)"
 
-    if [ -n "$latency" ]; then
-        # DNS.WATCH (Germany)
-        latency="$(ping -W 1 -c 3 -l 3 84.200.70.40 2>/dev/null | tail -n1 | awk '{print $4}' | tr '/' ' ' | cut -d'.' -f1)"
-    fi
+  if [ -n "$latency" ]; then
+    # DNS.WATCH (Germany)
+    latency="$(ping -W 1 -c 3 -l 3 84.200.70.40 2>/dev/null | tail -n1 | awk '{print $4}' | tr '/' ' ' | cut -d'.' -f1)"
+  fi
 
-    if [ -n "$latency" ]; then
-        # QUAD9
-        latency="$(ping -W 1 -c 3 -l 3 9.9.9.9 2>/dev/null | tail -n1 | awk '{print $4}' | tr '/' ' ' | cut -d'.' -f1)"
-    fi
+  if [ -n "$latency" ]; then
+    # QUAD9
+    latency="$(ping -W 1 -c 3 -l 3 9.9.9.9 2>/dev/null | tail -n1 | awk '{print $4}' | tr '/' ' ' | cut -d'.' -f1)"
+  fi
 
-    if [ -n "$latency" ]; then
-        # CLOUDWATCH
-        latency="$(ping -W 1 -c 3 -l 3 1.1.1.1 2>/dev/null | tail -n1 | awk '{print $4}' | tr '/' ' ' | cut -d'.' -f1)"
-    fi
+  if [ -n "$latency" ]; then
+    # CLOUDWATCH
+    latency="$(ping -W 1 -c 3 -l 3 1.1.1.1 2>/dev/null | tail -n1 | awk '{print $4}' | tr '/' ' ' | cut -d'.' -f1)"
+  fi
 
-    if [ -n "$latency" ]; then
-        printf "%s" "${latency}ms"
-    fi
+  if [ -n "$latency" ]; then
+    printf "%s" "${latency}ms"
+  fi
 }
 
 get_heat() {
-    heat="$(awk '{ print $1/1000 }' /sys/class/thermal/thermal_zone0/temp)"
-    # heats="$(cat -n /sys/class/hwmon/hwmon*/temp*_input 2>/dev/null)"
-    if [ -n "$heat" ]; then
-        printf "%s" "${heat}°C"
-    fi
+  heat="$(awk '{ print $1/1000 }' /sys/class/thermal/thermal_zone0/temp)"
+  # heats="$(cat -n /sys/class/hwmon/hwmon*/temp*_input 2>/dev/null)"
+  if [ -n "$heat" ]; then
+    printf "%s" "${heat}°C"
+  fi
 }
 
 get_ip() {
-    if [ -n "$(command -v dig 2>/dev/null)" ]; then
-        ip="$(dig +short -4 myip.opendns.com @resolver1.opendns.com 2>/dev/null)"
-        #ipv6="$(dig +short -6 @resolver1.opendns.com myip.opendns.com AAAA 2>/dev/null)"
-        #reverse="$(dig +short -4 -x ${ip})"
-    fi
-    if command -v curl >/dev/null && [ -z "$ip" ]; then
-        [ -z "$ip" ] && ip="$(curl -s "https://niels.fr/ip" 2>/dev/null)"
-        [ -z "$ip" ] && ip="$(curl -s "http://whatismyip.akamai.com" 2>/dev/null)"
-        [ -z "$ip" ] && ip="$(curl -s "https://ipinfo.io/ip" 2>/dev/null)"
-    fi
-    if [ -n "$ip" ] && echo $ip | grep -E "^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$" > /dev/null; then
-        printf "%s" "$ip"
-    fi
+  if [ -n "$(command -v dig 2>/dev/null)" ]; then
+    ip="$(dig +short -4 myip.opendns.com @resolver1.opendns.com 2>/dev/null)"
+    #ipv6="$(dig +short -6 @resolver1.opendns.com myip.opendns.com AAAA 2>/dev/null)"
+    #reverse="$(dig +short -4 -x ${ip})"
+  fi
+  if command -v curl >/dev/null && [ -z "$ip" ]; then
+    [ -z "$ip" ] && ip="$(curl -s "https://niels.fr/ip" 2>/dev/null)"
+    [ -z "$ip" ] && ip="$(curl -s "http://whatismyip.akamai.com" 2>/dev/null)"
+    [ -z "$ip" ] && ip="$(curl -s "https://ipinfo.io/ip" 2>/dev/null)"
+  fi
+  if [ -n "$ip" ] && echo $ip | grep -E "^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$" > /dev/null; then
+    printf "%s" "$ip"
+  fi
 }
 
 get_ram() {
-    mem_total=$(grep -E "^MemTotal:" < /proc/meminfo | awk '{print $2}')
-    swap_total=$(grep -E "^SwapTotal:" < /proc/meminfo | awk '{print $2}')
-    mem_free=$(grep -E "^MemFree:" < /proc/meminfo | awk '{print $2}')
-    swap_free=$(grep -E "^SwapFree:" < /proc/meminfo | awk '{print $2}')
-    mem_buffers=$(grep -E "^Buffers:" < /proc/meminfo | awk '{print $2}')
-    mem_cached=$(grep -E "^Cached:" < /proc/meminfo | awk '{print $2}')
-    mem_reclaimable=$(grep -E "^SReclaimable:" < /proc/meminfo | awk '{print $2}')
-    kb=$(( mem_total + swap_total - mem_free - swap_free - mem_buffers - mem_cached - mem_reclaimable ))
-    mb=$(( kb / 1024 ))
-    gb=$(( kb / 1024 / 1024 ))
-    if [ -n "$kb" ]; then
-        if [ "$gb" -gt 0 ]; then
-            r=$(( (mb - gb * 1024) / 100 ))
-            printf "%s.%sGB" "$gb" "$r";
-            exit
-        fi
-        printf "%sMB" "$mb";
+  mem_total=$(grep -E "^MemTotal:" < /proc/meminfo | awk '{print $2}')
+  swap_total=$(grep -E "^SwapTotal:" < /proc/meminfo | awk '{print $2}')
+  mem_free=$(grep -E "^MemFree:" < /proc/meminfo | awk '{print $2}')
+  swap_free=$(grep -E "^SwapFree:" < /proc/meminfo | awk '{print $2}')
+  mem_buffers=$(grep -E "^Buffers:" < /proc/meminfo | awk '{print $2}')
+  mem_cached=$(grep -E "^Cached:" < /proc/meminfo | awk '{print $2}')
+  mem_reclaimable=$(grep -E "^SReclaimable:" < /proc/meminfo | awk '{print $2}')
+  kb=$(( mem_total + swap_total - mem_free - swap_free - mem_buffers - mem_cached - mem_reclaimable ))
+  mb=$(( kb / 1024 ))
+  gb=$(( kb / 1024 / 1024 ))
+  if [ -n "$kb" ]; then
+    if [ "$gb" -gt 0 ]; then
+      r=$(( (mb - gb * 1024) / 100 ))
+      printf "%s.%sGB" "$gb" "$r";
+      exit
     fi
+    printf "%sMB" "$mb";
+  fi
 }
 
 get_uptime() {
-    uptime=""
-    total_seconds=$(cut -d. -f1 < /proc/uptime)
-    days=$(( total_seconds / 60 / 60 / 24 ))
-    hours=$(( total_seconds / 60 / 60 % 24 ))
-    minutes=$(( total_seconds / 60 % 60 ))
-    if [ $days -gt 0 ]; then
-        uptime="${uptime}${days}d "
-    fi
-    if [ $hours -gt 0 ]; then
-        uptime="${uptime}${hours}h "
-    fi
-    uptime="${uptime}${minutes}m"
-    if [ -n "$uptime" ]; then
-        printf "%s" "$uptime"
-    fi
+  uptime=""
+  total_seconds=$(cut -d. -f1 < /proc/uptime)
+  days=$(( total_seconds / 60 / 60 / 24 ))
+  hours=$(( total_seconds / 60 / 60 % 24 ))
+  minutes=$(( total_seconds / 60 % 60 ))
+  if [ $days -gt 0 ]; then
+    uptime="${uptime}${days}d "
+  fi
+  if [ $hours -gt 0 ]; then
+    uptime="${uptime}${hours}h "
+  fi
+  uptime="${uptime}${minutes}m"
+  if [ -n "$uptime" ]; then
+    printf "%s" "$uptime"
+  fi
 }
 
 get_status() {
-    printf "%s \\xE2\\x80\\xA2 %s | %s \\xE2\\x80\\xA2 %s \\xE2\\x80\\xA2 %s | %s \\xE2\\x80\\xA2 %s | %s \\xE2\\x80\\xA2 %s" \
-      "$(get_ip)" "$(get_latency)" \
-      "$(get_cpu)" "$(get_ram)" "$(get heat)"\
-      "$(get_uptime)" \
-      "$(get_power)" \
-      "$(get_date)" "$(get_time)"
-}
+  printf "%s \\xE2\\x80\\xA2 %s | %s \\xE2\\x80\\xA2 %s \\xE2\\x80\\xA2 %s \\xE2\\x80\\xA2 %s | %s \\xE2\\x80\\xA2 %s | %s \\xE2\\x80\\xA2 %s" \
+    "$(get_ip)" "$(get_latency)" \
+    "$(get_cpu)" "$(get_ram)" "$(get heat)"\
+    "$(get_uptime)" \
+    "$(get_power)" "$(get_battery)" \
+    "$(get_date)" "$(get_time)"
+  }
 
 case "$1" in
-    "cpu") get_cpu;;
-    "date") get_date;;
-    "heat") get_heat;;
-    "ip") get_ip;;
-    "latency") get_latency;;
-    "power") get_power;;
-    "ram") get_ram;;
-    "status") get_status;;
-    "temp") get_temp;;
-    "time") get_time;;
-    "uptime") get_uptime;;
-    "volume") get_volume;;
-    "brightness") get_brightness;;
-    "resolution") get_resolution;;
-    *) usage;;
+  "battery") get_battery;;
+  "brightness") get_brightness;;
+  "cpu") get_cpu;;
+  "date") get_date;;
+  "heat") get_heat;;
+  "ip") get_ip;;
+  "latency") get_latency;;
+  "power") get_power;;
+  "ram") get_ram;;
+  "resolution") get_resolution;;
+  "status") get_status;;
+  "temp") get_temp;;
+  "time") get_time;;
+  "uptime") get_uptime;;
+  "volume") get_volume;;
+  *) usage;;
 esac
