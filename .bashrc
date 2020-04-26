@@ -163,28 +163,27 @@ if command -v openssl >/dev/null; then
       openssl s_client -connect "$1":443 < /dev/null 2>/dev/null | openssl x509 -noout -enddate | cut -d'=' -f2
     fi
   }
-genSSHKey() {
-  for arg in "$@"; do
-    case "$arg" in
-      --rsa)
-        rsa="1";;
-      --home)
-        home="1";;
-      *)
-        user=$(printf "%s" "$arg" | cut -d'@' -f1)
-        host=$(printf "%s" "$arg" | cut -d'@' -f2 | cut -d':' -f1)
-        # port=$(printf "%s" "$arg" | cut -d'@' -f2 | cut -d':' -f2)
-        ;;
-    esac
-  done
-  [ "$home" = "1" ] && cd "$HOME/.ssh"
-  if [ "$rsa" = "1" ]; then
-    ssh-keygen -t rsa -C "$user@$host-$(date -I)-rsa" -f "$user@$host" -a 100
-  else
-    ssh-keygen -t ed25519 -C "$user@$host-$(date -I)-ed25519" -f "$user@$host" -a 100
-  fi
-  [ "$home" = "1" ] && cd -
-}
+  genSSHKey() {
+    for arg in "$@"; do
+      case "$arg" in
+        --rsa)
+          rsa="1";;
+        --home)
+          home="1";;
+        *)
+          user=$(printf "%s" "$arg" | cut -d'@' -f1)
+          host=$(printf "%s" "$arg" | cut -sd'@' -f2 | cut -d':' -f1)
+          port=$(printf "%s" "$arg" | cut -sd'@' -f2 | cut -sd':' -f2)
+          ;;
+      esac
+    done
+    [ -n "$host" ] && host="@$host"
+    [ -n "$port" ] && port=":$port"
+    [ "$rsa" = "1" ] && crypto="rsa" || crypto="ed25519"
+    [ "$home" = "1" ] && cd "$HOME/.ssh"
+    ssh-keygen -t "$crypto" -C "${user}${host}${port}-$(date -I)-${crypto}" -f "${user}${host}${port}" -a 100
+    [ "$home" = "1" ] && cd -
+  }
 fi
 
 if command -v youtube-dl >/dev/null; then
