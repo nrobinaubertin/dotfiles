@@ -41,7 +41,7 @@
 #tabbrowser-tabs {
     background-color: #eee !important;
     margin-bottom: 1px !important;
-    z-index: 2 !important;
+    z-index: 0 !important;
     --tab-line-color: -moz-win-accentcolor !important;
     --tab-loading-fill: -moz-win-accentcolor !important;
     box-shadow: none !important;
@@ -101,5 +101,12 @@
     margin: 0 !important;
     opacity: 1 !important;
     transition: all 0.2s !important;
+}
+
+#navigator-toolbox:not([customizing]):focus-within #nav-bar {
+    z-index: 1 !important;
+}
+
+#navigator-toolbox:not([customizing]):focus-within #PersonalToolbar {
     z-index: 0 !important;
 }
