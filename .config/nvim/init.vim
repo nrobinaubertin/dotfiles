@@ -27,11 +27,6 @@ set tags+=,.tags,
 match ErrorMsg "\s\+$"
 
 " Function to set tab spaces
-function! SetTabSpaces(...)
-  let &tabstop = a:1
-  let &shiftwidth = a:1
-endfunction
-call SetTabSpaces(4)
 
 " Retab the file
 function! Retab()
