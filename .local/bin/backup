@@ -2,6 +2,7 @@
 
 . $1
 
+restic cache --cleanup
 restic -r "b2:$B2_BUCKET:/restic" backup $HOME/data
 restic -r "b2:$B2_BUCKET:/restic" forget --keep-daily 7 --keep-weekly 4 --keep-monthly 12 --host "$(hostname)"
 restic -r "b2:$B2_BUCKET:/restic" prune
