@@ -229,18 +229,30 @@ if command -v socat >/dev/null; then
   }
 fi
 
-clean_containers () {
+containers () {
     if command -v podman > /dev/null; then
         pgrm="podman";
     fi;
+
     if command -v docker > /dev/null; then
         pgrm="docker";
     fi;
-    "$pgrm" stop $("$pgrm" ps -q);
-    "$pgrm" rm $("$pgrm" ps -aq);
-    "$pgrm" system prune -af;
-    "$pgrm" volume prune -f;
-    "$pgrm" rmi -af
+
+    case "$1" in
+      "clean")
+        "$pgrm" stop $("$pgrm" ps -q)
+        "$pgrm" rm $("$pgrm" ps -aq)
+        "$pgrm" system prune -af
+        "$pgrm" volume prune -f
+        "$pgrm" rmi -af
+        ;;
+      "stats")
+        "$pgrm" stats --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}"
+        ;;
+      *)
+        echo "containers <clean|stats>"
+        ;;
+    esac
 }
 
 #bim() {
