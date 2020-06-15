@@ -26,7 +26,8 @@ set tags+=,.tags,
 " Set the background to red for trailing spaces
 match ErrorMsg "\s\+$"
 
-" Function to set tab spaces
+" make Y consistent with C and D.
+nnoremap Y y$
 
 " Retab the file
 function! Retab()
