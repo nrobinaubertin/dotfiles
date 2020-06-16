@@ -85,7 +85,7 @@ fi
 
 lll () {
     [ -z "$1" ] && t="." || t="$1";
-    exa -gl --git --color=always "$t" | less -RX -R
+    ll "$t" | less -RX -R
 }
 
 command -v brightness >/dev/null && alias b='brightness'
