@@ -47,9 +47,7 @@ printf "\\n%b" "$RCol"
     printf " %bCPU%b,%s\\n" "$BGre" "$White" "$(grep -m1 "model name" /proc/cpuinfo | awk -F": " '{print $2}' | tr -s " ")"
     printf " %bMemory%b,%s\\n" "$BGre" "$White" "$(free -h --si | head -n2 | tail -n1 | awk '{print $2}')"
     printf " %bShell%b,%s\\n" "$BGre" "$White" "$SHELL"
-    printf " %bTerminal%b,%s\\n" "$BGre" "$White" "$TERM"
     printf " %bIP%b,%s\\n" "$BGre" "$White" "$(awk '/32 host/ { print f } {f=$2}' /proc/net/fib_trie 2>/dev/null | tail -n1)"
-    printf " %bGeometry%b,%sx%s\\n" "$BGre" "$White" "$(tput cols)" "$(tput lines)"
 ) | column -t -s,
 
 printf "\\n%b" "$RCol"
