@@ -239,7 +239,7 @@ containers () {
     fi;
 
     case "$1" in
-      "clean")
+      "prune")
         "$pgrm" stop $("$pgrm" ps -q)
         "$pgrm" rm $("$pgrm" ps -aq)
         "$pgrm" system prune -af
