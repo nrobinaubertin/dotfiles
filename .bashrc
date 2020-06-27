@@ -250,7 +250,7 @@ containers () {
         "$pgrm" stats --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}"
         ;;
       *)
-        echo "containers <clean|stats>"
+        echo "containers <prune|stats>"
         ;;
     esac
 }
