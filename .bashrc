@@ -5,6 +5,14 @@
 # do not continue if $HOME is not defined
 ([ "${BASH_VERSINFO}" -lt 4 ] || [ -z "$PS1" ] || [ -z "$HOME" ]) && return
 
+# Run ssh-agent once and evaluate necessary environment variables
+if ! ps a | grep "[s]sh-agent" > /dev/null; then
+  ssh-agent -t 1h > "$HOME/.cache/ssh-agent.env"
+fi
+if [ -z "$SSH_AUTH_SOCK" ]; then
+  . "$HOME/.cache/ssh-agent.env" >/dev/null
+fi
+
 # Automatically trim long paths in the prompt (requires Bash 4.x)
 export PROMPT_DIRTRIM=2
 
