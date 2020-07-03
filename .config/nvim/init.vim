@@ -217,21 +217,20 @@ autocmd FileType vim setlocal shiftwidth=2 softtabstop=2 expandtab
 autocmd FileType sh setlocal shiftwidth=2 softtabstop=2 expandtab
 
 " Vim-plug
-if filereadable(expand("$HOME/.config/nvim/autoload/plug.vim"))
-  call plug#begin('~/.config/nvim/plugged')
-  Plug 'airblade/vim-gitgutter'
-  Plug 'numirias/semshi'
-  Plug 'sheerun/vim-polyglot'
-  Plug 'tpope/vim-fugitive'
-  Plug 'w0rp/ale'
-  call plug#end()
+call plug#begin('~/.config/nvim/plugged')
+Plug 'airblade/vim-gitgutter'
+Plug 'numirias/semshi'
+Plug 'sheerun/vim-polyglot'
+Plug 'tpope/vim-fugitive'
+Plug 'w0rp/ale'
+call plug#end()
 
-  " Update plugins
-  function! Update()
-    PlugUpgrade
-    PlugUpdate
-  endfunction
-endif
+" Update plugins
+function! Update()
+  PlugUpgrade
+  PlugUpdate
+  UpdateRemotePlugins
+endfunction
 
 " disable polyglot on some languages
 let g:polyglot_disabled = ['python']
