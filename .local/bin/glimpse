@@ -40,11 +40,18 @@ usage() {
 printf "\\n%b" "$RCol"
 
 (
+    nbprocs="$(grep -c ^processor /proc/cpuinfo 2>/dev/null)"
+    proctype="$(
+      grep -m1 "model name" /proc/cpuinfo \
+        | awk -F": " '{print $2}' \
+        | sed -e 's/CPU//g' -e 's/(R)//g' -e 's/(TM)//g' -e 's/@//g' \
+        | tr -s " "\
+    )"
     printf " %bMachine%b,%s\\n" "$BGre" "$White" "$(cat /proc/sys/kernel/hostname)"
     printf " %bSystem%b,%s\\n" "$BGre" "$White" "$(grep "PRETTY_NAME" /etc/os-release | cut -d'"' -f2)"
     printf " %bArchitecture%b,%s\\n" "$BGre" "$White" "$(uname -m)"
     printf " %bKernel%b,%s\\n" "$BGre" "$White" "$(uname -r)"
-    printf " %bCPU%b,%s\\n" "$BGre" "$White" "$(grep -m1 "model name" /proc/cpuinfo | awk -F": " '{print $2}' | tr -s " ")"
+    printf " %bCPU%b,%s\\n" "$BGre" "$White" "$nbprocs $proctype"
     printf " %bMemory%b,%s\\n" "$BGre" "$White" "$(free -h --si | head -n2 | tail -n1 | awk '{print $2}')"
     printf " %bShell%b,%s\\n" "$BGre" "$White" "$SHELL"
     printf " %bIP%b,%s\\n" "$BGre" "$White" "$(awk '/32 host/ { print f } {f=$2}' /proc/net/fib_trie 2>/dev/null | tail -n1)"
