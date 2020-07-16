@@ -1,6 +1,6 @@
 " General configuration
 colors gruvbox
-set tabstop=4 shiftwidth=4 expandtab
+set tabstop=2 shiftwidth=2 expandtab
 set clipboard=unnamedplus " Use the clipboard for all operations
 set fillchars=vert:\ ,stl:\ ,stlnc:\ 
 set showmatch mat=2 mouse= nu showtabline=2 laststatus=2
@@ -133,44 +133,44 @@ let g:PHP_vintage_case_default_indent = 1
 
 " file-searching
 if executable('fzy')
-    if executable('rg')
-        set grepprg=rg\ --vimgrep
-        set grepformat^=%f:%l:%c:%m
-        let g:list_files_function = 'rg --files --color=never --hidden --glob "!.git/*"'
-    else
-        let g:list_files_function = "find -type f -not -path '*/\.*'"
-        " let g:list_files_function = "git ls-files -o -X .gitignore"
-    endif
-    function! FzyCommand(choice_command, vim_command) abort
-        let l:callback = {'window_id': win_getid(), 'filename': tempname(), 'vim_command': a:vim_command}
+  if executable('rg')
+    set grepprg=rg\ --vimgrep
+    set grepformat^=%f:%l:%c:%m
+    let g:list_files_function = 'rg --files --color=never --hidden --glob "!.git/*"'
+  else
+    let g:list_files_function = "find -type f -not -path '*/\.*'"
+    " let g:list_files_function = "git ls-files -o -X .gitignore"
+  endif
+  function! FzyCommand(choice_command, vim_command) abort
+    let l:callback = {'window_id': win_getid(), 'filename': tempname(), 'vim_command': a:vim_command}
 
-        function! l:callback.on_exit(job_id, data, event) abort
-            bdelete!
-            call win_gotoid(self.window_id)
-            if filereadable(self.filename)
-                try
-                    let l:selected_filename = readfile(self.filename)[0]
-                    exec self.vim_command . l:selected_filename
-                catch /E684/
-                endtry
-            endif
-            call delete(self.filename)
-        endfunction
-
-        botright 10 new
-        let l:term_command = a:choice_command . ' | fzy > ' .  l:callback.filename
-        silent call termopen(l:term_command, l:callback)
-        startinsert
+    function! l:callback.on_exit(job_id, data, event) abort
+      bdelete!
+      call win_gotoid(self.window_id)
+      if filereadable(self.filename)
+        try
+          let l:selected_filename = readfile(self.filename)[0]
+          exec self.vim_command . l:selected_filename
+        catch /E684/
+        endtry
+      endif
+      call delete(self.filename)
     endfunction
-    nnoremap <A-f> :call FzyCommand(g:list_files_function, ":tabe ")<CR>
-    tnoremap <A-f> <C-\><C-n>:call FzyCommand(g:list_files_function, ":tabe ")<CR>
-    inoremap <A-f> <Esc>:call FzyCommand(g:list_files_function, ":tabe ")<CR>
-    nnoremap <A-e> :call FzyCommand(g:list_files_function, ":e ")<CR>
-    tnoremap <A-e> <C-\><C-n>:call FzyCommand(g:list_files_function, ":e ")<CR>
-    inoremap <A-e> <Esc>:call FzyCommand(g:list_files_function, ":e ")<CR>
-    nnoremap <A-v> :call FzyCommand(g:list_files_function, ":vsp ")<CR>
-    tnoremap <A-v> <C-\><C-n>:call FzyCommand(g:list_files_function, ":vsp ")<CR>
-    inoremap <A-v> <Esc>:call FzyCommand(g:list_files_function, ":vsp ")<CR>
+
+    botright 10 new
+    let l:term_command = a:choice_command . ' | fzy > ' .  l:callback.filename
+    silent call termopen(l:term_command, l:callback)
+    startinsert
+  endfunction
+  nnoremap <A-f> :call FzyCommand(g:list_files_function, ":tabe ")<CR>
+  tnoremap <A-f> <C-\><C-n>:call FzyCommand(g:list_files_function, ":tabe ")<CR>
+  inoremap <A-f> <Esc>:call FzyCommand(g:list_files_function, ":tabe ")<CR>
+  nnoremap <A-e> :call FzyCommand(g:list_files_function, ":e ")<CR>
+  tnoremap <A-e> <C-\><C-n>:call FzyCommand(g:list_files_function, ":e ")<CR>
+  inoremap <A-e> <Esc>:call FzyCommand(g:list_files_function, ":e ")<CR>
+  nnoremap <A-v> :call FzyCommand(g:list_files_function, ":vsp ")<CR>
+  tnoremap <A-v> <C-\><C-n>:call FzyCommand(g:list_files_function, ":vsp ")<CR>
+  inoremap <A-v> <Esc>:call FzyCommand(g:list_files_function, ":vsp ")<CR>
 else
   set path=**
   function WildignoreFromGitignore()
@@ -209,12 +209,8 @@ inoremap èè È
 inoremap çç Ç
 
 " tabs & spaces autocommands
+" default is 2
 autocmd FileType python setlocal shiftwidth=4 softtabstop=4 expandtab
-autocmd FileType javascript setlocal shiftwidth=2 softtabstop=2 expandtab
-autocmd FileType yaml setlocal shiftwidth=2 softtabstop=2 expandtab
-autocmd FileType terraform setlocal shiftwidth=2 softtabstop=2 expandtab
-autocmd FileType vim setlocal shiftwidth=2 softtabstop=2 expandtab
-autocmd FileType sh setlocal shiftwidth=2 softtabstop=2 expandtab
 
 " Vim-plug
 call plug#begin('~/.config/nvim/plugged')
