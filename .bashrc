@@ -7,7 +7,8 @@
 
 # Run ssh-agent once and evaluate necessary environment variables
 if ! ps a | grep "[s]sh-agent" > /dev/null; then
-  ssh-agent -t 1h > "$HOME/.cache/ssh-agent.env"
+  mkdir -p "$HOME/.cache"
+  ssh-agent -t 2h > "$HOME/.cache/ssh-agent.env"
 fi
 if [ -z "$SSH_AUTH_SOCK" ]; then
   . "$HOME/.cache/ssh-agent.env" >/dev/null
