@@ -208,14 +208,9 @@ inoremap êê Ê
 inoremap èè È
 inoremap çç Ç
 
-" tabs & spaces autocommands
-" default is 2
-autocmd FileType python setlocal shiftwidth=4 softtabstop=4 expandtab
-
 " Vim-plug
 call plug#begin('~/.config/nvim/plugged')
 Plug 'airblade/vim-gitgutter'
-Plug 'numirias/semshi'
 Plug 'sheerun/vim-polyglot'
 Plug 'tpope/vim-fugitive'
 Plug 'w0rp/ale'
@@ -227,9 +222,6 @@ function! Update()
   PlugUpdate
   UpdateRemotePlugins
 endfunction
-
-" disable polyglot on some languages
-let g:polyglot_disabled = ['python']
 
 " Vim-signify
 let g:signify_sign_change = '~'
