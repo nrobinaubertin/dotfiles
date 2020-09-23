@@ -227,6 +227,16 @@ endfunction
 let g:signify_sign_change = '~'
 
 " w0rp/Ale
-let g:ale_linters = {'python': ['pylint', 'flake8', 'autopep8']}
-let g:ale_fixers = {'python': ['autopep8', 'yapf']}
+let g:ale_linters = {
+    \ 'python': ['pylint', 'flake8', 'autopep8'],
+    \ 'cpp': ['clang'],
+    \ 'c': ['clang']
+\}
+let g:ale_fixers = {
+    \ '*': ['remove_trailing_lines', 'trim_whitespace'],
+    \ 'python': ['autopep8', 'yapf'],
+    \ 'c': ['clang-format'],
+    \ 'cpp': ['clang-format']
+\}
+g:ale_c_clangformat_options = '--style=file'
 let g:ale_lint_on_text_changed = 'never'
