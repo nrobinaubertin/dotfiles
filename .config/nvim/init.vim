@@ -10,6 +10,7 @@ set undofile
 set nomodeline " Can be a security issue
 set smartindent
 set list
+set fsync
 
 " Statusline
 set statusline=
