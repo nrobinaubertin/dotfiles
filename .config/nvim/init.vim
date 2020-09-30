@@ -231,14 +231,12 @@ let g:signify_sign_change = '~'
 let g:ale_linters = {
     \ 'python': ['pylint', 'flake8', 'autopep8'],
     \ 'cpp': ['clang'],
-    \ 'c': ['clang']
 \}
 let g:conan_includes = system('find ~/.conan/data -maxdepth 7 -type d -name "include" | awk "{print "\""-I"\""\$0}" | tr "\n" " "')
 let g:ale_cpp_cc_options = '-std=c++17 -Wall ' . g:conan_includes
 let g:ale_fixers = {
     \ '*': ['remove_trailing_lines', 'trim_whitespace'],
     \ 'python': ['autopep8', 'yapf'],
-    \ 'c': ['clang-format'],
     \ 'cpp': ['clang-format']
 \}
 g:ale_c_clangformat_options = '--style=file'
