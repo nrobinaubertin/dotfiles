@@ -112,6 +112,10 @@ tnoremap <C-h> <C-\><c-n>:wincmd h<CR>
 " Open todo file
 command! Todo execute ':tabe `=resolve(expand("~/.TODO.md"))`' <Bar> :set ft=markdown
 
+" Git commands
+nnoremap gs :split <Bar> term git status -sb<CR>
+nnoremap gr :split <Bar> term git log --graph --relative-date --all --pretty=reference<CR><CR>
+
 " Space bar un-highlights search
 nnoremap <Space><Space> :silent noh<Bar>echo<CR>
 
