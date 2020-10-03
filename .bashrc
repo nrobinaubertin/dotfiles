@@ -56,7 +56,7 @@ bind '"\033[Z": menu-complete'
 unset HISTFILESIZE
 export HISTSIZE="10000"
 export HISTCONTROL=ignoreboth:erasedups
-export HISTIGNORE="fg:bg:&:[ ]*:exit:ls:clear:ll:cd:\\[A*:nvim:gs:gd:gf:gg:gl"
+export HISTIGNORE="fg:bg:&:[ ]*:exit:ls:clear:ll:cd:\\[A*:nvim:gs:gd:gf:gr:gl"
 # Append to the history file, don't overwrite it
 shopt -s histappend
 # Save multi-line commands as one command
@@ -129,7 +129,7 @@ if command -v git >/dev/null; then
   alias gf='git fetch -p --all'
   alias gd='git diff --color'
   alias gdd='git diff --color --staged'
-  alias gg='git log --graph --abbrev-commit --decorate --format=format:"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)" --all'
+  alias gr='git log --graph --abbrev-commit --decorate --format=format:"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)" --all'
 
     # get number of commit last week/day for each author
     gp() {
