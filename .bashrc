@@ -175,6 +175,9 @@ if command -v openssl >/dev/null; then
   genSSHKey() {
     for arg in "$@"; do
       case "$arg" in
+        --help)
+          echo "genSSHKey [--rsa] [--home] <user>@<host>:<port>"
+          return;;
         --rsa)
           rsa="1";;
         --home)
