@@ -1,7 +1,7 @@
 #!/bin/sh
 
 SPEEDTEST_SERVERS="http://c.speedtest.net/speedtest-servers-static.php"
-SAMPLE_SIZE="20"
+SAMPLE_SIZE="30"
 
 if ! command -v curl > /dev/null; then
     print "This script needs curl to work."
@@ -17,39 +17,40 @@ temp_dir="$(dirname "$(mktemp)")"
 servers_file="$temp_dir/speedtest.xml"
 servers_distances="$temp_dir/speedtest.servers"
 
-# put servers files in /tmp as cache
-# if ! [ -f "$servers_distances" ] || [ -n "$1" ]; then
+if ! [ -f "$servers_file" ]; then
+    printf "Getting servers list from speedtest.net...\\n"
+    curl -so "$servers_file" "$SPEEDTEST_SERVERS"
+fi
 
-    if ! [ -f "$servers_file" ]; then
-        printf "Getting servers list from speedtest.net...\\n"
-        curl -so "$servers_file" "$SPEEDTEST_SERVERS"
-    fi
+# get current geolocation
+geoloc="$(curl -s ipinfo.io | grep loc | cut -d'"' -f4)"
+lat="$(printf "%s" "$geoloc" | cut -d, -f1)"
+long="$(printf "%s" "$geoloc" | cut -d, -f2)"
 
-    # get current geolocation
-    geoloc="$(curl -s ipinfo.io | grep loc | cut -d'"' -f4)"
-    lat="$(printf "%s" "$geoloc" | cut -d, -f1)"
-    long="$(printf "%s" "$geoloc" | cut -d, -f2)"
-
-    printf "Calculating distances...\\n"
-    cat "$servers_file" | grep "server" | ( [ -n "$1" ] && grep "$1" || cat) | awk '{\
-        FS=" ";\
-        split($2, url, "\"");\
-        split($3, lat, "\"");\
-        split($4, lon, "\"");\
-        d=(lat[2] - '$lat') * (lat[2] - '$lat') + (lon[2] - '$long') * (lon[2] - '$long');\
-        print d, url[2] }\
-    ' | sort -n > "$servers_distances"
-# fi
+[ "$1" = "-v" ] && printf "Calculating distances...\\n" > /dev/stderr
+grep "server" < "$servers_file" | awk '{\
+    FS=" ";\
+    split($2, url, "\"");\
+    split($3, lat, "\"");\
+    split($4, lon, "\"");\
+    d=(lat[2] - '$lat') * (lat[2] - '$lat') + (lon[2] - '$long') * (lon[2] - '$long');\
+    print d, url[2] }\
+' | sort -n > "$servers_distances"
 
 # mesure latencies for the $SAMPLE_SIZE most close servers
-printf "Measuring latency...\\n"
+[ "$1" = "-v" ] && printf "Measuring latency...\\n" > /dev/stderr
 latencies="$(
     head -n "$SAMPLE_SIZE" "$servers_distances" | while read -r SERVER; do
-        base_url="$(printf "%s" "$SERVER" | cut -d" " -f2 | sed -E 's/\/upload(\.php)?$//')"
-        latency="$(curl -m 5 -sw "%{time_total}" -o /dev/null "$base_url/latency.txt" | tr -d ",." | cut -c 1-4)"
-        printf "%s %s\\n" "$latency" "$base_url"
+        (
+            base_url="$(printf "%s" "$SERVER" | cut -d" " -f2 | sed -E 's/\/upload(\.php)?$//')"
+            latency="$(curl -m 2 -sw "%{time_total}" -o /dev/null "$base_url/latency.txt" | tr -d ",." | cut -c 1-4)"
+            printf "%s %s\\n" "$latency" "$base_url"
+            [ "$1" = "-v" ] && printf "%s %s\\n" "$latency" "$base_url" > /dev/stderr
+        ) &
     done
 )"
+
+[ "$1" = "-v" ] && printf "\\n" > /dev/stderr
 
 node="$(printf "%s" "$latencies" | sort -n | head -n1)"
 node_speed="$(printf "%s" "$node" | cut -d" " -f1 | sed -E "s/^0+//g")"
