@@ -15,6 +15,7 @@ usage() {
   echo "  ram"
   echo "  resolution"
   echo "  status"
+  echo "  sway-status"
   echo "  temp"
   echo "  time"
   echo "  uptime"
@@ -179,7 +180,26 @@ get_status() {
     "$(get_uptime)" \
     "$(get_power)" "$(get_battery)" \
     "$(get_date)" "$(get_time)"
-  }
+}
+
+get_sway_status() {
+  battery="$(get_power | head -c -1)"
+  if [ "$battery" -lt 25 ]; then
+    color="red"
+  elif [ "$battery" -lt 50 ]; then
+    color="orange"
+  elif [ "$battery" -gt 90 ]; then
+    color="#0f0"
+  else
+    color="#ebdbb2"
+  fi
+  printf "%s \\xE2\\x80\\xA2 %s | %s \\xE2\\x80\\xA2 %s \\xE2\\x80\\xA2 %s \\xE2\\x80\\xA2 %s | <span color='%s'>%s \\xE2\\x80\\xA2 %s</span> | %s \\xE2\\x80\\xA2 %s" \
+    "$(get_ip)" "$(get_latency)" \
+    "$(get_cpu)" "$(get_ram)" "$(get heat)"\
+    "$(get_uptime)" \
+    "$color" "$(get_power)" "$(get_battery)" \
+    "$(get_date)" "$(get_time)"
+}
 
 case "$1" in
   "battery") get_battery;;
@@ -193,6 +213,7 @@ case "$1" in
   "ram") get_ram;;
   "resolution") get_resolution;;
   "status") get_status;;
+  "sway-status") get_sway_status;;
   "temp") get_temp;;
   "time") get_time;;
   "uptime") get_uptime;;
