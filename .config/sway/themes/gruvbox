@@ -51,7 +51,7 @@ bar {
 
     # When the status_command prints a new line to stdout, swaybar updates.
     # The default just shows the current date and time.
-    status_command while get sway-status; do sleep 30; done
+    status_command while swaystatus; do sleep 30; done
 
     pango_markup enabled
 
