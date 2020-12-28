@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# status line for sway
+
+if command -v get >/dev/null; then
+  battery="$(get power | head -c -1)"
+  if [ "$battery" -lt 25 ]; then
+    color="red"
+  elif [ "$battery" -lt 35 ]; then
+    color="orange"
+  else
+    color="#ebdbb2"
+  fi
+  printf "%s \\xE2\\x80\\xA2 %s | %s \\xE2\\x80\\xA2 %s \\xE2\\x80\\xA2 %s \\xE2\\x80\\xA2 %s | <span color='%s'>%s \\xE2\\x80\\xA2 %s</span> | %s \\xE2\\x80\\xA2 %s" \
+    "$(get ip)" "$(get latency)" \
+    "$(get cpu)" "$(get ram)" "$(get heat)"\
+    "$(get uptime)" \
+    "$color" "$(get power)" "$(get battery)" \
+    "$(get date)" "$(get time)"
+else
+  printf "You need the 'get' script for swaystatus to work"
+fi
