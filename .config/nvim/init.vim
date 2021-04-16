@@ -254,5 +254,3 @@ let g:ale_cpp_clangtidy_checks = [
 let g:ale_fixers = {'*': ['remove_trailing_lines', 'trim_whitespace']}
 let g:ale_lint_on_text_changed = 'never'
 let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
-
-autocmd BufRead,BufNewFile *mutt-* setfiletype mail
