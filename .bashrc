@@ -200,7 +200,7 @@ fi
 
 if command -v youtube-dl >/dev/null; then
   alias ytmp3='youtube-dl -wi --extract-audio --audio-quality 3 --audio-format mp3'
-  yt () {
+  yt() {
       if echo "$1" | grep --color=always "https://.*youtu" > /dev/null; then
           min="$(get resolution | cut -d'x' -f2)";
           id="$(youtube-dl -F "$1" | tail -n +5 | grep -v "audio only" | awk 'int(substr($4, 1, length($4)-1)) >= '"$min"' { print $1}' | head -n1)";
@@ -210,10 +210,16 @@ if command -v youtube-dl >/dev/null; then
           mpv --ytdl-format="$id+bestaudio" "$1";
       fi
   }
-  ytclip () {
-      ffmpeg -ss "$1" -i "$(youtube-dl -g "$3" | head -n1)" -t "$2" -f mp4 "$(date +%Y-%m-%d-%H%M%S)-ytmp4.mp4"
+  ytclip() {
+      ffmpeg -ss "$1" -i "$(youtube-dl -g "$3" | head -n1)" -t "$2" -f mp3 "$(date +%Y-%m-%d-%H%M%S)-ytmp4.mp4"
   }
-  ytdl () {
+  ytsound() {
+    tmpfile="$(mktemp -u)"
+    youtube-dl -wi -o "$tmpfile" "$3"
+    ffmpeg -ss "$1" -i "$tmpfile.mkv" -t "$2" -vn -codec:a libmp3lame -q:a 2 -f mp3 "$(pwd)/$(date +%Y-%m-%d-%H%M%S)-ytmp3.mp3"
+    rm "$tmpfile.mkv"
+  }
+  ytdl() {
       if echo "$1" | grep --color=always "https://.*youtu" > /dev/null; then
           min="$(get resolution | cut -d'x' -f2)";
           id="$(youtube-dl -F "$1" | tail -n +5 | grep -v "audio only" | awk 'int(substr($4, 1, length($4)-1)) >= '"$min"' { print $1}' | head -n1)";
@@ -223,7 +229,7 @@ if command -v youtube-dl >/dev/null; then
           youtube-dl -f "$id+bestaudio" --merge-output-format mkv "$1";
       fi
   }
-  ytgif () {
+  ytgif() {
       ffmpeg -ss "$1" -t "$2" -i "$(youtube-dl -g "$3" | head -n1)" -filter_complex "[0:v] fps=12,scale=w=480:h=-1" -f gif "$(date +%Y-%m-%d-%H%M%S)-ytgif.gif"
   }
 fi
