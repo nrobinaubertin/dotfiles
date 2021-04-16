@@ -4,11 +4,16 @@
 
 restic cache --cleanup
 if [ "$2" = "unlock" ]; then
-  restic -r "b2:$B2_BUCKET:/restic" unlock
+  restic unlock
 fi
-restic -r "b2:$B2_BUCKET:/restic" backup "$HOME/data"
-restic -r "b2:$B2_BUCKET:/restic" forget --keep-daily 7 --keep-weekly 4 --keep-monthly 12 --host "$(hostname)"
-restic -r "b2:$B2_BUCKET:/restic" prune
+if [ "$2" = "backup" ]; then
+  restic backup "$HOME/data"
+  restic forget --keep-daily 7 --keep-weekly 4 --keep-monthly 12 --host "$(hostname)"
+  restic prune
+fi
+if [ "$2" = "snapshots" ]; then
+  restic snapshots
+fi
 if [ "$2" = "check" ]; then
-  restic -r "b2:$B2_BUCKET:/restic" check
+  restic check
 fi
