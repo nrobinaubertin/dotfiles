@@ -1,0 +1,23 @@
+#!/bin/sh
+
+if command -v podman > /dev/null; then
+  pgrm="podman";
+fi
+
+if command -v docker > /dev/null; then
+  pgrm="docker";
+fi
+
+(
+  printf "Name,CPU%%,Mem Usage,NetIO\n"
+  "$pgrm" stats --no-stream \
+    --format "table {{.Name}}\t{{.CPUPrec}}\t{{.MemUsage}}\t{{.NetIO}}" \
+    | sed 1d\
+    | awk '{\
+        if (length($1)>20) {\
+          print substr($1,1,8) "..." substr($1, length($1) - 8) "," $2 "," $3 $4 $5 "," $6 $7 $8\
+        } else {\
+          print $1 "," $2 "," $3 $4 $5 "," $6 $7 $8\
+        }\
+      }'
+) | column -t -s ','

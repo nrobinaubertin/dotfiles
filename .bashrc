@@ -256,19 +256,32 @@ containers () {
         pgrm="docker";
     fi;
 
+    for arg in "$@"; do
+      case "$arg" in
+        --sudo)
+          sudoprepend="sudo";;
+        *)
+          ;;
+      esac
+    done
+
     case "$1" in
       "prune")
-        "$pgrm" stop $("$pgrm" ps -q)
-        "$pgrm" rm $("$pgrm" ps -aq)
-        "$pgrm" system prune -af
-        "$pgrm" volume prune -f
-        "$pgrm" rmi -af
+        "$sudoprepend" "$pgrm" stop $("$pgrm" ps -q)
+        "$sudoprepend" "$pgrm" rm $("$pgrm" ps -aq)
+        "$sudoprepend" "$pgrm" system prune -af
+        "$sudoprepend" "$pgrm" volume prune -f
+        "$sudoprepend" "$pgrm" rmi -af
         ;;
       "stats")
-        "$pgrm" stats --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}"
+        #"$pgrm" stats --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}"
+        watch "sudo $HOME/.local/bin/containers_stats"
+        ;;
+      "ratelimit")
+        curl --head -H "Authorization: Bearer $(curl -s "https://auth.docker.io/token?service=registry.docker.io&scope=repository:ratelimitpreview/test:pull" | cut -d'"' -f4)" "https://registry0.docker.io/v2/ratelimitpreview/test/manifests/latest" 2>&1 | grep RateLimit
         ;;
       *)
-        echo "containers <prune|stats>"
+        echo "containers <prune|stats> [--sudo]"
         ;;
     esac
 }
