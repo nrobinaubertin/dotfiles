@@ -15,10 +15,10 @@ kb_to_human() {
     if [ -n "$kb" ]; then
         if [ "$gb" -gt 0 ]; then
             r=$(( (mb - gb * 1024) / 100 ))
-            printf "%s.%sGB" "$gb" "$r";
+            printf "%s.%sG" "$gb" "$r";
             exit
         fi
-        printf "%sMB" "$mb";
+        printf "%sM" "$mb";
     fi
 }
 
@@ -52,7 +52,6 @@ printf "\\n%b" "$RCol"
     printf " %bArchitecture%b,%s\\n" "$BGre" "$White" "$(uname -m)"
     printf " %bKernel%b,%s\\n" "$BGre" "$White" "$(uname -r)"
     printf " %bCPU%b,%s\\n" "$BGre" "$White" "$nbprocs $proctype"
-    printf " %bMemory%b,%s\\n" "$BGre" "$White" "$(free -h --si | head -n2 | tail -n1 | awk '{print $2}')"
     printf " %bShell%b,%s\\n" "$BGre" "$White" "$SHELL"
     printf " %bIP%b,%s\\n" "$BGre" "$White" "$(awk '/32 host/ { print f } {f=$2}' /proc/net/fib_trie 2>/dev/null | tail -n1)"
 ) | awk 'BEGIN {FS=","} {printf "%-30s %s\n", $1, $2}'
@@ -89,6 +88,7 @@ printf "\\n%b" "$RCol"
         p=$(df "$i" 2>/dev/null | tail -n1 | tr -s " " | cut -d' ' -f5 | tr -d "%")
         s=$(df -h "$i" 2>/dev/null | tail -n1 | tr -s " " | cut -d" " -f2)
         u=$(df -h "$i" 2>/dev/null | tail -n1 | tr -s " " | cut -d" " -f4)
+        d="$(echo "$i" | awk '{if(length($1) > 26) {print substr($1, 1, 11) ".." substr($1, length($1)-13)} else {print $1}}')"
         if [ -n "$s" ] && [ -n "$p" ]; then
             # white color trick to have the same number of characters for `column` that does not take escape sequences into account
             printf " %b%s,%s,%s,%s%b\\n" "$White" "$i" "$s" "$u" "$(usage "$p")" "$RCol"
