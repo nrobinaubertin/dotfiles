@@ -1,16 +1,51 @@
-" General configuration
-colors gruvbox
-set tabstop=2 shiftwidth=2 expandtab
-set clipboard=unnamedplus " Use the clipboard for all operations
-set fillchars=vert:\ ,stl:\ ,stlnc:\ 
-set showmatch mat=2 mouse= nu showtabline=2 laststatus=2
-set inccommand=split
-set shell=/bin/bash
-set undofile
-set nomodeline " Can be a security issue
-set smartindent
-set list
-set fsync
+" Rationale
+
+" - No support for vim, only neovim in mind
+" - Keep it minimal: we need a good reason to change default behavior
+" - Multiplatform: should work on POSIX systems and Windows (minimal requirements)
+" - Lua: vimscript is only nice for vim compatibility (transition to lua is
+"   not complete)
+
+lua <<EOF
+-- Don't mess with 'tabstop', with 'expandtab' it isn't used.
+-- Instead set softtabstop=-1, then 'shiftwidth' is used.
+vim.o.expandtab = true
+vim.o.shiftwidth = 2
+vim.o.softtabstop = -1
+
+vim.o.clipboard = "unnamedplus" -- Use the clipboard for all operations
+vim.o.fillchars = "vert: ,stl: ,stlnc: "
+vim.o.showmatch = true
+vim.o.mat = 2
+vim.o.mouse = ""
+vim.o.nu = true
+vim.o.showtabline = 2
+vim.o.laststatus = 2
+vim.o.inccommand = "split"
+vim.o.undofile = true -- undo-persistence
+vim.o.modeline = false -- can be a security issue
+vim.o.smartindent = true
+vim.o.list = true -- show unprintable characters
+vim.o.fsync = true
+vim.o.lazyredraw = true
+
+vim.opt.foldlevel = 99
+vim.opt.foldmethod = "expr"
+-- vim.o.foldmethod = "indent"
+vim.opt.foldexpr = [[nvim_treesitter#foldexpr()]] -- take advantage of treesitter for foldexpr
+
+-- hide line numbers in terminal windows
+-- vim.api.nvim_exec([[
+--    au BufEnter term://* setlocal nonumber
+-- ]], false)
+EOF
+
+" set shellslash
+" set shell=/bin/bash
+"https://www.reddit.com/r/neovim/comments/gbb2g3/wierd_vimplug_error_messages/.compact
+"if has('win32')
+"  set shell=powershell.exe
+"endif
 
 " Statusline
 set statusline=
@@ -20,17 +55,13 @@ set statusline+=%=                  " switch to right side
 set statusline+=%y\                 " file type
 set statusline+=[%l,%c]\ %p%%\      " line, column and percentage
 
-" Ctags
-command! MakeTags !ctags -R -f .tags .
-set tags+=,.tags,
+lua <<EOF
+-- make Y consistent with C and D.
+-- local keymap_opts = { noremap = true, silent = true }
+-- vim.api.nvim_set_keymap('n', 'Y', 'y$', keymap_opts)
+EOF
 
-" Set the background to red for trailing spaces
-match ErrorMsg "\s\+$"
-
-" make Y consistent with C and D.
-nnoremap Y y$
-
-" Retab the file
+" Retab the file (fix tab spaced files)
 function! Retab()
   set noexpandtab
   retab!
@@ -38,86 +69,69 @@ function! Retab()
   retab!
 endfunction
 
-" When in a neovim terminal, add a buffer to the existing vim session instead of nesting (credit justinmk)
-" You need socat to do this
-" Nest when opening in man mode
-if executable('socat')
-  autocmd VimEnter * if @% != '' && &ft != 'man' && !&diff && !empty($NVIM_LISTEN_ADDRESS) && $NVIM_LISTEN_ADDRESS !=# v:servername
-        \ |let g:r=jobstart(['socat', '-', 'UNIX-CLIENT:'.$NVIM_LISTEN_ADDRESS],{'rpc':v:true})
-        \ |let g:f=fnameescape(expand('%:p'))
-        \ |noau bwipe
-        \ |call rpcrequest(g:r, "nvim_command", "tabe ".g:f)
-        \ |qa
-        \ |endif
-endif
+" Update neovim extensions
+function! Update()
+  PlugUpgrade
+  PlugUpdate
+  UpdateRemotePlugins
+  TSUpdate
+endfunction
 
-" Don't show tabline and statusline on a man page
-autocmd VimEnter * if &ft == 'man'
-      \ |set showtabline=0
-      \ |set laststatus=0
-      \ |endif
-
-" start in insert mode when opening a new terminal buffer
+" Start in insert mode when opening a new terminal buffer
+" Remember if we are in insert mode for each terminal buffer
 autocmd TermOpen * startinsert
 autocmd TermEnter * let b:insertMode = "yes"
 autocmd BufEnter * if &buftype == 'terminal' && b:insertMode != "no" | startinsert | endif
 
-"" Terminal commands
-tnoremap <A-q> <C-\><C-n>:let b:insertMode = "no"<CR>
-tnoremap <A-t> <C-\><C-n>:tabe<CR>:term<CR>
-noremap <A-t> <C-\><C-n>:tabe<CR>:term<CR>
-tnoremap <A-c> <C-\><C-n>:tabe<CR>
-noremap <A-c> <C-\><C-n>:tabe<CR>
+lua <<EOF
+local keymap_opts = { noremap = true, silent = true }
 
-" Tabs commands
-nnoremap <A-l> :tabnext<CR>
-inoremap <A-l> <Esc>:tabnext<CR>
-tnoremap <A-l> <C-\><C-n>:tabnext<CR>
-nnoremap <A-k> :tabmove +1<CR>
-inoremap <A-k> <Esc>:tabmove +1<CR>
-tnoremap <A-k> <C-\><C-n>:tabmove +1 <BAR> startinsert<CR>
-nnoremap <A-j> :tabmove -1<CR>
-inoremap <A-j> <Esc>:tabmove -1<CR>
-tnoremap <A-j> <C-\><C-n>:tabmove -1 <BAR> startinsert<CR>
-nnoremap <A-h> :tabprevious<CR>
-inoremap <A-h> <Esc>:tabprevious<CR>
-tnoremap <A-h> <C-\><C-n>:tabprevious<CR>
+-- Terminal commands
+vim.api.nvim_set_keymap("t", "<A-q>", [[<C-\><C-n>:let b:insertMode = 'no'<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<A-t>", [[<C-\><C-n>:tabe<CR>:term<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("n", "<A-t>", [[<C-\><C-n>:tabe<CR>:term<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<A-c>", [[<C-\><C-n>:tabe<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("n", "<A-c>", [[<C-\><C-n>:tabe<CR>]], keymap_opts)
 
-" Tab navigation shortcuts
-nnoremap <A-^> :1tabnext<CR>
-inoremap <A-^> <Esc>:1tabnext<CR>
-tnoremap <A-^> <C-\><C-n>:1tabnext<CR>
-nnoremap <A-$> :$tabnext<CR>
-inoremap <A-$> <Esc>:$tabnext<CR>
-tnoremap <A-$> <C-\><C-n>:$tabnext<CR>
+-- Tabs commands
+vim.api.nvim_set_keymap("n", "<A-l>", [[:tabnext<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("i", "<A-l>", [[<Esc>:tabnext<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<A-l>", [[<C-\><C-n>:tabnext<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("n", "<A-k>", [[:tabmove +1<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("i", "<A-k>", [[<Esc>:tabmove +1<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<A-k>", [[<C-\><C-n>:tabmove +1 <BAR> startinsert<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("n", "<A-j>", [[:tabmove -1<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("i", "<A-j>", [[<Esc>:tabmove -1<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<A-j>", [[<C-\><C-n>:tabmove -1 <BAR> startinsert<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("n", "<A-h>", [[:tabprevious<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("i", "<A-h>", [[<Esc>:tabprevious<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<A-h>", [[<C-\><C-n>:tabprevious<CR>]], keymap_opts)
 
-" Windows commands
-nnoremap <C-l> :wincmd l<CR>
-inoremap <C-l> <Esc>:wincmd l<CR>
-tnoremap <C-l> <C-\><c-n>:wincmd l<CR>
-nnoremap <C-k> :wincmd k<CR>
-inoremap <C-k> <Esc>:wincmd k<CR>
-tnoremap <C-k> <C-\><c-n>:wincmd k<CR>
-nnoremap <C-j> :wincmd j<CR>
-inoremap <C-j> <Esc>:wincmd j<CR>
-tnoremap <C-j> <C-\><c-n>:wincmd j<CR>
-nnoremap <C-h> :wincmd h<CR>
-inoremap <C-h> <Esc>:wincmd h<CR>
-tnoremap <C-h> <C-\><c-n>:wincmd h<CR>
+vim.api.nvim_set_keymap("n", "<A-^>", [[:1tabnext<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("i", "<A-^>", [[<Esc>:1tabnext<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<A-^>", [[<C-\><C-n>:1tabnext<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("n", "<A-$>", [[:$tabnext<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("i", "<A-$>", [[<Esc>:$tabnext<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<A-$>", [[<C-\><C-n>:$tabnext<CR>]], keymap_opts)
 
-" Force writing with sudo
-" Doesn't work for now: https://github.com/neovim/neovim/issues/1496
-" command! SaveSudo :execute ':silent w !sudo tee % > /dev/null' <Bar> :edit!
+-- Windows commands
+vim.api.nvim_set_keymap("n", "<C-l>", [[:wincmd l<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("i", "<C-l>", [[<Esc>:wincmd l<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<C-l>", [[<C-\><c-n>:wincmd l<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("n", "<C-k>", [[:wincmd k<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("i", "<C-k>", [[<Esc>:wincmd k<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<C-k>", [[<C-\><c-n>:wincmd k<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("n", "<C-j>", [[:wincmd j<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("i", "<C-j>", [[<Esc>:wincmd j<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<C-j>", [[<C-\><c-n>:wincmd j<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("n", "<C-h>", [[:wincmd h<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("i", "<C-h>", [[<Esc>:wincmd h<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<C-h>", [[<C-\><c-n>:wincmd h<CR>]], keymap_opts)
 
-" Open todo file
-command! Todo execute ':tabe `=resolve(expand("~/.TODO.md"))`' <Bar> :set ft=markdown
+-- Space bar un-highlights search
+-- vim.api.nvim_set_keymap("n", "<Space><Space>", ":silent noh<Bar>echo<CR>", keymap_opts)
 
-" Git commands
-nnoremap gs :split <Bar> term git status -sb<CR>
-nnoremap gr :split <Bar> term git log --graph --relative-date --all --pretty=reference<CR><CR>
-
-" Space bar un-highlights search
-nnoremap <Space><Space> :silent noh<Bar>echo<CR>
+EOF
 
 " Netrw config, based on tpope/vinegar
 let g:netrw_banner = 0
@@ -136,100 +150,106 @@ endfunction
 " Use 'correct' php indentation for switch blocks
 let g:PHP_vintage_case_default_indent = 1
 
-" file-searching
-if executable('fzy')
-  if executable('rg')
-    set grepprg=rg\ --vimgrep
-    set grepformat^=%f:%l:%c:%m
-    let g:list_files_function = 'rg --files --color=never --hidden --glob "!.git/*"'
-  else
-    let g:list_files_function = "find -type f -not -path '*/\.*'"
-    " let g:list_files_function = "git ls-files -o -X .gitignore"
-  endif
-  function! FzyCommand(choice_command, vim_command) abort
-    let l:callback = {'window_id': win_getid(), 'filename': tempname(), 'vim_command': a:vim_command}
-
-    function! l:callback.on_exit(job_id, data, event) abort
-      bdelete!
-      call win_gotoid(self.window_id)
-      if filereadable(self.filename)
-        try
-          let l:selected_filename = readfile(self.filename)[0]
-          exec self.vim_command . l:selected_filename
-        catch /E684/
-        endtry
-      endif
-      call delete(self.filename)
-    endfunction
-
-    botright 10 new
-    let l:term_command = a:choice_command . ' | fzy > ' .  l:callback.filename
-    silent call termopen(l:term_command, l:callback)
-    startinsert
-  endfunction
-  nnoremap <A-f> :call FzyCommand(g:list_files_function, ":tabe ")<CR>
-  tnoremap <A-f> <C-\><C-n>:call FzyCommand(g:list_files_function, ":tabe ")<CR>
-  inoremap <A-f> <Esc>:call FzyCommand(g:list_files_function, ":tabe ")<CR>
-  nnoremap <A-e> :call FzyCommand(g:list_files_function, ":e ")<CR>
-  tnoremap <A-e> <C-\><C-n>:call FzyCommand(g:list_files_function, ":e ")<CR>
-  inoremap <A-e> <Esc>:call FzyCommand(g:list_files_function, ":e ")<CR>
-  nnoremap <A-v> :call FzyCommand(g:list_files_function, ":vsp ")<CR>
-  tnoremap <A-v> <C-\><C-n>:call FzyCommand(g:list_files_function, ":vsp ")<CR>
-  inoremap <A-v> <Esc>:call FzyCommand(g:list_files_function, ":vsp ")<CR>
-else
-  set path=**
-  function WildignoreFromGitignore()
-    let gitignore = '.gitignore'
-    if filereadable(gitignore)
-      let igstring = ''
-      for oline in readfile(gitignore)
-        let line = substitute(oline, '\s|\n|\r', '', "g")
-        if line =~ '^#' | con | endif
-        if line == ''   | con | endif
-        if line =~ '^!' | con | endif
-        if line =~ '/$' | let igstring .= "," . line . "*" | con | endif
-        let igstring .= "," . line
-      endfor
-      let execstring = "set wildignore+=".substitute(igstring, '^,', '', "g")
-      execute execstring
-    endif
-  endfunction
-  call WildignoreFromGitignore()
-  nnoremap <A-f> :tabfind 
-  tnoremap <A-f> <C-\><C-n>:tabfind 
-  inoremap <A-f> <Esc>:tabfind 
-  nnoremap <A-e> :find 
-  tnoremap <A-e> <C-\><C-n>:find 
-  inoremap <A-e> <Esc>:find 
-  nnoremap <A-v> :sfind 
-  tnoremap <A-v> <C-\><C-n>:sfind 
-  inoremap <A-v> <Esc>:sfind 
-endif
-
-" The french keyboard is awesome
-inoremap àà À
-inoremap éé É
-inoremap êê Ê
-inoremap èè È
-inoremap çç Ç
-
 " Vim-plug
-call plug#begin('~/.config/nvim/plugged')
-Plug 'airblade/vim-gitgutter'
-Plug 'sheerun/vim-polyglot'
-Plug 'tpope/vim-fugitive'
+call plug#begin(resolve(expand(stdpath('config') . '/plugged')))
+"Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+"Plug 'junegunn/fzf.vim'
+Plug 'mhinz/vim-signify' " git
+Plug 'tpope/vim-fugitive' " git
+"Plug 'justinmk/vim-dirvish'
 Plug 'w0rp/ale'
+Plug 'nvim-treesitter/nvim-treesitter' " syntax highlighting
+Plug 'rktjmp/lush.nvim' " colorscheme req
+Plug 'npxbr/gruvbox.nvim' " colorscheme
+Plug 'nvim-lua/popup.nvim' " telescope req
+Plug 'nvim-lua/plenary.nvim' " telescope req
+Plug 'nvim-telescope/telescope.nvim' " fuzzy finder
+Plug 'neovim/nvim-lspconfig' " lsp
+Plug 'dpelle/vim-Grammalecte'
 call plug#end()
 
-" Update plugins
-function! Update()
-  PlugUpgrade
-  PlugUpdate
-  UpdateRemotePlugins
-endfunction
+lua <<EOF
+-- LSP
+require("lspconfig").cmake.setup{}
+require("lspconfig").pylsp.setup{}
+require("lspconfig").pyright.setup{}
+-- Enable the following language servers
+-- local servers = { 'clangd', 'rust_analyzer', 'pyright', 'tsserver' }
+-- local servers = { 'pyright' }
+-- local capabilities = vim.lsp.protocol.make_client_capabilities()
+-- capabilities.textDocument.completion.completionItem.snippetSupport = true
+-- for _, lsp in ipairs(servers) do
+--   require('lspconfig')[lsp].setup {
+--     on_attach = on_attach,
+--     capabilities = capabilities,
+--   }
+-- end
 
-" Vim-signify
-let g:signify_sign_change = '~'
+-- Colorscheme
+vim.o.termguicolors = true -- doesn't work without it
+vim.o.background = "dark" -- or "light" for light mode
+vim.g.gruvbox_italic = false
+vim.g.gruvbox_italicize_comments = false
+vim.cmd([[colorscheme gruvbox]])
+
+-- Treesitter highlighting
+require("nvim-treesitter.configs").setup {
+  ensure_installed = { "javascript", "python", "cpp", "yaml", "json" },
+  highlight = { enable = true },
+}
+
+-- Vim-signify
+vim.g.signify_sign_change = '~'
+
+-- Telescope
+-- https://news.ycombinator.com/item?id=27164343
+local keymap_opts = { noremap = true, silent = true }
+
+require('telescope').setup{
+  vimgrep_arguments = {
+    'rg',
+    '--color=never',
+    '--no-heading',
+    '--with-filename',
+    '--line-number',
+    '--column',
+    '--smart-case',
+    '--glob "!.git/*'
+  },
+}
+
+vim.api.nvim_set_keymap("n", "<A-s>", [[:lua require('telescope.builtin').current_buffer_fuzzy_find()<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<A-s>", [[<C-\><C-n>:lua require('telescope.builtin').current_buffer_fuzzy_find()<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("n", "<A-e>", [[:lua require('telescope.builtin').file_browser()<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<A-e>", [[<C-\><C-n>:lua require('telescope.builtin').file_browser()<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("n", "<A-f>", [[:lua require('telescope.builtin').find_files()<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<A-f>", [[<C-\><C-n>:lua require('telescope.builtin').find_files()<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("n", "<A-b>", [[:lua require('telescope.builtin').buffers()<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<A-b>", [[<C-\><C-n>:lua require('telescope.builtin').buffers()<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("n", "<A-g>", [[:lua require('telescope.builtin').live_grep()<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<A-g>", [[<C-\><C-n>:lua require('telescope.builtin').live_grep()<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("n", "<A-m>", [[:lua require('telescope.builtin').man_pages()<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<A-m>", [[<C-\><C-n>:lua require('telescope.builtin').man_pages()<CR>]], keymap_opts)
+
+-- Git commands
+vim.api.nvim_set_keymap("n", "gs", [[:Git status -sb<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("n", "gr", [[:Git log --graph --abbrev-commit --decorate --format=format:"%h - (%ar) %s - %an%d" --all<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("n", "gd", ":Git diff<CR>", keymap_opts)
+vim.api.nvim_set_keymap("n", "gdd", ":Git diff --staged<CR>", keymap_opts) -- TODO: blocks 'gd' a bit
+EOF
+
+" Open todo file
+" os.getenv("HOME")
+command! Todo execute ':vsp ~/.TODO.md' <Bar> :set ft=markdown
+
+" Open init.vim file
+command! Init execute ":tabe `=stdpath('config').'/init.vim'`"
+
+" Output 50 random alphanumeric characters (excluding look-alikes)
+command! Rand execute ":read! tr -dc a-zA-Z0-9 < /dev/urandom | tr -d iIlLoO0 | head -c 50"
+
+" cd to current open file
+command! Relocate execute ":cd %:h"
 
 " w0rp/Ale
 let g:ale_linters = {
