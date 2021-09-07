@@ -60,7 +60,7 @@ printf "\\n%b" "$RCol"
 
 (
   cpu="$(awk '{ print $1, $2, $3 }' /proc/loadavg)"
-  printf " %bLoad average%b,%s%b\\n" "$BGre" "$RCol" "$cpu"
+  printf " %bLoad average%b,%s%b\\n" "$BGre" "$RCol" "$cpu" "$RCol"
 ) | awk 'BEGIN {FS=","} {printf "%-27s %s\n", $1, $2}'
 
 printf "\\n%b" "$RCol"
@@ -78,8 +78,8 @@ printf "\\n%b" "$RCol"
     mem_p=$(( 100 * mem_used / mem_total ))
     swap_p=$(( 100 * swap_used / swap_total ))
     printf " %bType,Size,Free,Used%b\\n" "$BGre" "$RCol"
-    printf " %bMem,%s,%s,%s%b\\n" "$White" "$(kb_to_human $mem_total)" "$(kb_to_human $((mem_total - mem_used)))" "$(usage "$mem_p")" "$RCol"
-    printf " %bSwap,%s,%s,%s%b\\n" "$White" "$(kb_to_human $swap_total)" "$(kb_to_human $((swap_total - swap_used)))" "$(usage "$swap_p")" "$RCol"
+    printf " %bMem,%s,%s,%s%b\\n" "$White" "$(kb_to_human "$mem_total")" "$(kb_to_human $((mem_total - mem_used)))" "$(usage "$mem_p")" "$RCol"
+    printf " %bSwap,%s,%s,%s%b\\n" "$White" "$(kb_to_human "$swap_total")" "$(kb_to_human $((swap_total - swap_used)))" "$(usage "$swap_p")" "$RCol"
 
     printf ",,\\n"
 
@@ -91,7 +91,7 @@ printf "\\n%b" "$RCol"
         d="$(echo "$i" | awk '{if(length($1) > 26) {print substr($1, 1, 11) ".." substr($1, length($1)-13)} else {print $1}}')"
         if [ -n "$s" ] && [ -n "$p" ]; then
             # white color trick to have the same number of characters for `column` that does not take escape sequences into account
-            printf " %b%s,%s,%s,%s%b\\n" "$White" "$i" "$s" "$u" "$(usage "$p")" "$RCol"
+            printf " %b%s,%s,%s,%s%b\\n" "$White" "$d" "$s" "$u" "$(usage "$p")" "$RCol"
         fi
     done
 ) | awk 'BEGIN {FS=","} {printf "%-23s %-9s %-9s %s\n", $1, $2, $3, $4}'
