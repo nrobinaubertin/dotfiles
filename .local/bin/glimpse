@@ -54,14 +54,14 @@ printf "\\n%b" "$RCol"
     printf " %bCPU%b,%s\\n" "$BGre" "$White" "$nbprocs $proctype"
     printf " %bShell%b,%s\\n" "$BGre" "$White" "$SHELL"
     printf " %bIP%b,%s\\n" "$BGre" "$White" "$(awk '/32 host/ { print f } {f=$2}' /proc/net/fib_trie 2>/dev/null | tail -n1)"
-) | awk 'BEGIN {FS=","} {printf "%-30s %s\n", $1, $2}'
+) | awk 'BEGIN {FS=","} {printf "%-42s %s\n", $1, $2}'
 
 printf "\\n%b" "$RCol"
 
 (
   cpu="$(awk '{ print $1, $2, $3 }' /proc/loadavg)"
   printf " %bLoad average%b,%s%b\\n" "$BGre" "$RCol" "$cpu" "$RCol"
-) | awk 'BEGIN {FS=","} {printf "%-27s %s\n", $1, $2}'
+) | awk 'BEGIN {FS=","} {printf "%-39s %s\n", $1, $2}'
 
 printf "\\n%b" "$RCol"
 
@@ -94,6 +94,6 @@ printf "\\n%b" "$RCol"
             printf " %b%s,%s,%s,%s%b\\n" "$White" "$d" "$s" "$u" "$(usage "$p")" "$RCol"
         fi
     done
-) | awk 'BEGIN {FS=","} {printf "%-23s %-9s %-9s %s\n", $1, $2, $3, $4}'
+) | awk 'BEGIN {FS=","} {printf "%-35s %-7s %-7s %s\n", $1, $2, $3, $4}'
 
 printf "\\n%b" "$RCol"
