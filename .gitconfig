@@ -33,3 +33,5 @@
     newHighlight = green bold 22
 [alias]
     patch = !git --no-pager diff --no-color
+[init]
+	defaultBranch = master
