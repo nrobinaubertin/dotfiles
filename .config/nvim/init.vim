@@ -261,7 +261,6 @@ require('telescope').setup{
     '--line-number',
     '--column',
     '--smart-case',
-    '--glob "!.git/*'
   },
 }
 
@@ -269,8 +268,8 @@ vim.api.nvim_set_keymap("n", "<A-s>", [[:lua require('telescope.builtin').curren
 vim.api.nvim_set_keymap("t", "<A-s>", [[<C-\><C-n>:lua require('telescope.builtin').current_buffer_fuzzy_find()<CR>]], keymap_opts)
 vim.api.nvim_set_keymap("n", "<A-e>", [[:lua require('telescope.builtin').file_browser()<CR>]], keymap_opts)
 vim.api.nvim_set_keymap("t", "<A-e>", [[<C-\><C-n>:lua require('telescope.builtin').file_browser()<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("n", "<A-f>", [[:lua require('telescope.builtin').find_files()<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("t", "<A-f>", [[<C-\><C-n>:lua require('telescope.builtin').find_files()<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("n", "<A-f>", [[:lua require('telescope.builtin').git_files()<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<A-f>", [[<C-\><C-n>:lua require('telescope.builtin').git_files()<CR>]], keymap_opts)
 vim.api.nvim_set_keymap("n", "<A-b>", [[:lua require('telescope.builtin').buffers()<CR>]], keymap_opts)
 vim.api.nvim_set_keymap("t", "<A-b>", [[<C-\><C-n>:lua require('telescope.builtin').buffers()<CR>]], keymap_opts)
 vim.api.nvim_set_keymap("n", "<A-g>", [[:lua require('telescope.builtin').live_grep()<CR>]], keymap_opts)
@@ -304,7 +303,7 @@ let g:ale_linters = {
     \ 'cpp': ['clang', 'clangtidy'],
 \}
 let g:conan_includes = system('find ~/.conan/data -maxdepth 7 -type d -name "include" | awk "{print "\""-I"\""\$0}" | tr "\n" " "')
-let g:cpp_compiler_options = '-std=c++17 -Wall -Wextra -Wpedantic ' . g:conan_includes
+let g:cpp_compiler_options = '-std=c++20 -Wall -Wextra -Wpedantic ' . g:conan_includes
 let g:ale_cpp_cc_options = g:cpp_compiler_options
 let g:ale_cpp_clangtidy_options = g:cpp_compiler_options
 let g:ale_cpp_clangtidy_checks = [
@@ -321,3 +320,4 @@ let g:ale_cpp_clangtidy_checks = [
 let g:ale_fixers = {'*': ['remove_trailing_lines', 'trim_whitespace']}
 let g:ale_lint_on_text_changed = 'never'
 let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
+let g:ale_python_flake8_options = '--max-line-length=120'
