@@ -165,7 +165,7 @@ Plug 'nvim-lua/popup.nvim' " telescope req
 Plug 'nvim-lua/plenary.nvim' " telescope req
 Plug 'nvim-telescope/telescope.nvim' " fuzzy finder
 Plug 'neovim/nvim-lspconfig' " lsp
-Plug 'dpelle/vim-Grammalecte'
+"Plug 'dpelle/vim-Grammalecte'
 call plug#end()
 
 lua <<EOF
@@ -173,6 +173,10 @@ lua <<EOF
 require("lspconfig").cmake.setup{}
 require("lspconfig").pylsp.setup{}
 require("lspconfig").pyright.setup{}
+require("lspconfig").tsserver.setup{}
+require("lspconfig").cssls.setup{}
+require("lspconfig").html.setup{}
+require("lspconfig").clangd.setup{}
 -- Enable the following language servers
 -- local servers = { 'clangd', 'rust_analyzer', 'pyright', 'tsserver' }
 -- local servers = { 'pyright' }
@@ -184,6 +188,49 @@ require("lspconfig").pyright.setup{}
 --     capabilities = capabilities,
 --   }
 -- end
+
+-- https://github.com/nathanmsmith/nvim-ale-diagnostic/blob/main/lua/nvim-ale-diagnostic.lua
+local ale_diagnostic_severity_map = {
+  [vim.lsp.protocol.DiagnosticSeverity.Error] = "E";
+  [vim.lsp.protocol.DiagnosticSeverity.Warning] = "W";
+  [vim.lsp.protocol.DiagnosticSeverity.Information] = "I";
+  [vim.lsp.protocol.DiagnosticSeverity.Hint] = "I";
+}
+
+vim.lsp.diagnostic.original_clear = vim.lsp.diagnostic.clear
+vim.lsp.diagnostic.clear = function(bufnr, client_id, diagnostic_ns, sign_ns)
+  vim.lsp.diagnostic.original_clear(bufnr, client_id, diagnostic_ns, sign_ns)
+  -- Clear ALE
+  vim.api.nvim_call_function('ale#other_source#ShowResults', {bufnr, "nvim-lsp", {}})
+end
+
+vim.lsp.diagnostic.set_signs = function(diagnostics, bufnr, _, _, _)
+  if not diagnostics then
+    return
+  end
+
+  local items = {}
+  for _, item in ipairs(diagnostics) do
+    table.insert(items, {
+      nr = item.code,
+      text = item.message,
+      lnum = item.range.start.line+1,
+      end_lnum = item.range['end'].line,
+      col = item.range.start.character+1,
+      end_col = item.range['end'].character,
+      type = ale_diagnostic_severity_map[item.severity]
+    })
+  end
+
+  vim.api.nvim_call_function('ale#other_source#ShowResults', {bufnr, "nvim-lsp", items})
+end
+
+vim.lsp.handlers['textDocument/publishDiagnostics'] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
+  virtual_text = false,
+  signs = true,
+  underline = false,
+  update_in_insert = false,
+})
 
 -- Colorscheme
 vim.o.termguicolors = true -- doesn't work without it
