@@ -81,8 +81,8 @@ function Update()
     return table.concat({ ... }, get_separator())
   end
   local init_path = join_paths(vim.fn.stdpath 'config', 'init.vim')
-  local init_url = 'https://raw.githubusercontent.com/nrobinaubertin/dotfiles/master.config/nvim/init.vim'
-  vim.cmd([[echom system("curl -Lso ]] .. init_path .. [[ ]] .. init_url .. [[")]])
+  local init_url = 'https://raw.githubusercontent.com/nrobinaubertin/dotfiles/master/.config/nvim/init.vim'
+  vim.cmd([[echom system('curl -Lso ]] .. init_path .. [[ ]] .. init_url .. [[')]])
   vim.cmd([[PlugUpgrade]])
   vim.cmd([[PlugUpdate]])
   vim.cmd([[UpdateRemotePlugins]])
