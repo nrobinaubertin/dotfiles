@@ -69,13 +69,26 @@ function! Retab()
   retab!
 endfunction
 
-" Update neovim extensions
-function! Update()
-  PlugUpgrade
-  PlugUpdate
-  UpdateRemotePlugins
-  TSUpdate
-endfunction
+lua <<EOF
+function Update()
+  local get_separator = function()
+    if jit.os == "Windows" then
+      return '\\'
+    end
+    return '/'
+  end
+  local join_paths = function(...)
+    return table.concat({ ... }, get_separator())
+  end
+  local init_path = join_paths(vim.fn.stdpath 'config', 'init.vim')
+  local init_url = 'https://raw.githubusercontent.com/nrobinaubertin/dotfiles/master.config/nvim/init.vim'
+  vim.cmd([[echo m system("curl -Lso ]] .. init_path .. [[ ]] .. init_url .. [[")]])
+  vim.md([[PlugUpgrade]])
+  vim.md([[PlugUpdate]])
+  vim.md([[UpdateRemotePlugins]])
+  vim.md([[TSUpdate]])
+end
+EOF
 
 " Start in insert mode when opening a new terminal buffer
 " Remember if we are in insert mode for each terminal buffer
@@ -276,12 +289,13 @@ vim.api.nvim_set_keymap("n", "<A-g>", [[:lua require('telescope.builtin').live_g
 vim.api.nvim_set_keymap("t", "<A-g>", [[<C-\><C-n>:lua require('telescope.builtin').live_grep()<CR>]], keymap_opts)
 vim.api.nvim_set_keymap("n", "<A-m>", [[:lua require('telescope.builtin').man_pages()<CR>]], keymap_opts)
 vim.api.nvim_set_keymap("t", "<A-m>", [[<C-\><C-n>:lua require('telescope.builtin').man_pages()<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("n", "gd", [[:lua require('telescope.builtin').lsp_definitions()<CR>]], keymap_opts)
 
 -- Git commands
-vim.api.nvim_set_keymap("n", "gs", [[:Git status -sb<CR>]], keymap_opts)
+-- vim.api.nvim_set_keymap("n", "gs", [[:Git status -sb<CR>]], keymap_opts)
 vim.api.nvim_set_keymap("n", "gr", [[:Git log --graph --abbrev-commit --decorate --format=format:"%h - (%ar) %s - %an%d" --all<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("n", "gd", ":Git diff<CR>", keymap_opts)
-vim.api.nvim_set_keymap("n", "gdd", ":Git diff --staged<CR>", keymap_opts) -- TODO: blocks 'gd' a bit
+-- vim.api.nvim_set_keymap("n", "gd", ":Git diff<CR>", keymap_opts)
+-- vim.api.nvim_set_keymap("n", "gdd", ":Git diff --staged<CR>", keymap_opts) -- TODO: blocks 'gd' a bit
 EOF
 
 " Open todo file
