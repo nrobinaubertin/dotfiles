@@ -70,7 +70,7 @@ function! Retab()
 endfunction
 
 lua <<EOF
-function Update()
+function Upgrade()
   local get_separator = function()
     if jit.os == "Windows" then
       return '\\'
@@ -84,6 +84,8 @@ function Update()
   local init_url = 'https://raw.githubusercontent.com/nrobinaubertin/dotfiles/master/.config/nvim/init.vim'
   vim.cmd([[echom system('curl -Lso ]] .. init_path .. [[ ]] .. init_url .. [[')]])
   vim.cmd([[PlugUpgrade]])
+end
+function Update()
   vim.cmd([[PlugUpdate]])
   vim.cmd([[UpdateRemotePlugins]])
   vim.cmd([[TSUpdate]])
@@ -167,17 +169,18 @@ let g:PHP_vintage_case_default_indent = 1
 call plug#begin(resolve(expand(stdpath('config') . '/plugged')))
 "Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 "Plug 'junegunn/fzf.vim'
-Plug 'mhinz/vim-signify' " git
+"Plug 'mhinz/vim-signify' " git
 Plug 'tpope/vim-fugitive' " git
 "Plug 'justinmk/vim-dirvish'
 Plug 'w0rp/ale'
 Plug 'nvim-treesitter/nvim-treesitter' " syntax highlighting
-Plug 'rktjmp/lush.nvim' " colorscheme req
+Plug 'rktjmp/lush.nvim' " gruvbox
 Plug 'npxbr/gruvbox.nvim' " colorscheme
-Plug 'nvim-lua/popup.nvim' " telescope req
-Plug 'nvim-lua/plenary.nvim' " telescope req
+Plug 'nvim-lua/popup.nvim' " telescope
+Plug 'nvim-lua/plenary.nvim' " telescope, gitsigns
 Plug 'nvim-telescope/telescope.nvim' " fuzzy finder
 Plug 'neovim/nvim-lspconfig' " lsp
+Plug 'lewis6991/gitsigns.nvim' " git
 "Plug 'dpelle/vim-Grammalecte'
 call plug#end()
 
@@ -254,12 +257,12 @@ vim.cmd([[colorscheme gruvbox]])
 
 -- Treesitter highlighting
 require("nvim-treesitter.configs").setup {
-  ensure_installed = { "javascript", "python", "cpp", "yaml", "json" },
+  ensure_installed = { "javascript", "python", "cpp", "yaml", "json", "hcl" },
   highlight = { enable = true },
 }
 
 -- Vim-signify
-vim.g.signify_sign_change = '~'
+-- vim.g.signify_sign_change = '~'
 
 -- Telescope
 -- https://news.ycombinator.com/item?id=27164343
