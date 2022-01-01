@@ -34,4 +34,6 @@
 [alias]
     patch = !git --no-pager diff --no-color
 [init]
-	defaultBranch = master
+    defaultBranch = master
+[advice]
+  addIgnoredFile = false
