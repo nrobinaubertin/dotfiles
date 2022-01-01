@@ -97,9 +97,6 @@ lll () {
     ll "$t" | less -RX -R
 }
 
-command -v brightness >/dev/null && alias b='brightness'
-command -v volume >/dev/null && alias v='volume'
-
 # start cal on mondays
 if command -v ncal >/dev/null; then
   alias cal="ncal -M -b"
@@ -113,14 +110,6 @@ command -v trash-put >/dev/null && alias rr='trash-put'
 cdroot() {
   ! [ -e ".git" ] && [ "$(pwd)" != "/" ] && cd .. && cdroot || return 0
 }
-
-if command -v fzy >/dev/null; then
-  # Required to refresh the prompt after fzy
-  bind '"\er": redraw-current-line'
-  bind '"\e^": history-expand-line'
-  # CTRL-R - Paste the selected command from history into the command line
-  bind '"\C-r": " \C-e\C-u\C-y\ey\C-u`HISTTIMEFORMAT= history | cut -c 8- | fzy`\e\C-e\er\e^"'
-fi
 
 # git aliases
 if command -v git >/dev/null; then
@@ -136,6 +125,8 @@ if command -v git >/dev/null; then
       case "$1" in
         "day") age=$(( $(date +%s) - (60 * 60 * 24) ));;
         "month") age=$(( $(date +%s) - (60 * 60 * 24 * 30) ));;
+        "year") age=$(( $(date +%s) - (60 * 60 * 24 * 365) ));;
+        "all") age=$(( $(date +%s) - (60 * 60 * 24 * 365 * 10) ));;
         "week"|*) age=$(( $(date +%s) - (60 * 60 * 24 * 7) ));;
       esac
       (
@@ -175,7 +166,7 @@ if command -v openssl >/dev/null; then
   genSSHKey() {
     for arg in "$@"; do
       case "$arg" in
-        --help)
+        --help|-h)
           echo "genSSHKey [--rsa] [--home] <user>@<host>:<port>"
           return;;
         --rsa)
@@ -198,12 +189,12 @@ if command -v openssl >/dev/null; then
   }
 fi
 
-if command -v youtube-dl >/dev/null; then
-  alias ytmp3='youtube-dl -wi --extract-audio --audio-quality 3 --audio-format mp3'
+if command -v yt-dlp >/dev/null; then
+  alias ytmp3='yt-dlp -wi --extract-audio --audio-quality 3 --audio-format mp3'
   yt() {
       if echo "$1" | grep --color=always "https://.*youtu" > /dev/null; then
           min="$(get resolution | cut -d'x' -f2)";
-          id="$(youtube-dl -F "$1" | tail -n +5 | grep -v "audio only" | awk 'int(substr($4, 1, length($4)-1)) >= '"$min"' { print $1}' | head -n1)";
+          id="$(yt-dlp -F "$1" | tail -n +5 | grep -v "audio only" | awk 'int(substr($4, 1, length($4)-1)) >= '"$min"' { print $1}' | head -n1)";
           if [ -z "$id" ]; then
               id="best";
           fi;
@@ -211,35 +202,36 @@ if command -v youtube-dl >/dev/null; then
       fi
   }
   ytclip() {
-      ffmpeg -ss "$1" -i "$(youtube-dl -g "$3" | head -n1)" -t "$2" -f mp3 "$(date +%Y-%m-%d-%H%M%S)-ytmp4.mp4"
+    ffmpeg -ss "$1" -t "$2" -i "$(yt-dlp -g -f "best" "$3" | head -n1)" "$(date +%Y-%m-%d-%H%M%S)-ytmp4.mp4"
+    #tmpfile="$(mktemp -u)"
+    #yt-dlp -f "best+bestaudio" --merge-output-format mp4 "$tmpfile";
+    #ffmpeg -ss "$1" -t "$2" -i "$tmpfile" "$(date +%Y-%m-%d-%H%M%S)-ytmp4.mp4"
+    #rm $tmpfile
   }
   ytsound() {
-    tmpfile="$(mktemp -u)"
-    youtube-dl -wi -o "$tmpfile" "$3"
-    ffmpeg -ss "$1" -i "$tmpfile.mkv" -t "$2" -vn -codec:a libmp3lame -q:a 2 -f mp3 "$(pwd)/$(date +%Y-%m-%d-%H%M%S)-ytmp3.mp3"
-    rm "$tmpfile.mkv"
+    #tmpfile="$(mktemp -u)"
+    #yt-dlp -wi -o "$tmpfile" "$3"
+    #ffmpeg -ss "$1" -i "$tmpfile.mkv" -t "$2" -vn -codec:a libmp3lame -q:a 2 -f mp3 "$(pwd)/$(date +%Y-%m-%d-%H%M%S)-ytmp3.mp3"
+    #rm "$tmpfile.mkv"
+    ffmpeg -ss "$1" -t "$2" -i "$(yt-dlp -g -f "bestaudio" "$3" | head -n1)" -q:a 2 -f mp3 "$(date +%Y-%m-%d-%H%M%S)-ytmp3.mp3"
   }
   ytdl() {
       if echo "$1" | grep --color=always "https://.*youtu" > /dev/null; then
           min="$(get resolution | cut -d'x' -f2)";
-          id="$(youtube-dl -F "$1" | tail -n +5 | grep -v "audio only" | awk 'int(substr($4, 1, length($4)-1)) >= '"$min"' { print $1}' | head -n1)";
+          id="$(yt-dlp -F "$1" | tail -n +5 | grep -v "audio only" | awk 'int(substr($4, 1, length($4)-1)) >= '"$min"' { print $1}' | head -n1)";
           if [ -z "$id" ]; then
               id="best";
           fi;
-          youtube-dl -f "$id+bestaudio" --merge-output-format mkv "$1";
+          yt-dlp -f "$id+bestaudio" --merge-output-format mkv "$1";
       fi
   }
   ytgif() {
-      ffmpeg -ss "$1" -t "$2" -i "$(youtube-dl -g "$3" | head -n1)" -filter_complex "[0:v] fps=12,scale=w=480:h=-1" -f gif "$(date +%Y-%m-%d-%H%M%S)-ytgif.gif"
+      ffmpeg -ss "$1" -t "$2" -i "$(yt-dlp -g "$3" | head -n1)" -filter_complex "[0:v] fps=12,scale=w=480:h=-1" -f gif "$(date +%Y-%m-%d-%H%M%S)-ytgif.gif"
   }
 fi
 
 # remove bare IPs from known_hosts
 alias clean_known_host="sed -i '/^[0-9.]\\+ /d' $HOME/.ssh/known_hosts"
-
-if command -v syncthing >/dev/null; then
-  alias syncthing="syncthing -home $HOME/data/syncthing -gui-address 0.0.0.0:8384"
-fi
 
 if command -v socat >/dev/null; then
   isopen() {
@@ -267,11 +259,11 @@ containers () {
 
     case "$1" in
       "prune")
-        "$sudoprepend" "$pgrm" stop $("$pgrm" ps -q)
-        "$sudoprepend" "$pgrm" rm $("$pgrm" ps -aq)
-        "$sudoprepend" "$pgrm" system prune -af
-        "$sudoprepend" "$pgrm" volume prune -f
-        "$sudoprepend" "$pgrm" rmi -af
+        "$pgrm" stop $("$pgrm" ps -q)
+        "$pgrm" rm $("$pgrm" ps -aq)
+        "$pgrm" system prune -af
+        "$pgrm" volume prune -f
+        "$pgrm" rmi -af
         ;;
       "stats")
         #"$pgrm" stats --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}"
@@ -285,13 +277,6 @@ containers () {
         ;;
     esac
 }
-
-#bim() {
-#    tmp=$(mktemp -d)
-#    cd $tmp
-#    ytmp3 "$1"
-#    beet im $tmp
-#}
 
 # Secondary bashrc for local configurations
 [ -f "${HOME}/.config/bashrc" ] && . "${HOME}/.config/bashrc"
