@@ -21,7 +21,6 @@ user_pref("_user.js.parrot", "START");
 /* @Niels */
 user_pref("privacy.resistFingerprinting", true); // canvas always return blank image
 user_pref("privacy.firstparty.isolate", true); // isolate cookie, cache, data to the domain level
-user_pref("identity.sync.tokenserver.uri", "https://firefox-syncserver.niels.fr/token/1.0/sync/1.5"); // my own syncserver
 // user_pref("lightweightThemes.selectedThemeID", "firefox-compact-dark@mozilla.org"); // dark theme
 user_pref("browser.startup.homepage", "about:blank"); // home page
 user_pref("accessibility.typeaheadfind", false); // remove typeahead
