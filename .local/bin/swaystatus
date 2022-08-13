@@ -11,7 +11,7 @@ if command -v get >/dev/null; then
   else
     color="#ebdbb2"
   fi
-  printf "%s \\xE2\\x80\\xA2 %s | %s \\xE2\\x80\\xA2 %s \\xE2\\x80\\xA2 %s \\xE2\\x80\\xA2 %s | <span color='%s'>%s \\xE2\\x80\\xA2 %s</span> | %s \\xE2\\x80\\xA2 %s" \
+  printf "%s - %s | %s - %s - %s - %s | <span color='%s'>%s - %s</span> | %s - %s" \
     "$(get ip)" "$(get latency)" \
     "$(get cpu)" "$(get ram)" "$(get heat)"\
     "$(get uptime)" \
