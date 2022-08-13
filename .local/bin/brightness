@@ -4,13 +4,13 @@
 # to be able to use this script, add a udev rule by adding the /etc/udev/rules.d/backlight.rules file:
 # ACTION=="add", SUBSYSTEM=="backlight", KERNEL=="<vendor>", RUN+="/bin/chgrp <group> /sys/class/backlight/%k/brightness"
 # ACTION=="add", SUBSYSTEM=="backlight", KERNEL=="<vendor>", RUN+="/bin/chmod g+w /sys/class/backlight/%k/brightness"
-# <vendor> should be something like intel_backlight and <group> could be your user id
+# <vendor> should be something like intel_backlight (check `ls /sys/class/backlight`) and <group> could be one of your groups
 
 # base dir for backlight class
 basedir="/sys/class/backlight"
 
 # get the backlight handler
-handler="$basedir/$(ls $basedir)/"
+handler="$basedir/$(ls $basedir)"
 
 # get current brightness
 old_brightness="$(cat "$handler/brightness")"
