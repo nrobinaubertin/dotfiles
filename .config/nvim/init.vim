@@ -122,66 +122,23 @@ vim.api.nvim_set_keymap("n", "<A-h>", [[:tabprevious<CR>]], keymap_opts)
 vim.api.nvim_set_keymap("i", "<A-h>", [[<Esc>:tabprevious<CR>]], keymap_opts)
 vim.api.nvim_set_keymap("t", "<A-h>", [[<C-\><C-n>:tabprevious<CR>]], keymap_opts)
 
-vim.api.nvim_set_keymap("n", "<A-^>", [[:1tabnext<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("i", "<A-^>", [[<Esc>:1tabnext<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("t", "<A-^>", [[<C-\><C-n>:1tabnext<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("n", "<A-$>", [[:$tabnext<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("i", "<A-$>", [[<Esc>:$tabnext<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("t", "<A-$>", [[<C-\><C-n>:$tabnext<CR>]], keymap_opts)
-
--- Windows commands
-vim.api.nvim_set_keymap("n", "<C-l>", [[:wincmd l<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("i", "<C-l>", [[<Esc>:wincmd l<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("t", "<C-l>", [[<C-\><c-n>:wincmd l<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("n", "<C-k>", [[:wincmd k<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("i", "<C-k>", [[<Esc>:wincmd k<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("t", "<C-k>", [[<C-\><c-n>:wincmd k<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("n", "<C-j>", [[:wincmd j<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("i", "<C-j>", [[<Esc>:wincmd j<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("t", "<C-j>", [[<C-\><c-n>:wincmd j<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("n", "<C-h>", [[:wincmd h<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("i", "<C-h>", [[<Esc>:wincmd h<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("t", "<C-h>", [[<C-\><c-n>:wincmd h<CR>]], keymap_opts)
-
--- Space bar un-highlights search
--- vim.api.nvim_set_keymap("n", "<Space><Space>", ":silent noh<Bar>echo<CR>", keymap_opts)
-
 EOF
-
-" Netrw config, based on tpope/vinegar
-let g:netrw_banner = 0
-let g:netrw_browsex_viewer= "firefox"
-nmap - :call Opendir('edit')<CR>
-function! Opendir(cmd) abort
-  if expand('%') =~# '^$\|^term:[\/][\/]'
-    execute a:cmd '.'
-  else
-    execute a:cmd '%:h'
-    let pattern = '^\%(| \)*'.escape(expand('#:t'), '.*[]~\').'[/*|@=]\=\%($\|\t\)'
-    call search(pattern, 'wc')
-  endif
-endfunction
 
 " Use 'correct' php indentation for switch blocks
 let g:PHP_vintage_case_default_indent = 1
 
 " Vim-plug
 call plug#begin(resolve(expand(stdpath('config') . '/plugged')))
-"Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-"Plug 'junegunn/fzf.vim'
-"Plug 'mhinz/vim-signify' " git
 Plug 'tpope/vim-fugitive' " git
-"Plug 'justinmk/vim-dirvish'
+Plug 'justinmk/vim-dirvish'
 Plug 'w0rp/ale'
 Plug 'nvim-treesitter/nvim-treesitter' " syntax highlighting
-Plug 'rktjmp/lush.nvim' " gruvbox
-Plug 'npxbr/gruvbox.nvim' " colorscheme
+Plug 'sainnhe/gruvbox-material'  " colorscheme
 Plug 'nvim-lua/popup.nvim' " telescope
 Plug 'nvim-lua/plenary.nvim' " telescope, gitsigns
 Plug 'nvim-telescope/telescope.nvim' " fuzzy finder
 Plug 'neovim/nvim-lspconfig' " lsp
 Plug 'lewis6991/gitsigns.nvim' " git
-"Plug 'dpelle/vim-Grammalecte'
 call plug#end()
 
 lua <<EOF
@@ -193,6 +150,7 @@ require("lspconfig").tsserver.setup{}
 require("lspconfig").cssls.setup{}
 require("lspconfig").html.setup{}
 require("lspconfig").clangd.setup{}
+
 -- Enable the following language servers
 -- local servers = { 'clangd', 'rust_analyzer', 'pyright', 'tsserver' }
 -- local servers = { 'pyright' }
@@ -251,18 +209,19 @@ vim.lsp.handlers['textDocument/publishDiagnostics'] = vim.lsp.with(vim.lsp.diagn
 -- Colorscheme
 vim.o.termguicolors = true -- doesn't work without it
 vim.o.background = "dark" -- or "light" for light mode
-vim.g.gruvbox_italic = false
-vim.g.gruvbox_italicize_comments = false
-vim.cmd([[colorscheme gruvbox]])
+vim.g.gruvbox_material_enable_italic = 0
+vim.g.gruvbox_material_enable_bold = 1
+vim.g.gruvbox_material_disable_italic_comment = 1
+vim.g.gruvbox_material_better_performance = 1
+vim.g.gruvbox_material_background = "hard"
+vim.g.gruvbox_material_foreground = "original"
+vim.cmd([[colorscheme gruvbox-material]])
 
 -- Treesitter highlighting
 require("nvim-treesitter.configs").setup {
   ensure_installed = { "javascript", "python", "cpp", "yaml", "json", "hcl" },
   highlight = { enable = true },
 }
-
--- Vim-signify
--- vim.g.signify_sign_change = '~'
 
 -- Telescope
 -- https://news.ycombinator.com/item?id=27164343
@@ -299,6 +258,9 @@ vim.api.nvim_set_keymap("n", "gd", [[:lua require('telescope.builtin').lsp_defin
 vim.api.nvim_set_keymap("n", "gr", [[:Git log --graph --abbrev-commit --decorate --format=format:"%h - (%ar) %s - %an%d" --all<CR>]], keymap_opts)
 -- vim.api.nvim_set_keymap("n", "gd", ":Git diff<CR>", keymap_opts)
 -- vim.api.nvim_set_keymap("n", "gdd", ":Git diff --staged<CR>", keymap_opts) -- TODO: blocks 'gd' a bit
+
+-- gitsigns
+require('gitsigns').setup()
 EOF
 
 " Open todo file
