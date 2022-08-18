@@ -37,3 +37,6 @@
     defaultBranch = master
 [advice]
   addIgnoredFile = false
+[user]
+	email = git@niels.fr
+	name = Niels Robin-Aubertin
