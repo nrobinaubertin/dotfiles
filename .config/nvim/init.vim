@@ -20,7 +20,7 @@ vim.o.mat = 2
 vim.o.mouse = ""
 vim.o.nu = true
 vim.o.showtabline = 2
-vim.o.laststatus = 2
+vim.o.laststatus = 3
 vim.o.inccommand = "split"
 vim.o.undofile = true -- undo-persistence
 vim.o.modeline = false -- can be a security issue
@@ -129,16 +129,16 @@ let g:PHP_vintage_case_default_indent = 1
 
 " Vim-plug
 call plug#begin(resolve(expand(stdpath('config') . '/plugged')))
-Plug 'tpope/vim-fugitive' " git
+Plug 'jose-elias-alvarez/null-ls.nvim'
 Plug 'justinmk/vim-dirvish'
-Plug 'w0rp/ale'
+Plug 'lewis6991/gitsigns.nvim' " git
+Plug 'neovim/nvim-lspconfig' " lsp
+Plug 'nvim-lua/plenary.nvim' " telescope, gitsigns, null-ls
+Plug 'nvim-lua/popup.nvim' " telescope
+Plug 'nvim-telescope/telescope.nvim' " fuzzy finder
 Plug 'nvim-treesitter/nvim-treesitter' " syntax highlighting
 Plug 'sainnhe/gruvbox-material'  " colorscheme
-Plug 'nvim-lua/popup.nvim' " telescope
-Plug 'nvim-lua/plenary.nvim' " telescope, gitsigns
-Plug 'nvim-telescope/telescope.nvim' " fuzzy finder
-Plug 'neovim/nvim-lspconfig' " lsp
-Plug 'lewis6991/gitsigns.nvim' " git
+Plug 'tpope/vim-fugitive' " git
 call plug#end()
 
 lua <<EOF
@@ -151,60 +151,20 @@ require("lspconfig").cssls.setup{}
 require("lspconfig").html.setup{}
 require("lspconfig").clangd.setup{}
 
--- Enable the following language servers
--- local servers = { 'clangd', 'rust_analyzer', 'pyright', 'tsserver' }
--- local servers = { 'pyright' }
--- local capabilities = vim.lsp.protocol.make_client_capabilities()
--- capabilities.textDocument.completion.completionItem.snippetSupport = true
--- for _, lsp in ipairs(servers) do
---   require('lspconfig')[lsp].setup {
---     on_attach = on_attach,
---     capabilities = capabilities,
---   }
--- end
-
--- https://github.com/nathanmsmith/nvim-ale-diagnostic/blob/main/lua/nvim-ale-diagnostic.lua
-local ale_diagnostic_severity_map = {
-  [vim.lsp.protocol.DiagnosticSeverity.Error] = "E";
-  [vim.lsp.protocol.DiagnosticSeverity.Warning] = "W";
-  [vim.lsp.protocol.DiagnosticSeverity.Information] = "I";
-  [vim.lsp.protocol.DiagnosticSeverity.Hint] = "I";
+local null_ls = require("null-ls")
+local sources = {
+    require("null-ls").builtins.code_actions.gitsigns,
+    require("null-ls").builtins.diagnostics.shellcheck,
+    require("null-ls").builtins.diagnostics.ansiblelint,
+    require("null-ls").builtins.diagnostics.cppcheck,
+    require("null-ls").builtins.diagnostics.eslint,
+    require("null-ls").builtins.diagnostics.luacheck,
+    require("null-ls").builtins.diagnostics.markdownlint,
+    require("null-ls").builtins.diagnostics.mypy,
+    require("null-ls").builtins.diagnostics.php,
+    require("null-ls").builtins.diagnostics.phpcs,
 }
-
-vim.lsp.diagnostic.original_clear = vim.lsp.diagnostic.clear
-vim.lsp.diagnostic.clear = function(bufnr, client_id, diagnostic_ns, sign_ns)
-  vim.lsp.diagnostic.original_clear(bufnr, client_id, diagnostic_ns, sign_ns)
-  -- Clear ALE
-  vim.api.nvim_call_function('ale#other_source#ShowResults', {bufnr, "nvim-lsp", {}})
-end
-
-vim.lsp.diagnostic.set_signs = function(diagnostics, bufnr, _, _, _)
-  if not diagnostics then
-    return
-  end
-
-  local items = {}
-  for _, item in ipairs(diagnostics) do
-    table.insert(items, {
-      nr = item.code,
-      text = item.message,
-      lnum = item.range.start.line+1,
-      end_lnum = item.range['end'].line,
-      col = item.range.start.character+1,
-      end_col = item.range['end'].character,
-      type = ale_diagnostic_severity_map[item.severity]
-    })
-  end
-
-  vim.api.nvim_call_function('ale#other_source#ShowResults', {bufnr, "nvim-lsp", items})
-end
-
-vim.lsp.handlers['textDocument/publishDiagnostics'] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
-  virtual_text = false,
-  signs = true,
-  underline = false,
-  update_in_insert = false,
-})
+require("null-ls").setup({ sources = sources })
 
 -- Colorscheme
 vim.o.termguicolors = true -- doesn't work without it
@@ -219,8 +179,26 @@ vim.cmd([[colorscheme gruvbox-material]])
 
 -- Treesitter highlighting
 require("nvim-treesitter.configs").setup {
-  ensure_installed = { "javascript", "python", "cpp", "yaml", "json", "hcl" },
-  highlight = { enable = true },
+  ensure_installed = {
+    "bash",
+    "c",
+    "cpp",
+    "css",
+    "dockerfile",
+    "hcl",
+    "html",
+    "javascript",
+    "json",
+    "lua",
+    "make",
+    "php",
+    "python",
+    "rust",
+    "scss",
+    "toml",
+    "vim",
+    "yaml"
+  }, highlight = { enable = true },
 }
 
 -- Telescope
@@ -275,28 +253,3 @@ command! Rand execute ":read! tr -dc a-zA-Z0-9 < /dev/urandom | tr -d iIlLoO0 | 
 
 " cd to current open file
 command! Relocate execute ":cd %:h"
-
-" w0rp/Ale
-let g:ale_linters = {
-    \ 'python': ['pylint', 'flake8', 'autopep8'],
-    \ 'cpp': ['clang', 'clangtidy'],
-\}
-let g:conan_includes = system('find ~/.conan/data -maxdepth 7 -type d -name "include" | awk "{print "\""-I"\""\$0}" | tr "\n" " "')
-let g:cpp_compiler_options = '-std=c++20 -Wall -Wextra -Wpedantic ' . g:conan_includes
-let g:ale_cpp_cc_options = g:cpp_compiler_options
-let g:ale_cpp_clangtidy_options = g:cpp_compiler_options
-let g:ale_cpp_clangtidy_checks = [
-  \'boost-*',
-  \'bugprone-*',
-  \'clang-analyzer-*',
-  \'cppcoreguidelines-*',
-  \'misc-*',
-  \'modernize-*',
-  \'performance-*',
-  \'portability-*',
-  \'readability-*'
-\]
-let g:ale_fixers = {'*': ['remove_trailing_lines', 'trim_whitespace']}
-let g:ale_lint_on_text_changed = 'never'
-let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
-let g:ale_python_flake8_options = '--max-line-length=120'

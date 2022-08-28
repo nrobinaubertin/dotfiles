@@ -38,5 +38,5 @@
 [advice]
   addIgnoredFile = false
 [user]
-	email = git@niels.fr
-	name = Niels Robin-Aubertin
+  email = git@niels.fr
+  name = Niels Robin-Aubertin
