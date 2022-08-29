@@ -2,6 +2,10 @@
 
 # status line for sway
 
+if [ -e ~/.config/pathrc ]; then
+  . ~/.config/pathrc
+fi
+
 if command -v get >/dev/null; then
   battery="$(get power | head -c -1)"
   if [ "$battery" -lt 25 ]; then
