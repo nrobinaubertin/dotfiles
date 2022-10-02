@@ -44,7 +44,8 @@ umask 077
 command -v nvim >/dev/null && export EDITOR="$(command -v nvim)"
 
 # open man in neovim
-command -v nvim >/dev/null && export MANPAGER="nvim -Rc 'set ft=man' -"
+# doesn't work properly
+# command -v nvim >/dev/null && export MANPAGER="nvim -Rc 'set ft=man' -"
 
 # let [Shift]+[Tab] cycle through all completions:
 bind '"\033[Z": menu-complete'
