@@ -13,6 +13,12 @@ vim.o.expandtab = true
 vim.o.shiftwidth = 2
 vim.o.softtabstop = -1
 
+-- set tabstop to 4 in php files
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = { "php" },
+    command = "setlocal ts=4 sts=4 sw=4",
+})
+
 vim.o.clipboard = "unnamedplus" -- Use the clipboard for all operations
 vim.o.fillchars = "vert: ,stl: ,stlnc: "
 vim.o.showmatch = true
@@ -69,7 +75,9 @@ function! Retab()
   retab!
 endfunction
 
+
 lua <<EOF
+
 function Upgrade()
   local get_separator = function()
     if jit.os == "Windows" then
