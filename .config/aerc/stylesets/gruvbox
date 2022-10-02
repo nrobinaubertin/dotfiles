@@ -1,0 +1,50 @@
+# 
+# aerc default styleset
+# 
+# This styleset uses the terminal defaults as its base.
+# More information on how to configure the styleset can be found in
+# the aerc-styleset(7) manpage. Please read the manual before
+# modifying or creating a styleset.
+
+*.default=true
+*.selected.bg="#ebdbb2"
+*.selected.fg="#282828"
+*.selected.bold=true
+
+title.bold=true
+title.bg="#ebdbb2"
+title.fg="#282828"
+header.bold=true
+
+*error.bold=true
+error.fg="#cc241d"
+warning.fg="#d79921"
+success.fg="#98971a"
+
+border.bg="#928374"
+stack.bg="#928374"
+spinner.fg="#ebdbb2"
+
+statusline_default.bg="#928374"
+statusline_error.fg="#cc241d"
+statusline_error.reverse=true
+
+msglist_unread.bold=true
+msglist_unread.fg="#8ec07c"
+msglist_unread.selected.bg="#8ec07c"
+msglist_unread.selected.fg="#282828"
+msglist_marked.fg="#d79921"
+msglist_marked.selected.fg="#282828"
+msglist_marked.selected.bg="#d79921"
+msglist_deleted.fg="#928374"
+
+dirlist_default.selected.bg="#282828"
+dirlist_default.selected.fg="#ebdbb2"
+
+completion_pill.reverse=true
+
+tab.bg="#928374"
+tab.selected.bg="#ebdbb2"
+
+selector_focused.reverse=true
+selector_chooser.bold=true
