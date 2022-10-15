@@ -120,14 +120,14 @@ get_heat() {
 
 get_ip() {
   if [ -n "$(command -v dig 2>/dev/null)" ]; then
-    ip="$(dig +short -4 myip.opendns.com @resolver1.opendns.com 2>/dev/null)"
+    ip="$(dig +time=1 +tries=1 +short=-4 myip.opendns.com @resolver1.opendns.com 2>/dev/null)"
     #ipv6="$(dig +short -6 @resolver1.opendns.com myip.opendns.com AAAA 2>/dev/null)"
     #reverse="$(dig +short -4 -x ${ip})"
   fi
   if command -v curl >/dev/null && [ -z "$ip" ]; then
-    [ -z "$ip" ] && ip="$(curl -s "https://niels.fr/ip" 2>/dev/null)"
-    [ -z "$ip" ] && ip="$(curl -s "http://whatismyip.akamai.com" 2>/dev/null)"
-    [ -z "$ip" ] && ip="$(curl -s "https://ipinfo.io/ip" 2>/dev/null)"
+    [ -z "$ip" ] && ip="$(curl -sm1 "https://niels.fr/ip" 2>/dev/null)"
+    [ -z "$ip" ] && ip="$(curl -sm1 "http://whatismyip.akamai.com" 2>/dev/null)"
+    [ -z "$ip" ] && ip="$(curl -sm1 "https://ipinfo.io/ip" 2>/dev/null)"
   fi
   if [ -n "$ip" ] && echo $ip | grep -E "^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$" > /dev/null; then
     printf "%s" "$ip"
