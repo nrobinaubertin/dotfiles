@@ -111,10 +111,12 @@ get_latency() {
 }
 
 get_heat() {
-  heat="$(awk '{ print $1/1000 }' /sys/class/thermal/thermal_zone0/temp)"
-  # heats="$(cat -n /sys/class/hwmon/hwmon*/temp*_input 2>/dev/null)"
-  if [ -n "$heat" ]; then
-    printf "%s" "${heat}°C"
+  if [ -f /sys/class/thermal/thermal_zone0/temp ]; then
+    heat="$(awk '{ print $1/1000 }' /sys/class/thermal/thermal_zone0/temp)"
+    # heats="$(cat -n /sys/class/hwmon/hwmon*/temp*_input 2>/dev/null)"
+    if [ -n "$heat" ]; then
+      printf "%s" "${heat}°C"
+    fi
   fi
 }
 
