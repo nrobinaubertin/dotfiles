@@ -1,0 +1,19 @@
+theme = "gruvbox"
+
+[editor]
+auto-pairs = false
+
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+
+[editor.file-picker]
+hidden = false
+
+[editor.whitespace.render]
+space = "all"
+tab = "all"
+newline = "none"
+
+[editor.indent-guides]
+render = true
