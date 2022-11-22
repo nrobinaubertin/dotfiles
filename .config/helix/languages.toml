@@ -1,0 +1,3 @@
+[[language]]
+name = "python"
+indent = { tab-width = 2, unit = "  " }
