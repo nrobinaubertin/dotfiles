@@ -11,36 +11,23 @@ read_target() {
   else
     if echo "$1" | grep "^http" >/dev/null; then
       to_play="$1"
-    else
-      if command -v beets >/dev/null; then
-        to_play="$(beet ls -ap "~$1")"
-      fi
     fi
   fi
   echo "$to_play"
 }
 
-# prepare options
+tracks=""
 options=""
-for var in $@; do
-  case "$var" in
+for term in "$@"; do
+  case "$term" in
     "--loop") options="$options --loop-playlist";;
-    *);;
+    *)
+      if [ "$tracks" = "" ]; then
+        tracks="$(read_target "$term")"
+      else
+          tracks="$tracks\n$(read_target "$term")"
+      fi;;
   esac
 done
 
-(
-  # trick from https://stackoverflow.com/a/2456870
-  # only read stdin if file descriptor 0 is open and refers to a terminal
-  if ! [ -t 0 ]; then
-    while IFS= read -r var; do
-      read_target "$var"
-    done
-  fi
-
-  # also read arguments to detect songs from there
-  IFS=$'\n'
-  for var in $@; do
-    read_target "$var"
-  done
-) | mpv --no-video --playlist=- $options
+echo "$tracks" | mpv --no-video --playlist=- "$options"
