@@ -61,12 +61,6 @@ set statusline+=%=                  " switch to right side
 set statusline+=%y\                 " file type
 set statusline+=[%l,%c]\ %p%%\      " line, column and percentage
 
-lua <<EOF
--- make Y consistent with C and D.
--- local keymap_opts = { noremap = true, silent = true }
--- vim.api.nvim_set_keymap('n', 'Y', 'y$', keymap_opts)
-EOF
-
 " Retab the file (fix tab spaced files)
 function! Retab()
   set noexpandtab
@@ -74,7 +68,6 @@ function! Retab()
   set expandtab
   retab!
 endfunction
-
 
 lua <<EOF
 
