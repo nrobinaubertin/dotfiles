@@ -2,7 +2,7 @@
 
 " - No support for vim, only neovim in mind
 " - Keep it minimal: we need a good reason to change default behavior
-" - Multiplatform: should work on POSIX systems and Windows (minimal requirements)
+" - Multiplatform: should work on POSIX systems
 " - Lua: vimscript is only nice for vim compatibility (transition to lua is
 "   not complete)
 
