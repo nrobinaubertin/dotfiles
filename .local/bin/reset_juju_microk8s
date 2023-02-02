@@ -1,0 +1,69 @@
+#!/bin/sh
+
+# This script reinstalls juju & microk8s from scratch
+# It tries to do it as fast as possible
+
+set -xe
+
+USERNAME="$(logname)"
+
+check_enabled() {
+  for addon in $@; do
+    while [ "$(microk8s status -a "$addon")" != "enabled" ]; do
+      sleep 1
+    done
+  done
+}
+
+wait_for_install() {
+  while ! snap list | grep "^$1 " 2>/dev/null; do
+    sleep 1
+  done
+}
+
+wait_for_uninstall() {
+  while snap list | grep "^$1 " 2>/dev/null; do
+    sleep 1
+  done
+}
+
+# remove both snaps
+juju unregister -y microk8s-localhost || true
+sudo snap remove --purge juju --no-wait
+rm -rf ~/.local/share/juju
+sudo snap remove --purge microk8s
+
+wait_for_uninstall juju
+wait_for_uninstall microk8s
+
+# reinstall snaps
+sudo snap install juju --classic --no-wait
+sudo snap install microk8s --classic
+
+wait_for_install microk8s
+
+# allow kubectl alias for microk8s
+mkdir -p "/home/$USERNAME/.kube"
+sudo usermod -a -G microk8s "$USERNAME"
+chown -f -R "$USERNAME" "/home/$USERNAME/.kube"
+sudo snap alias microk8s.kubectl kubectl
+
+# enable necessary microk8s addons for juju
+microk8s.enable dns hostpath-storage
+
+# enable some more addons
+microk8s.enable ingress registry &
+
+wait_for_install juju
+
+juju update-public-clouds --client &
+
+wait_for_install juju
+
+# bootstrap microk8s substrate
+juju update-k8s --client microk8s
+juju bootstrap --no-gui --verbose --show-log microk8s
+juju add-model dev
+juju model-config logging-config="<root>=WARNING;unit=DEBUG;#http=TRACE"
+
+check_enabled ingress dns hostpath-storage registry
