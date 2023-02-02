@@ -55,9 +55,9 @@ bind '"\033[Z": menu-complete'
 ##############
 
 unset HISTFILESIZE
-export HISTSIZE="10000"
+export HISTSIZE="20000"
 export HISTCONTROL=ignoreboth:erasedups
-export HISTIGNORE="fg:bg:&:[ ]*:exit:ls:clear:ll:cd:\\[A*:nvim:gs:gd:gf:gr:gl"
+export HISTIGNORE="fg:bg:&:[ ]*:exit:ls:clear:ll:cd:\\[A*:nvim:gs:gd:gf:gr:gl:aerc:tmux:python3"
 # Append to the history file, don't overwrite it
 shopt -s histappend
 # Save multi-line commands as one command
