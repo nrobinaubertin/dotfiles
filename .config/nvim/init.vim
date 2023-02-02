@@ -6,6 +6,10 @@
 " - Lua: vimscript is only nice for vim compatibility (transition to lua is
 "   not complete)
 
+" map ,e :e <C-R>=expand("%:p:h") . "/" <CR>
+" map ,t :tabe <C-R>=expand("%:p:h") . "/" <CR>
+" map ,s :split <C-R>=expand("%:p:h") . "/" <CR>
+
 lua <<EOF
 -- Don't mess with 'tabstop', with 'expandtab' it isn't used.
 -- Instead set softtabstop=-1, then 'shiftwidth' is used.
@@ -99,32 +103,6 @@ autocmd TermOpen * startinsert
 autocmd TermEnter * let b:insertMode = "yes"
 autocmd BufEnter * if &buftype == 'terminal' && b:insertMode != "no" | startinsert | endif
 
-lua <<EOF
-local keymap_opts = { noremap = true, silent = true }
-
--- Terminal commands
-vim.api.nvim_set_keymap("t", "<A-q>", [[<C-\><C-n>:let b:insertMode = 'no'<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("t", "<A-t>", [[<C-\><C-n>:tabe<CR>:term<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("n", "<A-t>", [[<C-\><C-n>:tabe<CR>:term<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("t", "<A-c>", [[<C-\><C-n>:tabe<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("n", "<A-c>", [[<C-\><C-n>:tabe<CR>]], keymap_opts)
-
--- Tabs commands
-vim.api.nvim_set_keymap("n", "<A-l>", [[:tabnext<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("i", "<A-l>", [[<Esc>:tabnext<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("t", "<A-l>", [[<C-\><C-n>:tabnext<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("n", "<A-k>", [[:tabmove +1<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("i", "<A-k>", [[<Esc>:tabmove +1<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("t", "<A-k>", [[<C-\><C-n>:tabmove +1 <BAR> startinsert<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("n", "<A-j>", [[:tabmove -1<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("i", "<A-j>", [[<Esc>:tabmove -1<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("t", "<A-j>", [[<C-\><C-n>:tabmove -1 <BAR> startinsert<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("n", "<A-h>", [[:tabprevious<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("i", "<A-h>", [[<Esc>:tabprevious<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("t", "<A-h>", [[<C-\><C-n>:tabprevious<CR>]], keymap_opts)
-
-EOF
-
 " Use 'correct' php indentation for switch blocks
 let g:PHP_vintage_case_default_indent = 1
 
@@ -143,27 +121,64 @@ Plug 'tpope/vim-fugitive' " git
 call plug#end()
 
 lua <<EOF
+
+vim.keymap.set('n', '<space>e', vim.diagnostic.open_float, opts)
+-- vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, opts)
+-- vim.keymap.set('n', ']d', vim.diagnostic.goto_next, opts)
+-- vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist, opts)
+-- vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+-- vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+
+vim.diagnostic.config({
+    underline = true,
+    signs = true,
+    virtual_text = true,
+    float = {
+        show_header = true,
+        source = 'always', -- could be 'if_many'
+        border = 'rounded',
+        focusable = false,
+    },
+    update_in_insert = false, -- default to false
+    severity_sort = false, -- default to false
+})
+
 -- LSP
-require("lspconfig").cmake.setup{}
-require("lspconfig").pylsp.setup{}
-require("lspconfig").pyright.setup{}
-require("lspconfig").tsserver.setup{}
-require("lspconfig").cssls.setup{}
-require("lspconfig").html.setup{}
-require("lspconfig").clangd.setup{}
+require("lspconfig").pylsp.setup{
+  settings = {
+    pylsp = {
+      plugins = {
+        flake8 = {
+          enabled = true,
+          executable = "pflake8"
+        },
+        autopep8 = { enabled = false },
+        jedi_completion = { enabled = false },
+        jedi_definition = { enabled = true },
+        jedi = { enabled = false },
+        jedi_hover = { enabled = false },
+        jedi_reference = { enabled = true },
+        jedi_signature_help = { enabled = false },
+        jedi_symbols = { enabled = false },
+        mccabe = { enabled = false },
+        preload = { enabled = false },
+        pycodestyle = { enabled = false },
+        pydocstyle = { enabled = false },
+        pyflakes = { enabled = false },
+        pylint = { enabled = false },
+        rope_autoimport = { enabled = false },
+        yapf = { enabled = false },
+      },
+    }
+  }
+}
 
 local null_ls = require("null-ls")
 local sources = {
     require("null-ls").builtins.code_actions.gitsigns,
     require("null-ls").builtins.diagnostics.shellcheck,
-    require("null-ls").builtins.diagnostics.ansiblelint,
-    require("null-ls").builtins.diagnostics.cppcheck,
-    require("null-ls").builtins.diagnostics.eslint,
-    require("null-ls").builtins.diagnostics.luacheck,
-    require("null-ls").builtins.diagnostics.markdownlint,
     require("null-ls").builtins.diagnostics.mypy,
-    require("null-ls").builtins.diagnostics.php,
-    require("null-ls").builtins.diagnostics.phpcs,
 }
 require("null-ls").setup({ sources = sources })
 
@@ -218,12 +233,6 @@ require('telescope').setup{
   },
 }
 
-vim.api.nvim_set_keymap("n", "<A-s>", [[:lua require('telescope.builtin').current_buffer_fuzzy_find()<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("t", "<A-s>", [[<C-\><C-n>:lua require('telescope.builtin').current_buffer_fuzzy_find()<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("n", "<A-e>", [[:lua require('telescope.builtin').file_browser()<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("t", "<A-e>", [[<C-\><C-n>:lua require('telescope.builtin').file_browser()<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("n", "<A-f>", [[:lua require('telescope.builtin').git_files()<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("t", "<A-f>", [[<C-\><C-n>:lua require('telescope.builtin').git_files()<CR>]], keymap_opts)
 vim.api.nvim_set_keymap("n", "<A-b>", [[:lua require('telescope.builtin').buffers()<CR>]], keymap_opts)
 vim.api.nvim_set_keymap("t", "<A-b>", [[<C-\><C-n>:lua require('telescope.builtin').buffers()<CR>]], keymap_opts)
 vim.api.nvim_set_keymap("n", "<A-g>", [[:lua require('telescope.builtin').live_grep()<CR>]], keymap_opts)
@@ -231,12 +240,7 @@ vim.api.nvim_set_keymap("t", "<A-g>", [[<C-\><C-n>:lua require('telescope.builti
 vim.api.nvim_set_keymap("n", "<A-m>", [[:lua require('telescope.builtin').man_pages()<CR>]], keymap_opts)
 vim.api.nvim_set_keymap("t", "<A-m>", [[<C-\><C-n>:lua require('telescope.builtin').man_pages()<CR>]], keymap_opts)
 vim.api.nvim_set_keymap("n", "gd", [[:lua require('telescope.builtin').lsp_definitions()<CR>]], keymap_opts)
-
--- Git commands
--- vim.api.nvim_set_keymap("n", "gs", [[:Git status -sb<CR>]], keymap_opts)
-vim.api.nvim_set_keymap("n", "gr", [[:Git log --graph --abbrev-commit --decorate --format=format:"%h - (%ar) %s - %an%d" --all<CR>]], keymap_opts)
--- vim.api.nvim_set_keymap("n", "gd", ":Git diff<CR>", keymap_opts)
--- vim.api.nvim_set_keymap("n", "gdd", ":Git diff --staged<CR>", keymap_opts) -- TODO: blocks 'gd' a bit
+vim.api.nvim_set_keymap('n', "gr", [[:lua require('telescope.builtin').lsp_references()<CR>]], keymap_opts)
 
 -- gitsigns
 require('gitsigns').setup()
