@@ -40,3 +40,8 @@
 [user]
   email = git@niels.fr
   name = Niels Robin-Aubertin
+	signingkey = /home/niels/data/secrets/ssh/niels
+[commit]
+	gpgsign = true
+[gpg]
+	format = ssh
