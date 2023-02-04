@@ -151,14 +151,16 @@ require("lspconfig").pylsp.setup{
       plugins = {
         flake8 = {
           enabled = true,
-          executable = "pflake8"
+          -- pflake8 is used to read pyproject.toml
+          executable = "pflake8",
         },
+        jedi_definition = { enabled = true },
+        jedi_reference = { enabled = true },
+        -- disabled plugins
         autopep8 = { enabled = false },
         jedi_completion = { enabled = false },
-        jedi_definition = { enabled = true },
         jedi = { enabled = false },
         jedi_hover = { enabled = false },
-        jedi_reference = { enabled = true },
         jedi_signature_help = { enabled = false },
         jedi_symbols = { enabled = false },
         mccabe = { enabled = false },
@@ -178,7 +180,7 @@ local null_ls = require("null-ls")
 local sources = {
     require("null-ls").builtins.code_actions.gitsigns,
     require("null-ls").builtins.diagnostics.shellcheck,
-    require("null-ls").builtins.diagnostics.mypy,
+    -- require("null-ls").builtins.diagnostics.mypy,
 }
 require("null-ls").setup({ sources = sources })
 
