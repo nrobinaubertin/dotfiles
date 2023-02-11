@@ -1,10 +1,22 @@
 #!/bin/sh
 
 # control screen brightness directly with the backlight files
+
+
 # to be able to use this script, add a udev rule by adding the /etc/udev/rules.d/backlight.rules file:
 # ACTION=="add", SUBSYSTEM=="backlight", KERNEL=="<vendor>", RUN+="/bin/chgrp <group> /sys/class/backlight/%k/brightness"
 # ACTION=="add", SUBSYSTEM=="backlight", KERNEL=="<vendor>", RUN+="/bin/chmod g+w /sys/class/backlight/%k/brightness"
 # <vendor> should be something like intel_backlight (check `ls /sys/class/backlight`) and <group> could be one of your groups
+# This can be done automatically by the --install command. Reboot afterwards
+if [ "$1" = "--install" ]; then
+  basedir="/sys/class/backlight"
+  printf \
+    'ACTION=="add", SUBSYSTEM=="backlight", KERNEL=="%s", RUN+="/bin/chgrp %s /sys/class/backlight/%%k/brightness"' \
+    "$(ls $basedir)" "$(id -gn)" | sudo tee -a /etc/udev/rules.d/backlight.rules
+  printf \
+    'ACTION=="add", SUBSYSTEM=="backlight", KERNEL=="%s", RUN+="/bin/chmod g+w /sys/class/backlight/%%k/brightness"' \
+    "$(ls $basedir)" | sudo tee -a /etc/udev/rules.d/backlight.rules
+fi
 
 # base dir for backlight class
 basedir="/sys/class/backlight"
@@ -22,14 +34,14 @@ max_brightness="$(cat "$handler/max_brightness")"
 old_brightness_p="$(( 100 * old_brightness / max_brightness ))"
 
 if [ -z "$1" ]; then
-    echo $old_brightness_p
+    printf "%s\n" "$old_brightness_p"
 fi
 
 # calculate new brightness %
-new_brightness_p="$(( old_brightness_p $1 ))"
+new_brightness_p="$((old_brightness_p $1))"
 
 # calculate new brightness value
-new_brightness="$(( max_brightness * new_brightness_p / 100 ))"
+new_brightness="$((max_brightness * new_brightness_p / 100))"
 
 # avoid overflowing
 if [ "$new_brightness" -gt "$max_brightness" ]; then
@@ -44,4 +56,4 @@ if [ "$new_brightness" -lt 0 ]; then
 fi
 
 # set the new brightness value
-echo $new_brightness > "$handler/brightness"
+printf "%s" "$new_brightness" > "$handler/brightness"
