@@ -15,10 +15,9 @@ if command -v get >/dev/null; then
   else
     color="#ebdbb2"
   fi
-  printf "%s - %s | %s - %s - %s - %s | <span color='%s'>%s - %s</span> | %s - %s" \
-    "$(get ip)" "$(get latency)" \
-    "$(get cpu)" "$(get ram)" "$(get heat)"\
-    "$(get uptime)" \
+  printf "%s | %s - %s | <span color='%s'>%s - %s</span> | %s - %s |" \
+    "$(volume)" \
+    "$(get cpu)" "$(get ram)" \
     "$color" "$(get power)" "$(get battery)" \
     "$(get date)" "$(get time)"
 else
