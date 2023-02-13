@@ -4,8 +4,6 @@
 
 usage() {
   echo "$0:"
-  echo "  battery"
-  echo "  brightness"
   echo "  cpu"
   echo "  date"
   echo "  heat"
@@ -15,11 +13,9 @@ usage() {
   echo "  ram"
   echo "  resolution"
   echo "  status"
-  echo "  sway-status"
   echo "  temp"
   echo "  time"
   echo "  uptime"
-  echo "  volume"
 }
 
 get_resolution() {
@@ -27,22 +23,6 @@ get_resolution() {
     resolution="$(xrandr | head -n1 | cut -d',' -f2 | awk '{print $2$3$4}')"
     if [ -n "$resolution" ]; then
       printf "%s" "${resolution}"
-    fi
-  fi
-}
-
-get_brightness() {
-  handler="/sys/class/backlight/$(ls /sys/class/backlight)/"
-  brightness="$(cat "$handler/brightness")"
-  max_brightness="$(cat "$handler/max_brightness")"
-  printf "%s%%" "$(( 100 * brightness / max_brightness ))"
-}
-
-get_volume() {
-  if command -v amixer >/dev/null; then
-    vol="$(amixer get Master,0 | grep -Po "\d+%" | head -n1)"
-    if [ -n "$vol" ]; then
-      printf "%s" "${vol}"
     fi
   fi
 }
@@ -131,20 +111,22 @@ get_ip() {
     [ -z "$ip" ] && ip="$(curl -sm1 "http://whatismyip.akamai.com" 2>/dev/null)"
     [ -z "$ip" ] && ip="$(curl -sm1 "https://ipinfo.io/ip" 2>/dev/null)"
   fi
-  if [ -n "$ip" ] && echo $ip | grep -E "^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$" > /dev/null; then
+  if [ -n "$ip" ] && echo "$ip" | grep -E "^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$" > /dev/null; then
     printf "%s" "$ip"
   fi
 }
 
 get_ram() {
-  mem_total=$(grep -E "^MemTotal:" < /proc/meminfo | awk '{print $2}')
-  swap_total=$(grep -E "^SwapTotal:" < /proc/meminfo | awk '{print $2}')
-  mem_free=$(grep -E "^MemFree:" < /proc/meminfo | awk '{print $2}')
-  swap_free=$(grep -E "^SwapFree:" < /proc/meminfo | awk '{print $2}')
+  # outputs used memory (not accounting for swap)
   mem_buffers=$(grep -E "^Buffers:" < /proc/meminfo | awk '{print $2}')
   mem_cached=$(grep -E "^Cached:" < /proc/meminfo | awk '{print $2}')
-  mem_reclaimable=$(grep -E "^SReclaimable:" < /proc/meminfo | awk '{print $2}')
-  kb=$(( mem_total + swap_total - mem_free - swap_free - mem_buffers - mem_cached - mem_reclaimable ))
+  mem_sreclaimable=$(grep -E "^SReclaimable:" < /proc/meminfo | awk '{print $2}')
+  mem_shmem=$(grep -E "^Shmem:" < /proc/meminfo | awk '{print $2}')
+  mem_mapped=$(grep -E "^Mapped:" < /proc/meminfo | awk '{print $2}')
+  mem_slab=$(grep -E "^Slab:" < /proc/meminfo | awk '{print $2}')
+  mem_used=$(( mem_cached + mem_sreclaimable + mem_buffers + mem_slab + mem_mapped + mem_shmem ))
+
+  kb=$(( mem_used ))
   mb=$(( kb / 1024 ))
   gb=$(( kb / 1024 / 1024 ))
   if [ -n "$kb" ]; then
@@ -177,7 +159,6 @@ get_uptime() {
 
 case "$1" in
   "battery") get_battery;;
-  "brightness") get_brightness;;
   "cpu") get_cpu;;
   "date") get_date;;
   "heat") get_heat;;
@@ -189,6 +170,5 @@ case "$1" in
   "temp") get_temp;;
   "time") get_time;;
   "uptime") get_uptime;;
-  "volume") get_volume;;
   *) usage;;
 esac
