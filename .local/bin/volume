@@ -1,20 +1,11 @@
 #!/bin/sh
 
-# control volume using amixer
-if command -v amixer >/dev/null; then
-  if [ -z "$1" ]; then
-    echo "$(amixer get Master,0 | grep -Po "\d+%" | head -n1)"
-  else
-    if (echo "$1" | sed '/^+/!{q1}' >/dev/null); then
-      amixer set Master "$(echo "$1" | cut -d'+' -f2)"%+ >/dev/null
-      exit 0
-    fi
-    if (echo "$1" | sed '/^-/!{q1}' >/dev/null); then
-      amixer set Master "$(echo "$1" | cut -d'-' -f2)"%- >/dev/null
-      exit 0
-    fi
-    amixer sset 'Master' "$1"% >/dev/null
-  fi
-else
-  echo "You need amixer to set the volume"
+# Control the sound using pactl
+
+if [ -z "$1" ]; then
+  pactl get-sink-volume "$(pactl get-default-sink)" | awk '/Volume:/ {print $5}'
+fi
+
+if echo "$1" | grep "^[+-]\?[0-9]" >/dev/null; then
+  pactl set-sink-volume "$(pactl get-default-sink)" "$1%"
 fi
