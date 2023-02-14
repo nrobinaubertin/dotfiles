@@ -93,7 +93,7 @@ else
   alias ll='ls -lhb --color'
 fi
 
-lll () {
+lll() {
     [ -z "$1" ] && t="." || t="$1";
     ll "$t" | less -RX -R
 }
@@ -240,7 +240,7 @@ if command -v socat >/dev/null; then
   }
 fi
 
-containers () {
+containers() {
     if command -v podman > /dev/null; then
         pgrm="podman";
     fi;
@@ -277,6 +277,10 @@ containers () {
         echo "containers <prune|stats> [--sudo]"
         ;;
     esac
+}
+
+log() {
+  printf "%s: %s\n" "$(date +%Y-%m-%d@%H:%M:%S)" "$*" >> ~/.LOG
 }
 
 # Secondary bashrc for local configurations
