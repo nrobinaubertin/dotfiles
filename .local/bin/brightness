@@ -33,12 +33,41 @@ max_brightness="$(cat "$handler/max_brightness")"
 # get current brightness %
 old_brightness_p="$(( 100 * old_brightness / max_brightness ))"
 
-if [ -z "$1" ]; then
-    printf "%s\n" "$old_brightness_p"
+if [ "$1" = "dec" ]; then
+  mod="-"
 fi
 
+if [ "$1" = "inc" ]; then
+  mod="+"
+fi
+
+if [ "$old_brightness_p" -lt 11 ]; then
+  amount="3"
+elif [ "$old_brightness_p" -lt 31 ]; then
+  amount="10"
+elif [ "$old_brightness_p" -lt 51 ]; then
+  amount="20"
+else
+  amount="30"
+fi
+
+if [ -n "$mod" ] && [ -n "$amount" ]; then
+  chg="$mod$amount"
+fi
+
+if echo "$1" | grep "^[+-]\?[0-9]" >/dev/null; then
+  chg="$1"
+fi
+
+if [ -z "$chg" ]; then
+    printf "%s\n" "$old_brightness_p"
+    exit
+fi
+
+echo "$chg"
+
 # calculate new brightness %
-new_brightness_p="$((old_brightness_p $1))"
+new_brightness_p="$((old_brightness_p $chg))"
 
 # calculate new brightness value
 new_brightness="$((max_brightness * new_brightness_p / 100))"
