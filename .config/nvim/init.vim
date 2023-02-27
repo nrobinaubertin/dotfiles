@@ -48,6 +48,15 @@ vim.opt.foldexpr = [[nvim_treesitter#foldexpr()]] -- take advantage of treesitte
 -- vim.api.nvim_exec([[
 --    au BufEnter term://* setlocal nonumber
 -- ]], false)
+
+local keymap_opts = { noremap = true, silent = true }
+vim.api.nvim_set_keymap("n", "<C-l>", [[:tabnext<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("i", "<C-l>", [[<Esc>:tabnext<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<C-l>", [[<C-\><C-n>:tabnext<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("n", "<C-h>", [[:tabprevious<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("i", "<C-h>", [[<Esc>:tabprevious<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<C-h>", [[<C-\><C-n>:tabprevious<CR>]], keymap_opts)
+
 EOF
 
 " set shellslash
