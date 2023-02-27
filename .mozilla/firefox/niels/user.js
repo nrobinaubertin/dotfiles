@@ -1,7 +1,7 @@
 /*
  * user.js
  * Maintainer: Niels Robin-Aubertin @nrobinaubertin niels.fr
- * Good place to start creating your own user.js : https://github.com/ghacksuserjs/ghacks-user.js
+ * Good place to start creating your own user.js : https://github.com/arkenfox/user.js
  * The section numbers are following those of ghacksuserjs.
  * Personal comments start with "@Niels"
  * My goal are te following:
@@ -19,7 +19,7 @@
 user_pref("_user.js.parrot", "START");
 
 /* @Niels */
-user_pref("privacy.resistFingerprinting", true); // canvas always return blank image
+// user_pref("privacy.resistFingerprinting", true); // canvas always return blank image
 user_pref("privacy.firstparty.isolate", true); // isolate cookie, cache, data to the domain level
 // user_pref("lightweightThemes.selectedThemeID", "firefox-compact-dark@mozilla.org"); // dark theme
 user_pref("browser.startup.homepage", "about:blank"); // home page
@@ -33,6 +33,12 @@ user_pref("network.IDN_show_punycode", true); // show punycode instead of unicod
 user_pref("full-screen-api.warning.timeout", 0); // don't display the fullscreen popup
 // user_pref("accessibility.blockautorefresh", true); // block webpages from autorefreshing
 user_pref("browser.tabs.allowTabDetach", false); // Don't allow tabs to be dragged out to create a new window
+user_pref("widget.use-xdg-desktop-portal.file-picker", 0); // Use the buit-in file-picker (to be independent of the system)
+user_pref("widget.use-xdg-desktop-portal.location", 0); // xdg independent from host system
+user_pref("widget.use-xdg-desktop-portal.mime-handler", 0); // xdg independent from host system
+user_pref("widget.use-xdg-desktop-portal.native-messaging", 0); // xdg independent from host system
+user_pref("widget.use-xdg-desktop-portal.open-uri", 0); // xdg independent from host system
+user_pref("widget.use-xdg-desktop-portal.settings", 0); // xdg independent from host system
 
 user_pref("_user.js.parrot", "0000 syntax error");
 /* 0000: disable about:config warning
