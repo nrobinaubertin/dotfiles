@@ -1,47 +1,49 @@
 [include]
-    path = ~/.config/gitconfig
+  path = ~/.config/gitconfig
 [color]
-    ui = true
+  ui = true
 [color "diff"]
-    meta = yellow bold
-    frag = magenta bold
-    old = red bold
-    new = green bold
-    whitespace = red reverse
+  meta = yellow bold
+  frag = magenta bold
+  old = red bold
+  new = green bold
+  whitespace = red reverse
 [color "status"]
-    added = green bold
-    changed = yellow bold
-    untracked = red bold
+  added = green bold
+  changed = yellow bold
+  untracked = red bold
 [diff]
-    tool = vimdiff
-    algorithm = patience
-    indentHeuristic = 1
+  tool = vimdiff
+  algorithm = patience
+  indentHeuristic = 1
 [difftool]
-    prompt = false
+  prompt = false
 [merge]
-    tool = vimdiff
-    #conflictstyle = diff3
+  tool = vimdiff
+  #conflictstyle = diff3
 [mergetool "vimdiff"]
-    cmd = nvim -d $LOCAL $BASE $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
+  cmd = nvim -d $LOCAL $BASE $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
 [core]
-    editor = nvim
-    page = nvim -R
+  editor = nvim
+  page = nvim -R
 [color "diff-highlight"]
-    oldNormal = red bold
-    oldHighlight = red bold 52
-    newNormal = green bold
-    newHighlight = green bold 22
+  oldNormal = red bold
+  oldHighlight = red bold 52
+  newNormal = green bold
+  newHighlight = green bold 22
 [alias]
-    patch = !git --no-pager diff --no-color
+  patch = !git --no-pager diff --no-color
 [init]
-    defaultBranch = master
+  defaultBranch = master
 [advice]
   addIgnoredFile = false
 [user]
   email = git@niels.fr
   name = Niels Robin-Aubertin
-	signingkey = /home/niels/data/secrets/ssh/niels
+  signingkey = ~/data/secrets/ssh/niels
 [commit]
-	gpgsign = true
+  gpgsign = true
 [gpg]
-	format = ssh
+  format = ssh
+[url "git+ssh://USER@git.launchpad.net/"]
+  insteadof = lp:
