@@ -77,13 +77,11 @@ bind '"\033[D": backward-char'
 unalias -a
 
 # some aliases
-alias :q='exit'
 alias todo='nvim -c "set ft=markdown" ${HOME}/.TODO.md'
 alias grep='grep --color=always'
 alias less='less -RX'
 alias nraw='nvim -u NORC -c "setlocal syntax=off"'
 alias nterm='nvim -c term'
-alias :tabe='nvim'
 
 if command -v exa >/dev/null; then
   alias ll='exa -gl --git --color=always'
@@ -204,16 +202,8 @@ if command -v yt-dlp >/dev/null; then
   }
   ytclip() {
     ffmpeg -ss "$1" -t "$2" -i "$(yt-dlp -g -f "best" "$3" | head -n1)" "$(date +%Y-%m-%d-%H%M%S)-ytmp4.mp4"
-    #tmpfile="$(mktemp -u)"
-    #yt-dlp -f "best+bestaudio" --merge-output-format mp4 "$tmpfile";
-    #ffmpeg -ss "$1" -t "$2" -i "$tmpfile" "$(date +%Y-%m-%d-%H%M%S)-ytmp4.mp4"
-    #rm $tmpfile
   }
   ytsound() {
-    #tmpfile="$(mktemp -u)"
-    #yt-dlp -wi -o "$tmpfile" "$3"
-    #ffmpeg -ss "$1" -i "$tmpfile.mkv" -t "$2" -vn -codec:a libmp3lame -q:a 2 -f mp3 "$(pwd)/$(date +%Y-%m-%d-%H%M%S)-ytmp3.mp3"
-    #rm "$tmpfile.mkv"
     ffmpeg -ss "$1" -t "$2" -i "$(yt-dlp -g -f "bestaudio" "$3" | head -n1)" -q:a 2 -f mp3 "$(date +%Y-%m-%d-%H%M%S)-ytmp3.mp3"
   }
   ytdl() {
@@ -240,51 +230,17 @@ if command -v socat >/dev/null; then
   }
 fi
 
-containers() {
-    if command -v podman > /dev/null; then
-        pgrm="podman";
-    fi;
-
-    if command -v docker > /dev/null; then
-        pgrm="docker";
-    fi;
-
-    for arg in "$@"; do
-      case "$arg" in
-        --sudo)
-          sudoprepend="sudo";;
-        *)
-          ;;
-      esac
-    done
-
-    case "$1" in
-      "prune")
-        "$pgrm" stop $("$pgrm" ps -q)
-        "$pgrm" rm $("$pgrm" ps -aq)
-        "$pgrm" system prune -af
-        "$pgrm" volume prune -f
-        "$pgrm" rmi -af
-        ;;
-      "stats")
-        #"$pgrm" stats --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}"
-        watch "sudo $HOME/.local/bin/containers_stats"
-        ;;
-      "ratelimit")
-        curl --head -H "Authorization: Bearer $(curl -s "https://auth.docker.io/token?service=registry.docker.io&scope=repository:ratelimitpreview/test:pull" | cut -d'"' -f4)" "https://registry0.docker.io/v2/ratelimitpreview/test/manifests/latest" 2>&1 | grep RateLimit
-        ;;
-      *)
-        echo "containers <prune|stats> [--sudo]"
-        ;;
-    esac
-}
-
 log() {
   printf "%s: %s\n" "$(date +%Y-%m-%d@%H:%M:%S)" "$*" >> ~/.LOG
 }
 
 # Some non-public things to add to my env
-[ -f "${HOME}/data/shell/aliases.sh" ] && . "${HOME}/data/shell/aliases.sh"
+# not really solid right now but I don't know better
+if [ -d "${HOME}/data/shell" ]; then
+  for shellfile in $(find "${HOME}/data/shell" -type f -name "*.sh"); do
+    . "$shellfile"
+  done
+fi
 
 # Secondary bashrc for local configurations
 [ -f "${HOME}/.config/bashrc" ] && . "${HOME}/.config/bashrc"
