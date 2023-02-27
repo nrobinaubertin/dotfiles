@@ -68,15 +68,17 @@ printf "\\n%b" "$RCol"
 (
     mem_total=$(grep -E "^MemTotal:" < /proc/meminfo | awk '{print $2}')
     swap_total=$(grep -E "^SwapTotal:" < /proc/meminfo | awk '{print $2}')
-    mem_free=$(grep -E "^MemFree:" < /proc/meminfo | awk '{print $2}')
     swap_free=$(grep -E "^SwapFree:" < /proc/meminfo | awk '{print $2}')
+    swap_used=$(( swap_total - swap_free ))
     mem_buffers=$(grep -E "^Buffers:" < /proc/meminfo | awk '{print $2}')
     mem_cached=$(grep -E "^Cached:" < /proc/meminfo | awk '{print $2}')
-    mem_reclaimable=$(grep -E "^SReclaimable:" < /proc/meminfo | awk '{print $2}')
-    mem_used=$(( mem_total - mem_free - mem_buffers - mem_cached - mem_reclaimable ))
-    swap_used=$(( swap_total - swap_free ))
-    mem_p=$(( 100 * mem_used / mem_total ))
+    mem_sreclaimable=$(grep -E "^SReclaimable:" < /proc/meminfo | awk '{print $2}')
+    mem_shmem=$(grep -E "^Shmem:" < /proc/meminfo | awk '{print $2}')
+    mem_mapped=$(grep -E "^Mapped:" < /proc/meminfo | awk '{print $2}')
+    mem_slab=$(grep -E "^Slab:" < /proc/meminfo | awk '{print $2}')
+    mem_used=$(( mem_cached + mem_sreclaimable + mem_buffers + mem_slab + mem_mapped + mem_shmem ))
 
+    mem_p=$(( 100 * mem_used / mem_total ))
     printf " %bType,Size,Free,Used%b\\n" "$BGre" "$RCol"
     printf " %bMem,%s,%s,%s%b\\n" "$White" "$(kb_to_human "$mem_total")" "$(kb_to_human $((mem_total - mem_used)))" "$(usage "$mem_p")" "$RCol"
 
