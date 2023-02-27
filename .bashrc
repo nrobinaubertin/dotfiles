@@ -283,6 +283,9 @@ log() {
   printf "%s: %s\n" "$(date +%Y-%m-%d@%H:%M:%S)" "$*" >> ~/.LOG
 }
 
+# Some non-public things to add to my env
+[ -f "${HOME}/data/shell/aliases.sh" ] && . "${HOME}/data/shell/aliases.sh"
+
 # Secondary bashrc for local configurations
 [ -f "${HOME}/.config/bashrc" ] && . "${HOME}/.config/bashrc"
 
