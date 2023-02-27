@@ -3,7 +3,7 @@
 # Control the sound using pactl
 
 if [ -z "$1" ]; then
-  pactl get-sink-volume "$(pactl get-default-sink)" | awk '/Volume:/ {print $5}'
+  pactl get-sink-volume "$(pactl get-default-sink)" | awk '/Volume:/ {print $5}' | tr -d '%'
 fi
 
 if echo "$1" | grep "^[+-]\?[0-9]" >/dev/null; then

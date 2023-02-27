@@ -2,23 +2,44 @@
 
 # status line for sway
 
-if [ -e ~/.config/pathrc ]; then
-  . ~/.config/pathrc
+if [ -e "$HOME/.config/pathrc" ]; then
+  . "$HOME/.config/pathrc"
 fi
 
 if command -v get >/dev/null; then
+
   battery="$(get power | head -c -1)"
   if [ "$battery" -lt 25 ]; then
-    color="red"
+    bat_c="red"
   elif [ "$battery" -lt 35 ]; then
-    color="orange"
+    bat_c="orange"
   else
-    color="#ebdbb2"
+    bat_c="#ebdbb2"
   fi
-  printf "%s | %s - %s | <span color='%s'>%s - %s</span> | %s - %s |" \
-    "$(volume)" \
-    "$(get cpu)" "$(get ram)" \
-    "$color" "$(get power)" "$(get battery)" \
+
+  if [ "$(volume)" -gt 75 ]; then
+    vol_c="red"
+  elif [ "$(volume)" -gt 50 ]; then
+    vol_c="orange"
+  else
+    vol_c="#ebdbb2"
+  fi
+
+  title="#888888"
+
+  printf "\
+<span color='%s'>bluetooth:</span> %s \
+| <span color='%s'>wifi:</span> %s \
+| <span color='%s'>volume:</span> <span color='%s'>%s</span> \
+| <span color='%s'>system:</span> %s - %s \
+| <span color='%s'>battery:</span> <span color='%s'>%s - %s</span> \
+| %s - %s \
+|" \
+    "$title" "$(get bluetooth)" \
+    "$title" "$(get wifi)" \
+    "$title" "$vol_c" "$(volume)%" \
+    "$title" "$(get cpu)" "$(get ram)" \
+    "$title" "$bat_c" "$(get power)" "$(get battery)" \
     "$(get date)" "$(get time)"
 else
   printf "You need the 'get' script for swaystatus to work"

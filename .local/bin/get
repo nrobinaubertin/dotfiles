@@ -16,6 +16,8 @@ usage() {
   echo "  temp"
   echo "  time"
   echo "  uptime"
+  echo "  wifi"
+  echo "  bluetooth"
 }
 
 get_resolution() {
@@ -41,7 +43,7 @@ get_power() {
 
 get_battery() {
   if command -v acpi >/dev/null; then
-    printf "%s" "$(acpi | awk '{print $5}')"
+    printf "%s" "$(acpi | head -n1 | awk '{print $5}')"
   fi
 }
 
@@ -152,6 +154,29 @@ get_uptime() {
   fi
 }
 
+get_wifi() {
+  if [ -n "$(command -v nmcli 2>/dev/null)" ]; then
+    dev="$(nmcli dev | awk '/wifi *connected/ {print $4}')"
+    if [ -n "$dev" ]; then
+      printf "%s" "$dev"
+    else
+      printf "%s" "$(nmcli gen status | tail -n1 | awk '{print $4}')"
+    fi
+  fi
+}
+
+get_bluetooth() {
+  if [ -n "$(command -v bluetoothctl 2>/dev/null)" ]; then
+    # one-liner to get the connected device
+    dev="$(bluetoothctl devices | cut -f2 -d' ' | xargs -n1 bluetoothctl info | awk -F":" '/Name/ {dev=$2} /Connected/ {conn=$2;if(conn == " yes"){act=dev}} END {print act}' | tr -d ' \n')"
+    if [ -n "$dev" ]; then
+      printf "%s" "$dev"
+    else
+      printf "%s" "$(bluetoothctl show | awk '/Powered:/ {FS=":";print $2}' | tr -d ' \n')"
+    fi
+  fi
+}
+
 case "$1" in
   "battery") get_battery;;
   "cpu") get_cpu;;
@@ -165,5 +190,7 @@ case "$1" in
   "temp") get_temp;;
   "time") get_time;;
   "uptime") get_uptime;;
+  "wifi") get_wifi;;
+  "bluetooth") get_bluetooth;;
   *) usage;;
 esac
