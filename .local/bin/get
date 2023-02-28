@@ -160,7 +160,7 @@ get_wifi() {
     if [ -n "$dev" ]; then
       printf "%s" "$dev"
     else
-      printf "%s" "$(nmcli gen status | tail -n1 | awk '{print $4}')"
+      printf "%s" "$(nmcli -f wifi -m multiline gen status | awk '{print $2}')"
     fi
   fi
 }
