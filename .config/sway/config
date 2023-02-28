@@ -130,8 +130,8 @@ bindsym $mod+Shift+tab workspace prev_on_output
 # You can "split" the current object of your focus with
 # $mod+b or $mod+v, for horizontal and vertical splits
 # respectively.
-bindsym $mod+b splith
-bindsym $mod+v splitv
+# bindsym $mod+b splith
+# bindsym $mod+v splitv
 
 # Switch the current container between different layout styles
 # bindsym $mod+s layout stacking
@@ -175,17 +175,25 @@ mode "resize" {
 }
 bindsym $mod+r mode "resize"
 
-# THINKPAD buttons
-bindsym XF86AudioRaiseVolume exec volume +5
+# THINKPAD t14 buttons
+# https://wiki.archlinux.org/title/Lenovo_ThinkPad_T14_(AMD)_Gen_1#Function_keys
+# bindsym XF86AudioMute exec volume toggle
 bindsym XF86AudioLowerVolume exec volume -5
-bindsym XF86AudioMute exec amixer set Master toggle
-bindsym XF86AudioMicMute exec amixer set Capture toggle
-bindsym XF86MonBrightnessDown exec brightness -10
-bindsym XF86MonBrightnessUp exec brightness +10
-bindsym XF86Tools exec red
-#bindsym XF86AudioPlay exec playerctl play-pause
-#bindsym XF86AudioNext exec playerctl next
-#bindsym XF86AudioPrev exec playerctl previous
+bindsym XF86AudioRaiseVolume exec volume +5
+# bindsym XF86AudioMicMute exec amixer set Capture toggle
+bindsym XF86MonBrightnessDown exec brightness dec
+bindsym XF86MonBrightnessUp exec brightness inc
+#bindsym XF86Display
+#bindsym XF86WLAN
+#bindsym XF86NotificationCenter
+#bindsym XF86PickupPhone
+#bindsym XF86HangupPhone
+bindsym XF86Favorites exec redshift
+#bindsym
+
+bindsym Print exec grim - | wl-copy -t image/png
+bindsym XF86SelectiveScreenshot exec grim -g "$(slurp -d)" - | wl-copy -t image/png
+
 
 #include /etc/sway/config.d/*
 
