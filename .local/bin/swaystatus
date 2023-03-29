@@ -14,33 +14,23 @@ if command -v get >/dev/null; then
   elif [ "$battery" -lt 35 ]; then
     bat_c="orange"
   else
-    bat_c="#ebdbb2"
+    bat_c="black"
   fi
-
-  if [ "$(volume)" -gt 75 ]; then
-    vol_c="red"
-  elif [ "$(volume)" -gt 50 ]; then
-    vol_c="orange"
-  else
-    vol_c="#ebdbb2"
-  fi
-
-  title="#888888"
 
   printf "\
 <span color='%s'>bluetooth:</span> %s \
 | <span color='%s'>wifi:</span> %s \
-| <span color='%s'>volume:</span> <span color='%s'>%s</span> \
+| <span color='%s'>volume:</span> %s \
 | <span color='%s'>system:</span> %s - %s \
 | <span color='%s'>battery:</span> <span color='%s'>%s - %s</span> \
-| %s - %s \
+| <span color='%s'>datetime:</span> %s - %s \
 |" \
-    "$title" "$(get bluetooth)" \
-    "$title" "$(get wifi)" \
-    "$title" "$vol_c" "$(volume)%" \
-    "$title" "$(get cpu)" "$(get ram)" \
-    "$title" "$bat_c" "$(get power)" "$(get battery)" \
-    "$(get date)" "$(get time)"
+    "#888" "$(get bluetooth)" \
+    "#888" "$(get wifi)" \
+    "#888" "$(volume)%" \
+    "#888" "$(get cpu)" "$(get ram)" \
+    "#888" "$bat_c" "$(get power)" "$(get battery)" \
+    "#888" "$(get date)" "$(get time)"
 else
   printf "You need the 'get' script for swaystatus to work"
 fi
