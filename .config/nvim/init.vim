@@ -195,7 +195,7 @@ require("null-ls").setup({ sources = sources })
 
 -- Colorscheme
 vim.o.termguicolors = true -- doesn't work without it
-vim.o.background = "dark" -- or "light" for light mode
+vim.o.background = "light"
 vim.g.gruvbox_material_enable_italic = 0
 vim.g.gruvbox_material_enable_bold = 1
 vim.g.gruvbox_material_disable_italic_comment = 1

@@ -4,7 +4,10 @@
 set $mod Mod4
 
 # theme
-include ~/.config/sway/themes/gruvbox
+include ~/.config/sway/themes/gruvbox_light
+
+# reload the configuration file
+bindsym $mod+Shift+e exec ~/.config/sway/scripts/switch_theme.sh; reload
 
 # with arrow keys
 # set $left Left

@@ -1,0 +1,72 @@
+# LIGHT_THEME
+
+### Output configuration [man 5 sway-output]
+output * bg #fbf1c7 solid_color
+
+# gruvbox colors
+set $bg #fbf1c7
+set $red #cc241d
+set $green #98971a
+set $yellow #d79921
+set $blue #458588
+set $purple #b16286
+set $aqua #689d6a
+set $gray #a89984
+set $intense_gray #928374
+set $intense_red #9d0006
+set $intense_green #79740e
+set $intense_yellow #b57614
+set $intense_blue #076678
+set $intense_purple #8f3f71
+set $intense_aqua #427b58
+set $fg #3c3836
+set $black #000000
+set $white #ffffff
+set $fg0 #282828
+set $fg4 #7c6f64
+set $bg1 #ebdbb2
+set $bg2 #d5c4a1
+
+# Set inner/outer gaps
+default_border normal 0
+
+# Smart borders (draw borders around container only if it is not the only container on this workspace) 
+smart_borders on
+
+# Hide Title Bars
+#for_window [app_id="^.*"] border pixel 4, opacity 1
+#default_border pixel 4
+#default_floating_border pixel 10
+#hide_edge_borders smart
+
+# Property Name         Border          BG      Text    Indicator   Child Border
+client.focused          $bg2            $bg2    $fg0    $black      $black
+client.focused_inactive $bg             $bg     $fg     $black      $black
+client.unfocused        $bg             $bg     $gray   $black      $black
+client.urgent           $intense_red    $red    $white  $black      $black
+client.placeholder      $black          $black  $black  $black      $black
+client.background       $bg
+
+# [man 5 sway-bar]
+bar {
+    position top
+
+    # When the status_command prints a new line to stdout, swaybar updates.
+    # The default just shows the current date and time.
+    status_command while ~/.local/bin/swaystatus; do sleep 5; done
+
+    pango_markup enabled
+
+    colors {
+        background $bg
+        separator  $fg
+        statusline $fg
+
+        # State             Border          BG      Text
+        focused_workspace   $bg             $gray   $black
+        active_workspace    $bg             $gray   $fg
+        inactive_workspace  $bg             $bg     $gray
+        urgent_workspace    $intense_red    $red    $fg
+        binding_mode        $bg             $bg     $fg
+    }
+}
