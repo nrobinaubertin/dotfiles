@@ -44,11 +44,11 @@ fi
 if [ "$old_brightness_p" -lt 11 ]; then
   amount="3"
 elif [ "$old_brightness_p" -lt 31 ]; then
-  amount="10"
+  amount="8"
 elif [ "$old_brightness_p" -lt 51 ]; then
-  amount="20"
+  amount="12"
 else
-  amount="30"
+  amount="17"
 fi
 
 if [ -n "$mod" ] && [ -n "$amount" ]; then
