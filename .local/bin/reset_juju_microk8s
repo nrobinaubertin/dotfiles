@@ -35,7 +35,6 @@ if [ "$docker_limit" -lt 10 ]; then
   exit 1
 fi
 
-
 # remove both snaps
 juju unregister -y microk8s-localhost || true
 sudo snap remove --purge juju --no-wait
@@ -58,7 +57,9 @@ chown -f -R "$USERNAME" "/home/$USERNAME/.kube"
 sudo snap alias microk8s.kubectl kubectl
 
 # enable necessary microk8s addons for juju
-microk8s.enable dns hostpath-storage
+# order in which those are enabled can be important
+microk8s.enable hostpath-storage
+microk8s.enable dns
 
 # enable some more addons
 microk8s.enable ingress registry &
@@ -69,10 +70,17 @@ juju update-public-clouds --client &
 
 wait_for_install juju
 
+# make sure microk8s is started
+sudo microk8s start
+
+check_enabled ingress dns hostpath-storage registry
+
 # bootstrap microk8s substrate
 juju update-k8s --client microk8s
 juju bootstrap --no-gui --verbose --show-log microk8s
 juju add-model dev
-juju model-config logging-config="<root>=WARNING;unit=DEBUG;#http=TRACE"
+juju model-config logging-config="<root>=WARNING;unit=DEBUG;http=TRACE"
 
-check_enabled ingress dns hostpath-storage registry
+# Interaction between lxd and docker
+# can lead to issues with iptables
+sudo iptables-legacy -I DOCKER-USER -j ACCEPT
