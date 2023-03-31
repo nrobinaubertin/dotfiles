@@ -27,6 +27,11 @@ set -o emacs;
 complete -cf sudo
 complete -cf man
 
+# Set the prompt
+# Should be something like this:
+# ┌─[10:26:58 t14 ~/git]
+# └─╼ 
+# The time will be red if last command failed, green otherwise.
 set_prompt() {
   RCol='\033[0m'; Red='\033[31m'; Gre='\033[32m'; Yel='\033[33m'; Blu='\033[34m'
   startprompt="$(printf "\\xE2\\x94\\x8C\\xE2\\x94\\x80")"
@@ -37,10 +42,10 @@ set_prompt() {
 # set a restrictive umask
 umask 077
 
-# PATH
+# Source a PATH specific file
 [ -f "${HOME}/.config/pathrc" ] && . "${HOME}/.config/pathrc"
 
-# EDITOR
+# Declare the editor as being neovim
 command -v nvim >/dev/null && export EDITOR="$(command -v nvim)"
 
 # open man in neovim
