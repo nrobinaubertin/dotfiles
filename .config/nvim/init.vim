@@ -153,7 +153,11 @@ vim.diagnostic.config({
     severity_sort = false, -- default to false
 })
 
--- LSP
+---------
+-- LSP --
+---------
+
+-- PYTHON
 require("lspconfig").pylsp.setup{
   settings = {
     pylsp = {
@@ -165,6 +169,15 @@ require("lspconfig").pylsp.setup{
         },
         jedi_definition = { enabled = true },
         jedi_reference = { enabled = true },
+        mypy = {
+          enabled = true,
+          live_mode = false,
+        },
+        pylint = {
+          enabled = true,
+          args = {'--rcfile', 'pyproject.toml'},
+        },
+        pydocstyle = { enabled = true },
         -- disabled plugins
         autopep8 = { enabled = false },
         jedi_completion = { enabled = false },
@@ -175,9 +188,7 @@ require("lspconfig").pylsp.setup{
         mccabe = { enabled = false },
         preload = { enabled = false },
         pycodestyle = { enabled = false },
-        pydocstyle = { enabled = false },
         pyflakes = { enabled = false },
-        pylint = { enabled = false },
         rope_autoimport = { enabled = false },
         yapf = { enabled = false },
       },
@@ -189,7 +200,6 @@ local null_ls = require("null-ls")
 local sources = {
     require("null-ls").builtins.code_actions.gitsigns,
     require("null-ls").builtins.diagnostics.shellcheck,
-    -- require("null-ls").builtins.diagnostics.mypy,
 }
 require("null-ls").setup({ sources = sources })
 
