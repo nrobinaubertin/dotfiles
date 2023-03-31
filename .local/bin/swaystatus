@@ -10,11 +10,9 @@ if command -v get >/dev/null; then
 
   battery="$(get power | head -c -1)"
   if [ "$battery" -lt 25 ]; then
-    bat_c="red"
-  elif [ "$battery" -lt 35 ]; then
-    bat_c="orange"
+    battery="<span color='red'>$battery%</span>"
   else
-    bat_c="black"
+    battery="$battery%"
   fi
 
   printf "\
@@ -22,14 +20,14 @@ if command -v get >/dev/null; then
 | <span color='%s'>wifi:</span> %s \
 | <span color='%s'>volume:</span> %s \
 | <span color='%s'>system:</span> %s - %s \
-| <span color='%s'>battery:</span> <span color='%s'>%s - %s</span> \
+| <span color='%s'>battery:</span> %s \
 | <span color='%s'>datetime:</span> %s - %s \
 |" \
     "#888" "$(get bluetooth)" \
     "#888" "$(get wifi)" \
     "#888" "$(volume)%" \
     "#888" "$(get cpu)" "$(get ram)" \
-    "#888" "$bat_c" "$(get power)" "$(get battery)" \
+    "#888" "$battery" \
     "#888" "$(get date)" "$(get time)"
 else
   printf "You need the 'get' script for swaystatus to work"
