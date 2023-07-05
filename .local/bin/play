@@ -1,33 +1,37 @@
 #!/bin/sh
 
-# prepare a target to be read by mpv
 read_target() {
   if [ -e "$1" ]; then
     if [ -d "$1" ] && [ -f "$1/index.m3u" ]; then
-      to_play="$1/index.m3u"
-    else
-      to_play="$1"
-    fi
-  else
-    if echo "$1" | grep "^http" >/dev/null; then
-      to_play="$1"
+      echo "$1/index.m3u"
+      return
     fi
   fi
-  echo "$to_play"
+  if echo "$1" | grep "^http" >/dev/null; then
+    case "$1" in
+      *youtu.be*|*youtube*|*bandcamp*|*soundcloud*)
+        yt-dlp --get-url "$1" -f bestaudio
+        return;;
+    esac
+  fi
+  echo "$1"
 }
 
-tracks=""
-options=""
-for term in "$@"; do
-  case "$term" in
-    "--loop") options="$options --loop-playlist";;
-    *)
-      if [ "$tracks" = "" ]; then
-        tracks="$(read_target "$term")"
-      else
-          tracks="$tracks\n$(read_target "$term")"
-      fi;;
-  esac
-done
+# tracks=""
+# options=""
+# for term in "$@"; do
+#   case "$term" in
+#     "--loop") options="$options --loop-playlist";;
+#     *)
+#       if [ "$tracks" = "" ]; then
+#         tracks="$(read_target "$term")"
+#       else
+#           tracks="$tracks\n$(read_target "$term")"
+#       fi;;
+#   esac
+# done
 
-echo "$tracks" | mpv --no-video --playlist=- "$options"
+# echo "$tracks" | mpv --no-video --playlist=- "$options"
+export TERM=xterm-256color 
+# intf could be "cli"
+vlc --no-loop --no-random --no-color --intf ncurses $(read_target "$1")
