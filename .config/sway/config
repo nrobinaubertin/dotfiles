@@ -59,8 +59,8 @@ set $menu dmenu_path | dmenu | xargs swaymsg exec --
 # Read `man 5 sway-input` for more information about this section.
 
 input * {
-    xkb_layout fr
-    xkb_variant ,nodeadkeys
+    xkb_layout fr,us
+    # xkb_variant ,nodeadkeys
     xkb_options grp:alt_shift_toggle
 }
 
@@ -219,3 +219,8 @@ exec $term
 #     bindsym Escape mode "default"
 # }
 # bindsym $mod+Shift+e mode "$mode_system"
+
+# https://wiki.archlinux.org/title/PipeWire#WebRTC_screen_sharing
+# Required to get `XDG_CURRENT_DESKTOP` from .bashrc for
+# xdg-desktop-portal-wlr and screensharing to work
+exec "systemctl --user import-environment"
