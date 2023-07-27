@@ -34,4 +34,4 @@ read_target() {
 # echo "$tracks" | mpv --no-video --playlist=- "$options"
 export TERM=xterm-256color 
 # intf could be "cli"
-vlc --no-loop --no-random --no-color --intf ncurses $(read_target "$1")
+vlc --no-loop --no-random --no-color --intf ncurses "$(read_target "$1")"

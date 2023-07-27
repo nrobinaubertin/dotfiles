@@ -32,7 +32,7 @@ get_resolution() {
 get_power() {
   BAT="$(find /sys/class/power_supply -name "BAT*" | head -n1)"
   if [ -n "$BAT" ]; then
-    power="$(cat ${BAT}/capacity)"
+    power="$(cat "$BAT/capacity")"
   fi
   if [ -n "$power" ]; then
     printf "%s%%" "${power}"

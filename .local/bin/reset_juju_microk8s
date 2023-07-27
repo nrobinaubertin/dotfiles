@@ -1,7 +1,5 @@
 #!/bin/sh
-
 # This script reinstalls juju & microk8s from scratch
-# It tries to do it as fast as possible
 
 set -xe
 
@@ -15,18 +13,6 @@ check_enabled() {
   done
 }
 
-wait_for_install() {
-  while ! snap list | grep "^$1 " 2>/dev/null; do
-    sleep 1
-  done
-}
-
-wait_for_uninstall() {
-  while snap list | grep "^$1 " 2>/dev/null; do
-    sleep 1
-  done
-}
-
 # get docker pull limit
 docker_limit="$(curl -sI -H "Authorization: Bearer $(curl -s "https://auth.docker.io/token?service=registry.docker.io&scope=repository:ratelimitpreview/test:pull" | jq -r .token)" https://registry-1.docker.io/v2/ratelimitpreview/test/manifests/latest | grep "ratelimit-remaining" | cut -d" " -f2 | cut -d";" -f1)"
 # check that we have enough pulls remaining
@@ -35,20 +21,21 @@ if [ "$docker_limit" -lt 10 ]; then
   exit 1
 fi
 
+# make sure that we can pull from registry.k8s.io
+if ! docker pull registry.k8s.io/pause:3.7 >/dev/null; then
+  printf "Could not pull from registry.k8s.io, check https://status.cloud.google.com"
+  exit 1
+fi
+
 # remove both snaps
-juju unregister -y microk8s-localhost || true
-sudo snap remove --purge juju --no-wait
+sudo snap remove --purge juju
 rm -rf ~/.local/share/juju
 sudo snap remove --purge microk8s
 
-wait_for_uninstall juju
-wait_for_uninstall microk8s
-
 # reinstall snaps
-sudo snap install juju --classic --no-wait
-sudo snap install microk8s --classic
-
-wait_for_install microk8s
+# sudo snap install /home/niels/projects/offline_microk8s/juju_22345.snap --classic
+sudo snap install juju --classic --channel=2.9/stable
+sudo snap install microk8s --channel=1.27/stable --classic
 
 # allow kubectl alias for microk8s
 mkdir -p "/home/$USERNAME/.kube"
@@ -56,31 +43,44 @@ sudo usermod -a -G microk8s "$USERNAME"
 chown -f -R "$USERNAME" "/home/$USERNAME/.kube"
 sudo snap alias microk8s.kubectl kubectl
 
-# enable necessary microk8s addons for juju
+# enable some microk8s addons for juju/kdash
 # order in which those are enabled can be important
-microk8s.enable hostpath-storage
-microk8s.enable dns
-
-# enable some more addons
-microk8s.enable ingress registry &
-
-wait_for_install juju
+sudo microk8s.enable hostpath-storage
+sudo microk8s.enable dns
+sudo microk8s.enable rbac
+sudo microk8s.enable metrics-server
+sudo microk8s.enable ingress
+sudo microk8s.enable registry
 
 juju update-public-clouds --client &
-
-wait_for_install juju
 
 # make sure microk8s is started
 sudo microk8s start
 
-check_enabled ingress dns hostpath-storage registry
+check_enabled dns hostpath-storage
 
 # bootstrap microk8s substrate
 juju update-k8s --client microk8s
-juju bootstrap --no-gui --verbose --show-log microk8s
+juju bootstrap microk8s mk8s --no-gui --verbose --show-log
+juju model-defaults microk8s logging-config='<root>=WARNING;unit=DEBUG;http=TRACE'
 juju add-model dev
-juju model-config logging-config="<root>=WARNING;unit=DEBUG;http=TRACE"
+
+if [ "$1" = "--with-machine-cloud" ]; then
+
+  ~/.local/bin/reset_lxd
+
+  # bootstrap lxd substrate (for machine charms)
+  juju bootstrap localhost lxd --no-gui --verbose --show-log
+  juju model-defaults localhost logging-config='<root>=WARNING;unit=DEBUG;http=TRACE'
+  microk8s.config | juju add-k8s mk8s --controller=lxd
+
+  # we switch to mk8s since this is the most used cloud
+  juju switch mk8s
+fi
 
 # Interaction between lxd and docker
 # can lead to issues with iptables
-sudo iptables-legacy -I DOCKER-USER -j ACCEPT
+sudo iptables-legacy -I DOCKER-USER -j ACCEPT || true
+
+# Save microk8s' kubeconfig
+sudo microk8s config > ~/.kube/config
