@@ -6,6 +6,4 @@
 # PATH has priority
 [ -d "${HOME}/.yarn/bin" ] && export PATH="${PATH}:${HOME}/.yarn/bin"
 [ -d "${HOME}/.cargo/bin" ] && export PATH="${PATH}:${HOME}/.cargo/bin"
-[ -d "${HOME}/.local/go" ] && export GOPATH="${HOME}/.local/go" && export PATH="${PATH}:${GOPATH}/bin"
-
-export PATH="$PATH:/usr/local/go/bin"
+[ -d "${HOME}/.local/pipx/venvs" ] && export PATH="${PATH}:${HOME}/.local/pipx/venvs"
