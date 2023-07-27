@@ -1,42 +1,20 @@
-[include]
-  path = ~/.config/gitconfig
 [color]
   ui = true
-[color "diff"]
-  meta = yellow bold
-  frag = magenta bold
-  old = red bold
-  new = green bold
-  whitespace = red reverse
 [color "status"]
   added = green bold
   changed = yellow bold
   untracked = red bold
-[diff]
-  tool = vimdiff
-  algorithm = patience
-  indentHeuristic = 1
-[difftool]
-  prompt = false
-[merge]
-  tool = vimdiff
-  #conflictstyle = diff3
-[mergetool "vimdiff"]
-  cmd = nvim -d $LOCAL $BASE $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
 [core]
   editor = nvim
-  page = nvim -R
-[color "diff-highlight"]
-  oldNormal = red bold
-  oldHighlight = red bold 52
-  newNormal = green bold
-  newHighlight = green bold 22
+#  page = nvim -R
 [alias]
   patch = !git --no-pager diff --no-color
 [init]
-  defaultBranch = master
+  defaultBranch = main
 [advice]
   addIgnoredFile = false
+
+# Signing commits & user
 [user]
   email = git@niels.fr
   name = Niels Robin-Aubertin
@@ -45,5 +23,46 @@
   gpgsign = true
 [gpg]
   format = ssh
-[url "git+ssh://USER@git.launchpad.net/"]
+[url "git+ssh://nrobinaubertin@git.launchpad.net/"]
   insteadof = lp:
+
+# Diff viewing
+# https://github.com/dandavison/delta
+[core]
+    pager = delta
+[interactive]
+    diffFilter = delta --color-only
+[delta]
+    navigate = true
+    side-by-side = true
+    syntax-theme = gruvbox-light
+    # File
+    file-style = bold
+    file-added-label = [+]
+    file-copied-label = [==]
+    file-modified-label = [*]
+    file-removed-label = [-]
+    file-renamed-label = [->]
+    # No hunk headers
+    hunk-header-style = omit
+    # Line numbers
+    line-numbers = true
+    line-numbers-left-format = " {nm:>3} │"
+    line-numbers-right-format = " {np:>3} │"
+    # Commit hash
+    commit-decoration-style = normal box
+    commit-style = bold
+    # Blame
+    blame-code-style = syntax
+    blame-format = "{author:>18} ({commit:>8}) {timestamp:<13} "
+[merge]
+    conflictstyle = diff3
+[diff]
+    colorMoved = default
+    algorithm = histogram
+    indentHeuristic = 1
+    colorMoved = dimmed-zebra
+[difftool]
+  prompt = false
+# [mergetool "vimdiff"]
+#   cmd = nvim -d $LOCAL $BASE $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
