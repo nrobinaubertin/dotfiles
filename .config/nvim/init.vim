@@ -16,6 +16,8 @@ lua <<EOF
 vim.o.expandtab = true
 vim.o.shiftwidth = 2
 vim.o.softtabstop = -1
+vim.o.tabstop = 2
+-- vim.o.softtabstop = 2
 
 -- set tabstop to 4 in php files
 vim.api.nvim_create_autocmd("FileType", {
@@ -23,6 +25,7 @@ vim.api.nvim_create_autocmd("FileType", {
     command = "setlocal ts=4 sts=4 sw=4",
 })
 
+vim.g.editorconfig = false
 vim.o.clipboard = "unnamedplus" -- Use the clipboard for all operations
 vim.o.fillchars = "vert: ,stl: ,stlnc: "
 vim.o.showmatch = true
@@ -82,6 +85,13 @@ function! Retab()
   retab!
 endfunction
 
+" By default, Vim associates .tf files with TinyFugue - tell it not to.
+silent! autocmd! filetypedetect BufRead,BufNewFile *.tf
+autocmd BufRead,BufNewFile *.hcl set filetype=hcl
+autocmd BufRead,BufNewFile .terraformrc,terraform.rc set filetype=hcl
+autocmd BufRead,BufNewFile *.tf,*.tfvars set filetype=hcl
+autocmd BufRead,BufNewFile *.tfstate,*.tfstate.backup set filetype=json
+
 lua <<EOF
 
 function Upgrade()
@@ -127,76 +137,19 @@ Plug 'nvim-telescope/telescope.nvim' " fuzzy finder
 Plug 'nvim-treesitter/nvim-treesitter' " syntax highlighting
 Plug 'sainnhe/gruvbox-material'  " colorscheme
 Plug 'tpope/vim-fugitive' " git
+Plug 'ggandor/leap.nvim' " moving around
 call plug#end()
 
 lua <<EOF
 
-vim.keymap.set('n', '<space>e', vim.diagnostic.open_float, opts)
--- vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, opts)
--- vim.keymap.set('n', ']d', vim.diagnostic.goto_next, opts)
--- vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist, opts)
--- vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
--- vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+local root_dir = function(fname)
+  return vim.fn.getcwd() .. "/" .. vim.fn.finddir('.git/..', vim.fn.expand('%:p:h') .. ';') or vim.fn.getcwd()
+  -- path_to_pyproject = vim.fn.findfile("pyproject.toml", vim.fn.expand("%:p:h") .. ';')
+end
 
-vim.diagnostic.config({
-    underline = true,
-    signs = true,
-    virtual_text = true,
-    float = {
-        show_header = true,
-        source = 'always', -- could be 'if_many'
-        border = 'rounded',
-        focusable = false,
-    },
-    update_in_insert = false, -- default to false
-    severity_sort = false, -- default to false
-})
+-- GOLANG
+-- require('lspconfig').gopls.setup{}
 
----------
--- LSP --
----------
-
--- PYTHON
-require("lspconfig").pylsp.setup{
-  settings = {
-    pylsp = {
-      plugins = {
-        flake8 = {
-          enabled = true,
-          -- pflake8 is used to read pyproject.toml
-          executable = "pflake8",
-        },
-        jedi_definition = { enabled = true },
-        jedi_reference = { enabled = true },
-        mypy = {
-          enabled = true,
-          live_mode = false,
-        },
-        pylint = {
-          enabled = true,
-          args = {'--rcfile', 'pyproject.toml'},
-        },
-        pydocstyle = { enabled = true },
-        -- disabled plugins
-        autopep8 = { enabled = false },
-        jedi_completion = { enabled = false },
-        jedi = { enabled = false },
-        jedi_hover = { enabled = false },
-        jedi_signature_help = { enabled = false },
-        jedi_symbols = { enabled = false },
-        mccabe = { enabled = false },
-        preload = { enabled = false },
-        pycodestyle = { enabled = false },
-        pyflakes = { enabled = false },
-        rope_autoimport = { enabled = false },
-        yapf = { enabled = false },
-      },
-    }
-  }
-}
-
-local null_ls = require("null-ls")
 local sources = {
     require("null-ls").builtins.code_actions.gitsigns,
     require("null-ls").builtins.diagnostics.shellcheck,
@@ -222,6 +175,7 @@ require("nvim-treesitter.configs").setup {
     "cpp",
     "css",
     "dockerfile",
+    "go",
     "hcl",
     "html",
     "javascript",
@@ -279,3 +233,76 @@ command! Rand execute ":read! tr -dc a-zA-Z0-9 < /dev/urandom | tr -d iIlLoO0 | 
 
 " cd to current open file
 command! Relocate execute ":cd %:h"
+
+lua <<EOF
+
+vim.keymap.set('n', '<space>e', vim.diagnostic.open_float, opts)
+-- vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+-- vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+
+vim.diagnostic.config({
+    underline = true,
+    signs = true,
+    virtual_text = true,
+    float = {
+        show_header = true,
+        source = 'always', -- could be 'if_many'
+        border = 'rounded',
+        focusable = false,
+    },
+    update_in_insert = false, -- default to false
+    severity_sort = false, -- default to false
+})
+-- vim.lsp.set_log_level("debug")
+
+require("lspconfig").pylsp.setup{
+  settings = {
+    pylsp = {
+      plugins = {
+        jedi_definition = { enabled = false },
+        jedi_reference = { enabled = false },
+        mypy = {
+          enabled = true,
+          live_mode = false,
+        },
+        -- disabled plugins
+        autopep8 = { enabled = false },
+        flake8 = { enabled = false },
+        jedi_completion = { enabled = false },
+        jedi = { enabled = false },
+        jedi_hover = { enabled = false },
+        jedi_signature_help = { enabled = false },
+        jedi_symbols = { enabled = false },
+        mccabe = { enabled = false },
+        preload = { enabled = false },
+        pycodestyle = { enabled = false },
+        pydocstyle = { enabled = false },
+        pyflakes = { enabled = false },
+        pylint = { enabled = false },
+        rope_autoimport = { enabled = false },
+        ruff = { enabled = false },
+        yapf = { enabled = false },
+      },
+    }
+  }
+}
+
+-- https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#jedi_language_server
+require('lspconfig').jedi_language_server.setup{}
+
+-- Configure `ruff-lsp`.
+-- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#ruff_lsp
+-- For the default config, along with instructions on how to customize the settings
+require('lspconfig').ruff_lsp.setup {
+  on_attach = on_attach,
+  init_options = {
+    settings = {
+      -- Any extra CLI arguments for `ruff` go here.
+      args = {},
+    }
+  }
+}
+
+require('leap').add_default_mappings()
+
+EOF
