@@ -65,6 +65,8 @@ export HISTCONTROL=ignoreboth:erasedups
 export HISTIGNORE="fg:bg:&:[ ]*:exit:ls:clear:ll:cd:\\[A*:nvim:gs:gd:gf:gr:gl:aerc:tmux:python3"
 # Append to the history file, don't overwrite it
 shopt -s histappend
+# trick to make changes to history be written immediately rather upon shell exit
+PS1="history -a;$PS1"
 # Save multi-line commands as one command
 shopt -s cmdhist
 # Enable incremental history search with up/down arrows (also Readline goodness)
@@ -123,39 +125,40 @@ if command -v git >/dev/null; then
   alias gd='git diff --color'
   alias gdd='git diff --color --staged'
   alias gr='git log --graph --abbrev-commit --decorate --format=format:"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)" --all'
+  alias gb='git switch "$(git branch -r | cut -d'/' -f2- | fzf)"'
 
-    # get number of commit last week/day for each author
-    gp() {
-      case "$1" in
-        "day") age=$(( $(date +%s) - (60 * 60 * 24) ));;
-        "month") age=$(( $(date +%s) - (60 * 60 * 24 * 30) ));;
-        "year") age=$(( $(date +%s) - (60 * 60 * 24 * 365) ));;
-        "all") age=$(( $(date +%s) - (60 * 60 * 24 * 365 * 10) ));;
-        "week"|*) age=$(( $(date +%s) - (60 * 60 * 24 * 7) ));;
-      esac
-      (
-      printf "commits,files,additions,deletions,author\\n"
-      for name in $(git shortlog -se --all | sed -E 's/.*<(.*)>.*/\1/' | sort | uniq); do
-        added="0"; deleted="0"; files="0"; count="0"
-        for commit in $(git rev-list --no-merges --author="$name" --max-age="$age" --all); do
-          count=$(( count + 1 ))
-          stats="$(git diff --shortstat "$commit"^ "$commit" 2>/dev/null)"
-          to_files=$(printf "%s" "$stats" | cut -d" " -f2)
-          [ -n "$to_files" ] && files=$(( files + to_files ))
-          to_add=$(printf "%s" "$stats" | cut -d" " -f5)
-          [ -n "$to_add" ] && added=$(( added + to_add ))
-          to_delete=$(printf "%s" "$stats" | cut -d" " -f7)
-          [ -n "$to_delete" ] && deleted=$(( deleted + to_delete ))
-        done
-        if [ "$count" -gt 0 ]; then
-          m_added=$(( added / count ))
-          m_deleted=$(( deleted / count ))
-          m_files=$(( files / count ))
-          printf "%s,(%s) %s,(%s) %s,(%s) %s,%s\\n" "$count" "$m_files" "$files" "$m_added" "$added" "$m_deleted" "$deleted" "$name"
-        fi
+  # get number of commit last week/day for each author
+  gp() {
+    case "$1" in
+      "day") age=$(( $(date +%s) - (60 * 60 * 24) ));;
+      "month") age=$(( $(date +%s) - (60 * 60 * 24 * 30) ));;
+      "year") age=$(( $(date +%s) - (60 * 60 * 24 * 365) ));;
+      "all") age=$(( $(date +%s) - (60 * 60 * 24 * 365 * 10) ));;
+      "week"|*) age=$(( $(date +%s) - (60 * 60 * 24 * 7) ));;
+    esac
+    (
+    printf "commits,files,additions,deletions,author\\n"
+    for name in $(git shortlog -se --all | sed -E 's/.*<(.*)>.*/\1/' | sort | uniq); do
+      added="0"; deleted="0"; files="0"; count="0"
+      for commit in $(git rev-list --no-merges --author="$name" --max-age="$age" --all); do
+        count=$(( count + 1 ))
+        stats="$(git diff --shortstat "$commit"^ "$commit" 2>/dev/null)"
+        to_files=$(printf "%s" "$stats" | cut -d" " -f2)
+        [ -n "$to_files" ] && files=$(( files + to_files ))
+        to_add=$(printf "%s" "$stats" | cut -d" " -f5)
+        [ -n "$to_add" ] && added=$(( added + to_add ))
+        to_delete=$(printf "%s" "$stats" | cut -d" " -f7)
+        [ -n "$to_delete" ] && deleted=$(( deleted + to_delete ))
       done
-      ) | column -t -s ','
-    }
+      if [ "$count" -gt 0 ]; then
+        m_added=$(( added / count ))
+        m_deleted=$(( deleted / count ))
+        m_files=$(( files / count ))
+        printf "%s,(%s) %s,(%s) %s,(%s) %s,%s\\n" "$count" "$m_files" "$files" "$m_added" "$added" "$m_deleted" "$deleted" "$name"
+      fi
+    done
+    ) | column -t -s ','
+  }
 fi
 
 if command -v openssl >/dev/null; then
@@ -224,6 +227,12 @@ if command -v yt-dlp >/dev/null; then
   ytgif() {
       ffmpeg -ss "$1" -t "$2" -i "$(yt-dlp -g "$3" | head -n1)" -filter_complex "[0:v] fps=12,scale=w=480:h=-1" -f gif "$(date +%Y-%m-%d-%H%M%S)-ytgif.gif"
   }
+fi
+
+if command -v fzf >/dev/null; then
+  if [ -e /usr/share/doc/fzf/examples/key-bindings.bash ]; then
+    . /usr/share/doc/fzf/examples/key-bindings.bash
+  fi
 fi
 
 # remove bare IPs from known_hosts
