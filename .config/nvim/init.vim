@@ -59,6 +59,12 @@ vim.api.nvim_set_keymap("t", "<C-l>", [[<C-\><C-n>:tabnext<CR>]], keymap_opts)
 vim.api.nvim_set_keymap("n", "<C-h>", [[:tabprevious<CR>]], keymap_opts)
 vim.api.nvim_set_keymap("i", "<C-h>", [[<Esc>:tabprevious<CR>]], keymap_opts)
 vim.api.nvim_set_keymap("t", "<C-h>", [[<C-\><C-n>:tabprevious<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("n", "<C-k>", [[:tabmove +1<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("i", "<C-k>", [[<Esc>:tabmove +1<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<C-k>", [[<C-\><C-n>:tabmove +1<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("n", "<C-j>", [[:tabmove -1<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("i", "<C-j>", [[<Esc>:tabmove -1<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<C-j>", [[<C-\><C-n>:tabmove -1<CR>]], keymap_opts)
 
 EOF
 
@@ -85,12 +91,12 @@ function! Retab()
   retab!
 endfunction
 
-" By default, Vim associates .tf files with TinyFugue - tell it not to.
-silent! autocmd! filetypedetect BufRead,BufNewFile *.tf
-autocmd BufRead,BufNewFile *.hcl set filetype=hcl
-autocmd BufRead,BufNewFile .terraformrc,terraform.rc set filetype=hcl
-autocmd BufRead,BufNewFile *.tf,*.tfvars set filetype=hcl
-autocmd BufRead,BufNewFile *.tfstate,*.tfstate.backup set filetype=json
+" " By default, Vim associates .tf files with TinyFugue - tell it not to.
+" silent! autocmd! filetypedetect BufRead,BufNewFile *.tf
+" autocmd BufRead,BufNewFile *.hcl set filetype=hcl
+" autocmd BufRead,BufNewFile .terraformrc,terraform.rc set filetype=hcl
+" autocmd BufRead,BufNewFile *.tf,*.tfvars set filetype=hcl
+" autocmd BufRead,BufNewFile *.tfstate,*.tfstate.backup set filetype=json
 
 lua <<EOF
 
@@ -302,6 +308,18 @@ require('lspconfig').ruff_lsp.setup {
     }
   }
 }
+
+-- https://github.com/hashicorp/terraform-ls/blob/main/docs/USAGE.md#neovim-v080
+require'lspconfig'.terraformls.setup{}
+vim.api.nvim_create_autocmd({"BufWritePre"}, {
+  pattern = {"*.tf", "*.tfvars"},
+  callback = function()
+    vim.lsp.buf.format()
+  end,
+})
+
+-- https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#tflint
+require'lspconfig'.tflint.setup{}
 
 require('leap').add_default_mappings()
 
