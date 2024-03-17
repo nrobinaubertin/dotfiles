@@ -60,9 +60,10 @@ bind '"\033[Z": menu-complete'
 ##############
 
 unset HISTFILESIZE
-export HISTSIZE="20000"
+export HISTSIZE="30000"
 export HISTCONTROL=ignoreboth:erasedups
 export HISTIGNORE="fg:bg:&:[ ]*:exit:ls:clear:ll:cd:\\[A*:nvim:gs:gd:gf:gr:gl:aerc:tmux:python3"
+export HISTTIMEFORMAT="%d/%m/%y %T "
 # Append to the history file, don't overwrite it
 shopt -s histappend
 # trick to make changes to history be written immediately rather upon shell exit
@@ -84,11 +85,21 @@ bind '"\033[D": backward-char'
 unalias -a
 
 # some aliases
-alias todo='nvim -c "set ft=markdown" ${HOME}/.TODO.md'
 alias grep='grep --color=always'
 alias less='less -RX'
-alias nraw='nvim -u NORC -c "setlocal syntax=off"'
-alias nterm='nvim -c term'
+
+if command -v nvim >/dev/null; then
+  alias todo='nvim -c "set ft=markdown" ${HOME}/.TODO.md'
+  alias nraw='nvim -u NORC -c "setlocal syntax=off"'
+  alias nterm='nvim -c term'
+  note() {
+    if [ -z "$1" ]; then
+      nvim -c 'normal Go______________________________' -c 'r!date' -c 'normal o' -c 'startinsert' "$HOME/notes/$(date +%F).md"
+    else
+      nvim -c 'startinsert' "$HOME/notes/$(date +%F)-$1.md"
+    fi
+  }
+fi
 
 if command -v exa >/dev/null; then
   alias ll='exa -gl --git --color=always'
@@ -232,6 +243,14 @@ fi
 if command -v fzf >/dev/null; then
   if [ -e /usr/share/doc/fzf/examples/key-bindings.bash ]; then
     . /usr/share/doc/fzf/examples/key-bindings.bash
+  fi
+
+  if command -v fd >/dev/null; then
+    __fzf_cd__() {
+      local cmd dir
+      cmd="${FZF_ALT_C_COMMAND:-"command fd . -u -t d -d 10"}"
+      dir=$(eval "$cmd" | FZF_DEFAULT_OPTS="--height ${FZF_TMUX_HEIGHT:-40%} --reverse --bind=ctrl-z:ignore $FZF_DEFAULT_OPTS $FZF_ALT_C_OPTS" $(__fzfcmd) +m) && printf 'cd -- %q' "$dir"
+    }
   fi
 fi
 
