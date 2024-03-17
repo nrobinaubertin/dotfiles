@@ -1,5 +1,17 @@
 #!/bin/sh
 
+if ! command -v mpv >/dev/null; then
+  echo "mpv is needed."
+  exit
+fi
+
+# Rename the tmux window
+if command -v tmux >/dev/null; then
+  wn="$(tmux display-message -p '#W')"
+  tmux rename-window "music"
+  trap "tmux rename-window "$wn"" EXIT
+fi
+
 read_target() {
   if [ -e "$1" ]; then
     if [ -d "$1" ] && [ -f "$1/index.m3u" ]; then
@@ -8,30 +20,22 @@ read_target() {
     fi
   fi
   if echo "$1" | grep "^http" >/dev/null; then
-    case "$1" in
-      *youtu.be*|*youtube*|*bandcamp*|*soundcloud*)
-        yt-dlp --get-url "$1" -f bestaudio
-        return;;
-    esac
+    if command -v yt-dlp >/dev/null; then
+      case "$1" in
+        *youtu.be*|*youtube*|*bandcamp*|*soundcloud*)
+          yt-dlp --get-url "$1" -f bestaudio
+          return;;
+      esac
+    fi
   fi
   echo "$1"
 }
 
-# tracks=""
-# options=""
-# for term in "$@"; do
-#   case "$term" in
-#     "--loop") options="$options --loop-playlist";;
-#     *)
-#       if [ "$tracks" = "" ]; then
-#         tracks="$(read_target "$term")"
-#       else
-#           tracks="$tracks\n$(read_target "$term")"
-#       fi;;
-#   esac
-# done
+read_targets() {
+  while IFS= read -r line; do
+    echo $(read_target "$line")
+  done
+}
 
-# echo "$tracks" | mpv --no-video --playlist=- "$options"
-export TERM=xterm-256color 
-# intf could be "cli"
-vlc --no-loop --no-random --no-color --intf ncurses "$(read_target "$1")"
+# Hint: Add `Ctrl+r playlist-shuffle` to your ~/.config/mpv/input.conf
+printf "%s\n" "$@" | read_targets | mpv --no-video --playlist=-
