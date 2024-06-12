@@ -3,27 +3,31 @@
 " - No support for vim, only neovim in mind
 " - Keep it minimal: we need a good reason to change default behavior
 " - Multiplatform: should work on POSIX systems
-" - Lua: vimscript is only nice for vim compatibility (transition to lua is
-"   not complete)
-
-" map ,e :e <C-R>=expand("%:p:h") . "/" <CR>
-" map ,t :tabe <C-R>=expand("%:p:h") . "/" <CR>
-" map ,s :split <C-R>=expand("%:p:h") . "/" <CR>
+" - Lua: vimscript is only nice for vim compatibility (transition to lua is not complete)
 
 lua <<EOF
 -- Don't mess with 'tabstop', with 'expandtab' it isn't used.
 -- Instead set softtabstop=-1, then 'shiftwidth' is used.
-vim.o.expandtab = true
-vim.o.shiftwidth = 2
-vim.o.softtabstop = -1
 vim.o.tabstop = 2
--- vim.o.softtabstop = 2
+vim.o.softtabstop = -1
+vim.o.shiftwidth = 2
+vim.o.expandtab = true  -- Use spaces instead of tabs
+vim.o.softtabstop = 2
 
 -- set tabstop to 4 in php files
 vim.api.nvim_create_autocmd("FileType", {
     pattern = { "php" },
-    command = "setlocal ts=4 sts=4 sw=4",
+    command = "setlocal ts=4 sts=4 sw=4 et",
 })
+
+-- set tabstop to 4 in go files
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = { "go" },
+    command = "setlocal ts=2 sts=2 sw=2 noet",
+})
+
+-- Use 'correct' php indentation for switch blocks
+vim.g.PHP_vintage_case_default_indent = 1
 
 vim.g.editorconfig = false
 vim.o.clipboard = "unnamedplus" -- Use the clipboard for all operations
@@ -39,18 +43,13 @@ vim.o.undofile = true -- undo-persistence
 vim.o.modeline = false -- can be a security issue
 vim.o.smartindent = true
 vim.o.list = true -- show unprintable characters
-vim.o.fsync = true
+vim.o.fsync = true -- default since https://github.com/neovim/neovim/releases/tag/v0.9.5
 vim.o.lazyredraw = true
 
 vim.opt.foldlevel = 99
 vim.opt.foldmethod = "expr"
 -- vim.o.foldmethod = "indent"
 vim.opt.foldexpr = [[nvim_treesitter#foldexpr()]] -- take advantage of treesitter for foldexpr
-
--- hide line numbers in terminal windows
--- vim.api.nvim_exec([[
---    au BufEnter term://* setlocal nonumber
--- ]], false)
 
 local keymap_opts = { noremap = true, silent = true }
 vim.api.nvim_set_keymap("n", "<C-l>", [[:tabnext<CR>]], keymap_opts)
@@ -68,13 +67,6 @@ vim.api.nvim_set_keymap("t", "<C-j>", [[<C-\><C-n>:tabmove -1<CR>]], keymap_opts
 
 EOF
 
-" set shellslash
-" set shell=/bin/bash
-"https://www.reddit.com/r/neovim/comments/gbb2g3/wierd_vimplug_error_messages/.compact
-"if has('win32')
-"  set shell=powershell.exe
-"endif
-
 " Statusline
 set statusline=
 set statusline+=\ [%n%H%M%R%W]\     " flags and buf no
@@ -91,30 +83,8 @@ function! Retab()
   retab!
 endfunction
 
-" " By default, Vim associates .tf files with TinyFugue - tell it not to.
-" silent! autocmd! filetypedetect BufRead,BufNewFile *.tf
-" autocmd BufRead,BufNewFile *.hcl set filetype=hcl
-" autocmd BufRead,BufNewFile .terraformrc,terraform.rc set filetype=hcl
-" autocmd BufRead,BufNewFile *.tf,*.tfvars set filetype=hcl
-" autocmd BufRead,BufNewFile *.tfstate,*.tfstate.backup set filetype=json
-
 lua <<EOF
 
-function Upgrade()
-  local get_separator = function()
-    if jit.os == "Windows" then
-      return '\\'
-    end
-    return '/'
-  end
-  local join_paths = function(...)
-    return table.concat({ ... }, get_separator())
-  end
-  local init_path = join_paths(vim.fn.stdpath 'config', 'init.vim')
-  local init_url = 'https://raw.githubusercontent.com/nrobinaubertin/dotfiles/master/.config/nvim/init.vim'
-  vim.cmd([[echom system('curl -Lso ]] .. init_path .. [[ ]] .. init_url .. [[')]])
-  vim.cmd([[PlugUpgrade]])
-end
 function Update()
   vim.cmd([[PlugUpdate]])
   vim.cmd([[UpdateRemotePlugins]])
@@ -128,43 +98,28 @@ autocmd TermOpen * startinsert
 autocmd TermEnter * let b:insertMode = "yes"
 autocmd BufEnter * if &buftype == 'terminal' && b:insertMode != "no" | startinsert | endif
 
-" Use 'correct' php indentation for switch blocks
-let g:PHP_vintage_case_default_indent = 1
-
 " Vim-plug
 call plug#begin(resolve(expand(stdpath('config') . '/plugged')))
-Plug 'jose-elias-alvarez/null-ls.nvim'
 Plug 'justinmk/vim-dirvish'
 Plug 'lewis6991/gitsigns.nvim' " git
 Plug 'neovim/nvim-lspconfig' " lsp
-Plug 'nvim-lua/plenary.nvim' " telescope, gitsigns, null-ls
-Plug 'nvim-lua/popup.nvim' " telescope
+Plug 'nvim-lua/plenary.nvim' " [telescope, gitsigns]
+Plug 'nvim-lua/popup.nvim' " [telescope]
 Plug 'nvim-telescope/telescope.nvim' " fuzzy finder
-Plug 'nvim-treesitter/nvim-treesitter' " syntax highlighting
+Plug 'nvim-treesitter/nvim-treesitter' " syntax highlighting [orgmode]
 Plug 'sainnhe/gruvbox-material'  " colorscheme
 Plug 'tpope/vim-fugitive' " git
-Plug 'ggandor/leap.nvim' " moving around
 call plug#end()
 
 lua <<EOF
 
-local root_dir = function(fname)
-  return vim.fn.getcwd() .. "/" .. vim.fn.finddir('.git/..', vim.fn.expand('%:p:h') .. ';') or vim.fn.getcwd()
-  -- path_to_pyproject = vim.fn.findfile("pyproject.toml", vim.fn.expand("%:p:h") .. ';')
-end
-
 -- GOLANG
--- require('lspconfig').gopls.setup{}
-
-local sources = {
-    require("null-ls").builtins.code_actions.gitsigns,
-    require("null-ls").builtins.diagnostics.shellcheck,
-}
-require("null-ls").setup({ sources = sources })
+vim.cmd [[autocmd BufWritePost *.go :silent! exec '!go fmt %:p' | edit!]]
+require('lspconfig').gopls.setup{}
 
 -- Colorscheme
 vim.o.termguicolors = true -- doesn't work without it
-vim.o.background = "light"
+vim.o.background = "dark"
 vim.g.gruvbox_material_enable_italic = 0
 vim.g.gruvbox_material_enable_bold = 1
 vim.g.gruvbox_material_disable_italic_comment = 1
@@ -220,6 +175,8 @@ vim.api.nvim_set_keymap("n", "<A-g>", [[:lua require('telescope.builtin').live_g
 vim.api.nvim_set_keymap("t", "<A-g>", [[<C-\><C-n>:lua require('telescope.builtin').live_grep()<CR>]], keymap_opts)
 vim.api.nvim_set_keymap("n", "<A-m>", [[:lua require('telescope.builtin').man_pages()<CR>]], keymap_opts)
 vim.api.nvim_set_keymap("t", "<A-m>", [[<C-\><C-n>:lua require('telescope.builtin').man_pages()<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("n", "<A-f>", [[:lua require('telescope.builtin').git_files()<CR>]], keymap_opts)
+vim.api.nvim_set_keymap("t", "<A-f>", [[<C-\><C-n>:lua require('telescope.builtin').git_files()<CR>]], keymap_opts)
 vim.api.nvim_set_keymap("n", "gd", [[:lua require('telescope.builtin').lsp_definitions()<CR>]], keymap_opts)
 vim.api.nvim_set_keymap('n', "gr", [[:lua require('telescope.builtin').lsp_references()<CR>]], keymap_opts)
 
@@ -261,17 +218,18 @@ vim.diagnostic.config({
 })
 -- vim.lsp.set_log_level("debug")
 
+-- only used for mypy
 require("lspconfig").pylsp.setup{
   settings = {
     pylsp = {
       plugins = {
-        jedi_definition = { enabled = false },
-        jedi_reference = { enabled = false },
         mypy = {
           enabled = true,
           live_mode = false,
         },
         -- disabled plugins
+        jedi_definition = { enabled = false },
+        jedi_reference = { enabled = false },
         autopep8 = { enabled = false },
         flake8 = { enabled = false },
         jedi_completion = { enabled = false },
@@ -293,8 +251,69 @@ require("lspconfig").pylsp.setup{
   }
 }
 
--- https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#jedi_language_server
-require('lspconfig').jedi_language_server.setup{}
+-- Creates a jedi env dir to be used to install python packages to
+local function create_jedi_env()
+  local home_dir = vim.fn.expand('~')
+  local consolidated_env_path = home_dir .. "/.local/share/nvim/jedi/env"
+  if vim.fn.isdirectory(consolidated_env_path) == 0 then
+      print("Creating consolidated environment at " .. consolidated_env_path)
+      vim.fn.system("python3 -m venv " .. consolidated_env_path)
+      if vim.v.shell_error ~= 0 then
+          print("Error creating the consolidated environment.")
+          return
+      end
+  end
+end
+
+-- Fn used to install dependencies from the current env to an env used to query definitions
+local function UpdateJediEnvironment()
+    local home_dir = vim.fn.expand('~')
+    local consolidated_env_path = home_dir .. "/.local/share/nvim/jedi/env"
+    local tox_dir = vim.fn.getcwd() .. '/.tox'
+
+    if vim.fn.isdirectory(tox_dir) == 0 then
+        print("No .tox directory found.")
+        return
+    end
+
+    create_jedi_env()
+
+    local envs = vim.fn.readdir(tox_dir)
+    for _, env in ipairs(envs) do
+        local env_path = tox_dir .. '/' .. env
+        if vim.fn.isdirectory(env_path) == 1 then
+            -- Skip directories starting with a dot
+            if string.sub(env, 1, 1) == "." then
+                goto continue
+            end
+            local pip_freeze_cmd = "pip freeze --path " .. env_path .. '/lib/python3.10/site-packages/'
+            local packages = vim.fn.system(pip_freeze_cmd)
+            packages = packages:gsub("\n", " ")
+
+            if vim.v.shell_error == 0 then
+                local install_cmd = consolidated_env_path .. "/bin/pip install " .. packages
+                vim.fn.system(install_cmd)
+                if vim.v.shell_error ~= 0 then
+                    print("Error installing packages from [" .. install_cmd .. "]: " .. env)
+                end
+            else
+                print("Error extracting packages from: " .. env)
+            end
+        end
+        ::continue::
+    end
+
+    print("Aggregation complete.")
+end
+vim.api.nvim_create_user_command('UpdateJediEnv', UpdateJediEnvironment, {})
+
+require('lspconfig').jedi_language_server.setup{
+  init_options = {
+    workspace = {
+      environmentPath = vim.fn.expand('~') .. "/.local/share/nvim/jedi/env/bin/python"
+    }
+  }
+}
 
 -- Configure `ruff-lsp`.
 -- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#ruff_lsp
@@ -321,6 +340,7 @@ vim.api.nvim_create_autocmd({"BufWritePre"}, {
 -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#tflint
 require'lspconfig'.tflint.setup{}
 
-require('leap').add_default_mappings()
+vim.keymap.set("n", "]g", vim.diagnostic.goto_next)
+vim.keymap.set("n", "[g", vim.diagnostic.goto_prev)
 
 EOF
