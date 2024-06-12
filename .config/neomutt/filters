@@ -1,0 +1,9 @@
+macro index <F6> "\
+<tag-pattern>~C allhands@lists.canonical.com ~s 'People News'<enter>\
+<tag-pattern>~s 'Canceled event:'<enter>\
+<tag-pattern>~f 'notifications@github.com'<enter>\
+<tag-pattern>~s 'Updated invitation with note:'<enter>\
+<tag-pattern>~s 'Updated invitation:'<enter>\
+<tag-pattern>~s 'Undelivered Mail Returned to Sender'<enter>\
+<tag-prefix><delete-message>\
+" "Mark spam emails to be deleted"

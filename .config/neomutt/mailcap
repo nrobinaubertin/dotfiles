@@ -1,0 +1,14 @@
+# text/plain; $EDITOR %s ;
+text/plain; ~/.config/aerc/filters/colorize %{charset}; copiousoutput
+# text/html; /usr/local/lib/mutt-wizard/openfile %s ; nametemplate=%s.html
+# text/html; lynx -assume_charset=%{charset} -display_charset=utf-8 -dump -width=1024 %s; nametemplate=%s.html; copiousoutput;
+text/html; ~/.config/aerc/filters/html %{charset}; copiousoutput
+# text/html; w3m -I %{charset} -T text/html; copiousoutput
+image/*; feh -x - ;
+# video/*; setsid mpv --quiet %s &; copiousoutput ;
+# audio/*; mpv %s ;
+application/pdf; firefox '%s' ;
+application/x-subrip; $EDITOR %s ;
+image/gif; mpv --loop - ;
+video/*; mpv '%s' ;
+audio/*; mpv '%s' ;

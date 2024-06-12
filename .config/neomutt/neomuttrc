@@ -1,0 +1,38 @@
+set send_charset="utf-8"
+set use_from = yes
+set envelope_from = yes
+
+set folder = "~/data/mail/"
+
+# Setup msmtp for sending
+set sendmail = "/usr/bin/msmtp"
+set ssl_starttls = yes
+set ssl_force_tls = yes
+
+# Setup mbsync for receiving
+set mbox_type = Maildir
+set header_cache=~/.cache/mutt
+
+set sort = 'reverse-date'
+set sort_aux = "last-date-received"
+set date_format="%Y-%m-%d %I:%M%p"
+set index_format="%2C %Z %?X?A& ? %D %-15.15F %s (%-4.4c)"
+
+set mailcap_sanitize = no
+auto_view text/plain
+auto_view text/html
+set mailcap_path = "~/.config/neomutt/mailcap"
+
+set sidebar_visible = yes
+set sidebar_width = 30
+set sidebar_format = '%D%* %N/%S'
+set mail_check_stats
+set sidebar_folder_indent = yes
+set sidebar_short_path = yes
+set sidebar_component_depth = 0
+set sidebar_delim_chars = '@'
+
+source ~/data/secrets/neomutt/mailboxes
+source ./theme
+source ./bindings
+source ./filters
