@@ -98,20 +98,22 @@ autocmd TermOpen * startinsert
 autocmd TermEnter * let b:insertMode = "yes"
 autocmd BufEnter * if &buftype == 'terminal' && b:insertMode != "no" | startinsert | endif
 
-" Vim-plug
-call plug#begin(resolve(expand(stdpath('config') . '/plugged')))
-Plug 'justinmk/vim-dirvish'
-Plug 'lewis6991/gitsigns.nvim' " git
-Plug 'neovim/nvim-lspconfig' " lsp
-Plug 'nvim-lua/plenary.nvim' " [telescope, gitsigns]
-Plug 'nvim-lua/popup.nvim' " [telescope]
-Plug 'nvim-telescope/telescope.nvim' " fuzzy finder
-Plug 'nvim-treesitter/nvim-treesitter' " syntax highlighting [orgmode]
-Plug 'sainnhe/gruvbox-material'  " colorscheme
-Plug 'tpope/vim-fugitive' " git
-call plug#end()
-
 lua <<EOF
+
+-- vim-plug
+local vim = vim
+local Plug = vim.fn['plug#']
+
+vim.call('plug#begin')
+Plug('https://github.com/justinmk/vim-dirvish', { ['tag'] = 'v1.0' })
+Plug('https://github.com/lewis6991/gitsigns.nvim', { ['tag'] = 'v0.9.0' }) -- git
+Plug('https://github.com/neovim/nvim-lspconfig', { ['tag'] = 'v0.1.8' }) -- lsp
+Plug('https://github.com/nvim-lua/plenary.nvim', { ['branch'] = 'v0.1.4' }) -- [telescope, gitsigns]
+Plug('https://github.com/nvim-telescope/telescope.nvim', { ['tag'] = 'v0.1.8' }) -- fuzzy finder
+Plug('https://github.com/nvim-treesitter/nvim-treesitter', { ['tag'] = 'v0.9.2' }) -- syntax highlighting
+Plug('https://github.com/sainnhe/gruvbox-material', { ['tag'] = 'v1.2.5' })  -- colorscheme
+Plug('https://github.com/tpope/vim-fugitive', { ['tag'] = 'v3.7' }) -- git
+vim.call('plug#end')
 
 -- GOLANG
 vim.cmd [[autocmd BufWritePost *.go :silent! exec '!go fmt %:p' | edit!]]
@@ -119,7 +121,7 @@ require('lspconfig').gopls.setup{}
 
 -- Colorscheme
 vim.o.termguicolors = true -- doesn't work without it
-vim.o.background = "dark"
+vim.o.background = "light"
 vim.g.gruvbox_material_enable_italic = 0
 vim.g.gruvbox_material_enable_bold = 1
 vim.g.gruvbox_material_disable_italic_comment = 1
@@ -129,6 +131,7 @@ vim.g.gruvbox_material_foreground = "original"
 vim.cmd([[colorscheme gruvbox-material]])
 
 -- Treesitter highlighting
+-- Parser issues: https://github.com/nvim-treesitter/nvim-treesitter/issues/3092
 require("nvim-treesitter.configs").setup {
   ensure_installed = {
     "bash",
