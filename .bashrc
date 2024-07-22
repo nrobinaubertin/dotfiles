@@ -101,10 +101,10 @@ if command -v nvim >/dev/null; then
   }
 fi
 
-if command -v exa >/dev/null; then
-  alias ll='exa -gl --git --color=always'
-  alias lla='exa -agl --git --color=always'
-  alias llt='exa -gl --git -s modified --color=always'
+if command -v eza >/dev/null; then
+  alias ll='eza -gl --git --color=always'
+  alias lla='eza -agl --git --color=always'
+  alias llt='eza -gl --git -s modified --color=always'
 else
   alias ll='ls -lhb --color'
 fi
