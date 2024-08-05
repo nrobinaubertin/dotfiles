@@ -14,7 +14,8 @@ if grep gruvbox_light ~/.config/sway/config >/dev/null 2>/dev/null; then
   sed -i -e 's|gruvbox-light|gruvbox-dark|g' ~/.config/alacritty/alacritty.toml
   sed -i -e 's|theme "gruvbox-light"|theme "gruvbox-dark"|g' ~/.config/zellij/config.kdl
   sed -i -e 's|gruvbox-light|gruvbox-dark|g' ~/.gitconfig
-  sed -i -e 's|vim.o.background = "light"|vim.o.background = "dark"|g' ~/.config/nvim/init.vim
+  sed -i -e 's|vim.o.background = "light"|vim.o.background = "dark"|g' ~/.config/nvim/init.lua
+  sed -i -e 's|gruvbox-light|gruvbox-dark|g' ~/.config/tmux/core.conf
   set_neovim_theme dark
 else
   sed -i -e 's|gruvbox_dark|gruvbox_light|g' ~/.config/sway/config
@@ -22,8 +23,10 @@ else
   sed -i -e 's|gruvbox-dark|gruvbox-light|g' ~/.config/alacritty/alacritty.toml
   sed -i -e 's|theme "gruvbox-dark"|theme "gruvbox-light"|g' ~/.config/zellij/config.kdl
   sed -i -e 's|gruvbox-dark|gruvbox-light|g' ~/.gitconfig
-  sed -i -e 's|vim.o.background = "dark"|vim.o.background = "light"|g' ~/.config/nvim/init.vim
+  sed -i -e 's|vim.o.background = "dark"|vim.o.background = "light"|g' ~/.config/nvim/init.lua
+  sed -i -e 's|gruvbox-dark|gruvbox-light|g' ~/.config/tmux/core.conf
   set_neovim_theme light
 fi
 
 pkill --signal SIGUSR1 kitty
+tmux source ~/.tmux.conf
