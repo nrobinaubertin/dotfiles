@@ -5,5 +5,11 @@ macro index <F6> "\
 <tag-pattern>~s 'Updated invitation with note:'<enter>\
 <tag-pattern>~s 'Updated invitation:'<enter>\
 <tag-pattern>~s 'Undelivered Mail Returned to Sender'<enter>\
+<tag-pattern>~s '[Charmhub] Summary'<enter>\
+<tag-pattern>~s '[GitHub] New two-factor authentication factor configured'<enter>\
+<tag-pattern>~s '[GitHub] Please review this sign in'<enter>\
+<tag-pattern>~s '[JIRA] (ISD-'<enter>\
+<tag-pattern>~s 'Accepted: Yanks / Niels @ Mon'<enter>\
+<tag-pattern>~s 'Welcome our New Starters'<enter>\
 <tag-prefix><delete-message>\
 " "Mark spam emails to be deleted"
