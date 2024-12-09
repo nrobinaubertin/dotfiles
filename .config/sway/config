@@ -197,6 +197,8 @@ bindsym XF86Favorites exec redshift
 
 bindsym Print exec grim - | wl-copy -t image/png
 bindsym XF86SelectiveScreenshot exec grim -g "$(slurp -d)" - | wl-copy -t image/png
+bindsym Shift+Print exec grim -g "$(slurp -d)" - | wl-copy -t image/png
+bindsym $mod+Shift+s exec grim -g "$(slurp -d)" - | wl-copy -t image/png
 
 
 #include /etc/sway/config.d/*
