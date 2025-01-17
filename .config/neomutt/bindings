@@ -82,3 +82,7 @@ bind index,pager B sidebar-toggle-visible
 # my custom bindings
 macro index S "<shell-escape>mbsync -a<enter>" "Sync mailboxes"
 macro index s '<sync-mailbox>y'
+
+# https://github.com/firecat53/urlscan
+macro index,pager \cb "<pipe-message> urlscan<Enter>" "call urlscan to extract URLs out of a message"
+macro attach,compose \cb "<pipe-entry> urlscan<Enter>" "call urlscan to extract URLs out of a message"
