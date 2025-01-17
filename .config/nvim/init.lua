@@ -34,8 +34,8 @@ vim.o.undofile = true -- undo-persistence
 vim.o.modeline = false -- can be a security issue
 vim.o.smartindent = true
 vim.o.list = true -- show unprintable characters
-vim.o.fsync = true -- default since https://github.com/neovim/neovim/releases/tag/v0.9.5
 vim.o.lazyredraw = true
+vim.o.mouse = ""
 
 vim.opt.foldlevel = 99
 vim.opt.foldmethod = "expr"
@@ -102,21 +102,18 @@ vim.api.nvim_create_autocmd("BufEnter", {
 })
 
 -- Plugins
-local vim = vim
-local Plug = vim.fn['plug#']
-
 vim.call('plug#begin')
-Plug('https://github.com/justinmk/vim-dirvish', { ['tag'] = 'v1.0' }) -- navigate
-Plug('https://github.com/lewis6991/gitsigns.nvim', { ['tag'] = 'v0.9.0' }) -- git
-Plug('https://github.com/neovim/nvim-lspconfig', { ['tag'] = 'v0.1.8' }) --
-Plug('https://github.com/williamboman/mason.nvim') --
-Plug('https://github.com/williamboman/mason-lspconfig.nvim') --
-Plug('https://github.com/nvim-lua/plenary.nvim', { ['tag'] = 'v0.1.4' }) -- [telescope, gitsigns]
-Plug('https://github.com/nvim-telescope/telescope.nvim', { ['tag'] = '0.1.8' }) -- fuzzy finder
-Plug('https://github.com/nvim-treesitter/nvim-treesitter', { ['tag'] = 'v0.9.2' }) -- syntax highlighting
-Plug('https://github.com/ellisonleao/gruvbox.nvim', { ['tag'] = '2.0.0' })  -- colorscheme
-Plug('https://github.com/tpope/vim-fugitive', { ['tag'] = 'v3.7' }) -- git
-Plug('https://github.com/dense-analysis/ale')
+vim.fn['plug#']('https://github.com/stevearc/oil.nvim', { ['tag'] = 'v2.13.0' }) -- navigate
+vim.fn['plug#']('https://github.com/lewis6991/gitsigns.nvim', { ['tag'] = 'v0.9.0' }) -- git
+vim.fn['plug#']('https://github.com/neovim/nvim-lspconfig', { ['tag'] = 'v1.0.0' }) --
+vim.fn['plug#']('https://github.com/williamboman/mason.nvim') -- easy install of tools
+vim.fn['plug#']('https://github.com/williamboman/mason-lspconfig.nvim')
+vim.fn['plug#']('https://github.com/nvim-lua/plenary.nvim', { ['tag'] = 'v0.1.4' }) -- [telescope, gitsigns]
+vim.fn['plug#']('https://github.com/nvim-telescope/telescope.nvim', { ['tag'] = '0.1.8' }) -- fuzzy finder
+vim.fn['plug#']('https://github.com/nvim-treesitter/nvim-treesitter', { ['tag'] = 'v0.9.3' }) -- syntax highlighting
+vim.fn['plug#']('https://github.com/ellisonleao/gruvbox.nvim', { ['tag'] = '2.0.0' })  -- colorscheme
+vim.fn['plug#']('https://github.com/tpope/vim-fugitive', { ['tag'] = 'v3.7' }) -- git
+vim.fn['plug#']('https://github.com/dense-analysis/ale') -- static analysis
 vim.call('plug#end')
 
 -- nvim LSP
@@ -150,7 +147,7 @@ require('mason-lspconfig').setup({
 
 -- Colorscheme
 -- https://gist.github.com/andersevenrud/015e61af2fd264371032763d4ed965b6
-vim.o.background = "light"
+vim.o.background = "dark"
 require("gruvbox").setup({
   italic = {
     strings = false,
@@ -164,7 +161,8 @@ require("gruvbox").setup({
 vim.cmd("colorscheme gruvbox")
 
 -- Treesitter highlighting
--- Parser issues: https://github.com/nvim-treesitter/nvim-treesitter/issues/3092
+-- We don't install everything because of parser issues:
+-- https://github.com/nvim-treesitter/nvim-treesitter/issues/3092
 require("nvim-treesitter.configs").setup {
   ensure_installed = {
     "bash",
@@ -183,6 +181,7 @@ require("nvim-treesitter.configs").setup {
     "python",
     "rust",
     "scss",
+    "terraform",
     "toml",
     "vim",
     "yaml"
@@ -220,14 +219,47 @@ require('gitsigns').setup()
 vim.g.ale_disable_lsp = 1 -- Disable ALE's built-in LSP support to avoid conflicts with nvim-lsp
 vim.g.ale_use_neovim_diagnostics_api = 1 -- make ALE display errors and warnings via the Neovim diagnostics API
 vim.g.ale_fix_on_save = 1 -- Set ALE fix on save (optional)
+vim.g.ale_linters_explicit = 1 -- Only run linters named in ale_linters settings.
 
 vim.g.ale_linters = {
-  go = {'gofumpt'}
+  go = {'gofumpt'},
+  python = {'black'},
+  sh = {'shellcheck'},
 }
 
 vim.g.ale_fixers = {
-  go = {'gofumpt'}
+  go = {'gofumpt'},
 }
+
+-- Oil
+require("oil").setup({
+	default_file_explorer = true,
+  columns = {  -- See :help oil-columns
+    -- "icon",
+    -- "permissions",
+    -- "size",
+    -- "mtime",
+  },
+  keymaps = {
+    ["g?"] = { "actions.show_help", mode = "n" },
+    ["<CR>"] = "actions.select",
+    ["<C-s>"] = { "actions.select", opts = { vertical = true } },
+    -- ["<C-h>"] = { "actions.select", opts = { horizontal = true } },
+    ["<C-t>"] = { "actions.select", opts = { tab = true } },
+    -- ["<C-p>"] = "actions.preview",
+    ["<C-c>"] = { "actions.close", mode = "n" },
+    -- ["<C-l>"] = "actions.refresh",
+    ["-"] = { "actions.parent", mode = "n" },
+    ["_"] = { "actions.open_cwd", mode = "n" },
+    ["`"] = { "actions.cd", mode = "n" },
+    ["~"] = { "actions.cd", opts = { scope = "tab" }, mode = "n" },
+    ["gs"] = { "actions.change_sort", mode = "n" },
+    ["gx"] = "actions.open_external",
+    ["g."] = { "actions.toggle_hidden", mode = "n" },
+    ["g\\"] = { "actions.toggle_trash", mode = "n" },
+  },
+})
+vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
 
 -- Open todo file
 vim.api.nvim_create_user_command('Todo', function()
@@ -239,9 +271,4 @@ end, {})
 vim.api.nvim_create_user_command('Init', function()
     local init_file = vim.fn.stdpath('config') .. '/init.lua'
     vim.cmd('tabe ' .. vim.fn.fnameescape(init_file))
-end, {})
-
--- Output 50 random alphanumeric characters (excluding look-alikes)
-vim.api.nvim_create_user_command('Rand', function()
-    vim.cmd('read! tr -dc a-zA-Z0-9 < /dev/urandom | tr -d iIlLoO0 | head -c 50')
 end, {})
