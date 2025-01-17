@@ -5,13 +5,6 @@ if ! command -v mpv >/dev/null; then
   exit
 fi
 
-# Rename the tmux window
-if command -v tmux >/dev/null; then
-  wn="$(tmux display-message -p '#W')"
-  tmux rename-window "music"
-  trap "tmux rename-window "$wn"" EXIT INT HUP TERM
-fi
-
 read_target() {
   if [ -e "$1" ]; then
     if [ -d "$1" ] && [ -f "$1/index.m3u" ]; then

@@ -36,7 +36,7 @@ set_prompt() {
   RCol='\033[0m'; Red='\033[31m'; Gre='\033[32m'; Yel='\033[33m'; Blu='\033[34m'
   startprompt="$(printf "\\xE2\\x94\\x8C\\xE2\\x94\\x80")"
   endprompt="$(printf "\\xE2\\x94\\x94\\xE2\\x94\\x80\\xE2\\x95\\xBC")"
-  PS1="\\n\\r${RCol}${startprompt}[\`if [ \$? = 0 ]; then echo ${Gre}; else echo ${Red}; fi\`\\t\\[${RCol}\\] \\[${Blu}\\]\\h\\[${RCol}\\] \\[${Yel}\\]\\w\\[${RCol}\\]]\\n${endprompt} "
+  PS1="\\n\\r${RCol}${startprompt}[\`if [ \$? = 0 ]; then echo ${Gre}; else echo ${Red}; fi\`\\D{%Y-%m-%d %H:%M:%S}\\[${RCol}\\] \\[${Blu}\\]\\h\\[${RCol}\\] \\[${Yel}\\]\\w\\[${RCol}\\]]\\n${endprompt} "
 }
 
 # set a restrictive umask
@@ -62,7 +62,7 @@ bind '"\033[Z": menu-complete'
 unset HISTFILESIZE
 export HISTSIZE="30000"
 export HISTCONTROL=ignoreboth:erasedups
-export HISTIGNORE="fg:bg:&:[ ]*:exit:ls:clear:ll:cd:\\[A*:nvim:gs:gd:gf:gr:gl:aerc:tmux:python3"
+export HISTIGNORE="fg:bg:&:[ ]*:exit:ls:clear:ll:cd:\\[A*:nvim:gs:gd:gf:gr:gl:aerc:tmux:python3:pl *:neomutt"
 export HISTTIMEFORMAT="%d/%m/%y %T "
 # Append to the history file, don't overwrite it
 shopt -s histappend
@@ -87,6 +87,7 @@ unalias -a
 # some aliases
 alias grep='grep --color=always'
 alias less='less -RX'
+alias randstr='tr -dc a-zA-Z0-9 < /dev/urandom | tr -d iIlLoO0 | head -c 50'
 
 if command -v nvim >/dev/null; then
   alias todo='nvim -c "set ft=markdown" ${HOME}/.TODO.md'
