@@ -62,7 +62,7 @@ bind '"\033[Z": menu-complete'
 unset HISTFILESIZE
 export HISTSIZE="30000"
 export HISTCONTROL=ignoreboth:erasedups
-export HISTIGNORE="fg:bg:&:[ ]*:exit:ls:clear:ll:cd:\\[A*:nvim:gs:gd:gf:gr:gl:aerc:tmux:python3:pl *:neomutt"
+export HISTIGNORE="fg:bg:&:[ ]*:exit:ls:clear:ll:cd:\\[A*:nvim:gs:gd:gf:gr:gl:tmux:python3:pl *"
 export HISTTIMEFORMAT="%d/%m/%y %T "
 # Append to the history file, don't overwrite it
 shopt -s histappend

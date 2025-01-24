@@ -147,7 +147,7 @@ require('mason-lspconfig').setup({
 
 -- Colorscheme
 -- https://gist.github.com/andersevenrud/015e61af2fd264371032763d4ed965b6
-vim.o.background = "dark"
+vim.o.background = "light"
 require("gruvbox").setup({
   italic = {
     strings = false,
@@ -244,11 +244,11 @@ require("oil").setup({
     ["g?"] = { "actions.show_help", mode = "n" },
     ["<CR>"] = "actions.select",
     ["<C-s>"] = { "actions.select", opts = { vertical = true } },
-    -- ["<C-h>"] = { "actions.select", opts = { horizontal = true } },
+    ["<C-h>"] = false,
     ["<C-t>"] = { "actions.select", opts = { tab = true } },
-    -- ["<C-p>"] = "actions.preview",
+    ["<C-p>"] = false,
     ["<C-c>"] = { "actions.close", mode = "n" },
-    -- ["<C-l>"] = "actions.refresh",
+    ["<C-l>"] = false,
     ["-"] = { "actions.parent", mode = "n" },
     ["_"] = { "actions.open_cwd", mode = "n" },
     ["`"] = { "actions.cd", mode = "n" },
