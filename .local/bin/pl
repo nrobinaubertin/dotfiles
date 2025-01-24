@@ -4,21 +4,38 @@ import os
 import sys
 import datetime
 from pathlib import Path
+import select
 
 
-homeDir = str(Path.home())
-if not homeDir:
+home_dir = str(Path.home())
+if not home_dir:
     sys.exit("No home directory found !")
 
-logFile = homeDir + os.sep + ".LOG"
+log_file_path = home_dir + os.sep + ".LOG"
 
-if len(sys.argv) > 1:
-    with open(logFile, "a") as log_file:
-        log_file.write("{}{} {}".format(
-            "\n" if os.path.isfile(logFile) and os.path.getsize(logFile) > 0 else "",
-            datetime.datetime.now(),
-            " ".join(sys.argv[1:]))
+# Check if there's input available on stdin
+if select.select([sys.stdin], [], [], 0)[0]:
+    log_entry = sys.stdin.read().strip()
+else:
+    log_entry = " ".join(sys.argv[1:])
+
+if log_entry:
+    with open(log_file_path, "a") as log_file:
+        log_file.write(
+            "{}> {}\n{}\n".format(
+                (
+                    "\n"
+                    if os.path.isfile(log_file_path)
+                    and os.path.getsize(log_file_path) > 0
+                    else ""
+                ),
+                datetime.datetime.now(),
+                log_entry,
+            )
         )
 else:
-    with open(logFile, "r") as log_file:
-        print(log_file.read())
+    try:
+        with open(log_file_path, "r") as log_file:
+            print(log_file.read())
+    except FileNotFoundError:
+        print("")
