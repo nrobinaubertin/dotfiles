@@ -1,0 +1,51 @@
+#!/usr/bin/python3
+
+import sys
+import http.client
+import json
+
+HOST = "127.0.0.1:37840"
+ENDPOINT = "/custom/singlefile2trilium"
+
+fname = sys.argv[1]
+if not fname.endswith(".html"):
+    sys.exit()
+
+with open(fname) as fd:
+    head = fd.read(4096)
+
+idx = head.find("Page saved with SingleFile")
+if idx == -1:
+    sys.exit()
+
+url = None
+title = None
+for line in head.splitlines():
+    line = line.strip()
+    if url is None and line.startswith("url: "):
+        url = line[5:]
+    elif line.startswith("title: "):
+        title = line[7:]
+
+if url is None:
+    sys.exit()
+if title is None:
+    filename = fname.split("/")[-1][:-5]  # filename without '.html' suffix
+    title = filename.split("(")[0].strip()
+
+with open(fname) as fd:
+    content = fd.read()
+
+try:
+    conn = http.client.HTTPConnection(HOST)
+    payload = json.dumps({"title": title, "url": url, "content": content})
+    headers = {"Content-Type": "application/json", "Accept": "application/json"}
+    conn.request("POST", ENDPOINT, payload, headers)
+    response = conn.getresponse()
+    data = response.read()
+    print(data.decode("utf-8"))
+    conn.close()
+    print(f"Moved {fname} to trilium")
+except Exception as e:
+    print(e)
+    print(f"failed moving {fname} to trilium")
