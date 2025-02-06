@@ -279,7 +279,14 @@ fi
 # Secondary bashrc for local configurations
 [ -f "${HOME}/.config/bashrc" ] && . "${HOME}/.config/bashrc"
 
+# To connect the steelseries rival 3, hold the CPI button WHILE switching to bluetooth
+# Reference manual: https://downloads.steelseriescdn.com/guides/Rival_3_WL_Digital_PIG_eng.pdf
+# bluetoothctl connect 2C:9A:4B:A0:34:30
+# WHXM1004
+# bluetoothctl connect 94:DB:56:89:20:AD
+
 # Prompt & Colors & Greetings
 set_prompt
 command -v gruvbox >/dev/null && gruvbox 2>/dev/null
 command -v glimpse >/dev/null && glimpse 2>/dev/null
+export PATH="$HOME/.zig/zig-linux-x86_64-0.13.0:$PATH"
