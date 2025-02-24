@@ -13,6 +13,10 @@
   defaultBranch = main
 [advice]
   addIgnoredFile = false
+[push]
+  autoSetupRemote = true
+[pull]
+  ff = only
 
 # Signing commits & user
 [user]
@@ -55,8 +59,6 @@
     # Blame
     blame-code-style = syntax
     blame-format = "{author:>18} ({commit:>8}) {timestamp:<13} "
-[merge]
-    conflictstyle = diff3
 [diff]
     colorMoved = default
     algorithm = histogram
@@ -64,5 +66,13 @@
     colorMoved = dimmed-zebra
 [difftool]
   prompt = false
-# [mergetool "vimdiff"]
-#   cmd = nvim -d $LOCAL $BASE $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
+
+# Merge conflicts handling
+[merge]
+  tool = nvimdiff
+  conflictstyle = diff3
+[mergetool]
+  prompt = false
+  keepBackup = false
+[mergetool "nvimdiff"]
+  layout = "LOCAL,BASE,REMOTE / MERGED"
