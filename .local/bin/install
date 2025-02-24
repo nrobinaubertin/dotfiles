@@ -1,0 +1,240 @@
+#!/bin/sh
+
+# Used on 22.04 LTS (Jammy Jellyfish)
+# Used on 24.04 LTS (Noble Numbat)
+# Used on 24.10 LTS (Oracular Oriole)
+# Meant to be used with a sudoed user (it will setup things globally and for the user)
+
+# Just after installation of ubuntu server:
+# sudo lvextend -l +100%FREE /dev/mapper/ubuntu--vg-ubuntu--lv
+# sudo resize2fs /dev/mapper/ubuntu--vg-ubuntu--lv
+
+set -x
+
+if [ "$(id -u)" != "0" ]; then
+  echo "You need to launch this script with sudo"
+  exit 1
+fi
+
+if [ "$(id -u -n)" = "$(logname)" ]; then
+  echo "You need to launch this script with sudo and not as root"
+  exit 1
+fi
+
+if ! [ -r /etc/os-release ]; then
+    echo "/etc/os-release file cannot be read"
+    exit 1
+fi
+
+if ! grep 'ID=ubuntu' /etc/os-release >/dev/null; then
+  echo "This script is meant to be executed on Ubuntu"
+  exit 1
+fi
+
+if [ "$1" = "--update" ]; then
+  apt-get update
+  apt-get upgrade -y
+
+  if command -v snap >/dev/null; then
+    snap refresh
+  fi
+
+  if command -v flatpak >/dev/null; then
+    flatpak update -y
+  fi
+
+  if command -v pipx >/dev/null; then
+    pipx upgrade-all
+  fi
+fi
+
+USERNAME="$(logname)"
+
+# set the timezone
+timedatectl set-timezone America/Toronto
+
+# make some common directories
+cat <<EOF | xargs -I{} su "$USERNAME" sh -c 'mkdir -p {}'
+~/.local/bin
+~/data
+~/git
+~/projects
+EOF
+
+# apt packages
+apt-get update
+apt-get install -y \
+  acpi \
+  age \
+  btop \
+  build-essential \
+  bzip2 \
+  curl \
+  dmenu \
+  exfat-fuse \
+  eza \
+  fd-find \
+  feh \
+  ffmpeg \
+  flatpak \
+  fzf \
+  gammastep \
+  git \
+  git-delta \
+  grim \
+  iproute2 \
+  isync \
+  jq \
+  keepassxc \
+  lftp \
+  libfontconfig-dev \
+  libnss3-tools \
+  mkcert \
+  mpv \
+  msmtp \
+  neomutt \
+  neovim \
+  net-tools \
+  network-manager \
+  network-manager-openvpn \
+  nodejs \
+  npm \
+  patchelf \
+  pipx \
+  prettyping \
+  python3-attr \
+  python3-pip \
+  python3-pynvim \
+  python3-venv \
+  ranger \
+  ripgrep \
+  rsync \
+  slurp \
+  socat \
+  sockstat \
+  sqlite3 \
+  sshuttle \
+  sway \
+  swaylock \
+  syncthing \
+  sysstat \
+  tmux \
+  tox \
+  tree \
+  unzip \
+  urlscan \
+  vim \
+  w3m \
+  wl-clipboard \
+  xwayland \
+  yamllint
+
+# Manage some services
+# We disable network services so that NetworkManager can do it instead
+systemctl disable systemd-networkd.socket
+systemctl disable systemd-networkd
+systemctl mask systemd-networkd
+systemctl enable NetworkManager
+
+# enable flathub
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+# flatpaks
+cat <<EOF | xargs -n1 flatpak install -y
+com.valvesoftware.Steam
+org.localsend.localsend_app
+EOF
+
+su "$USERNAME" sh -c 'ln -sf /var/lib/flatpak/exports/bin/com.valvesoftware.Steam ~/.local/bin/steam'
+su "$USERNAME" sh -c 'ln -sf /var/lib/flatpak/exports/bin/org.localsend.localsend_app ~/.local/bin/localsend'
+
+# snaps
+cat <<EOF | xargs -n1 snap install
+chromium
+firefox
+fx
+multipass
+signal-desktop
+vlc
+EOF
+
+# classic snaps
+cat <<EOF | xargs -n1 snap install --classic
+go
+gopls
+EOF
+
+# xdg-desktop-portal are necessary for screensharing and file picking in firefox
+# https://wiki.archlinux.org/title/XDG_Desktop_Portal
+# Set widget.use-xdg-desktop-portal.file-picker" from "2" to "0" in firefox about:config
+# https://support.mozilla.org/en-US/questions/1375244
+apt-get install -y \
+  xdg-desktop-portal \
+  xdg-desktop-portal-gtk \
+  xdg-desktop-portal-wlr
+
+# choose firefox snap as the default browser
+su "$USERNAME" sh -c 'xdg-settings set default-web-browser firefox_firefox.desktop'
+
+# fix firefox snap user.js
+su "$USERNAME" sh -c 'ln -sf ~/.mozilla/firefox/niels/user.js snap/firefox/common/.mozilla/firefox/niels/user.js'
+
+# docker
+snap install docker
+addgroup --system docker
+adduser "$USERNAME" docker
+snap disable docker
+snap enable docker
+
+# lxd
+snap install lxd
+
+# bad interaction between lxd and docker snaps needs the following workaround:
+iptables-legacy -I DOCKER-USER -j ACCEPT
+
+# pipx (for python CLI tools)
+cat <<EOF | xargs -I{} su "$USERNAME" sh -c 'python3 -m pipx install --force {}'
+neovim-remote
+yt-dlp
+EOF
+
+# # npm (for libraries and CLI tools)
+# su "$USERNAME" sh -c 'npm config set prefix ~/.local'
+# cat <<EOF | xargs -I{} su "$USERNAME" sh -c 'npm install --force -g {}'
+# @mermaid-js/mermaid-cli
+# EOF
+
+# rustup (installs the rust toolchain)
+# following https://rustup.rs/
+su "$USERNAME" sh -c 'curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain stable --profile default -y --no-modify-path'
+
+# cargo (for libraries and CLI tools)
+cat <<EOF | xargs -I{} su "$USERNAME" sh -c '~/.cargo/bin/cargo install {}'
+alacritty
+zellij
+EOF
+
+# bluetooth utils
+apt-get install -y \
+  bluez \
+  pipewire-audio \
+  pipewire-pulse \
+  pulseaudio-utils \
+  wireplumber
+
+# systemctl enable wireplumber.service
+
+# mSBC for sony wh-1000xm4
+# https://www.redpill-linpro.com/techblog/2021/05/31/better-bluetooth-headset-audio-with-msbc.html
+# https://ubuntuhandbook.org/index.php/2022/04/pipewire-replace-pulseaudio-ubuntu-2204/
+mkdir -p /etc/pipewire/media-session.d
+echo "properties = {bluez5.msbc-support = true}" > /etc/pipewire/media-session.d/bluez-monitor.conf
+
+# handle trackpad issues when awakening from S3 sleep
+# (I don't use the touchpad)
+# https://askubuntu.com/questions/1235067/touchpad-stopped-working-20-04
+# echo "options psmouse proto=imps" > /etc/modprobe.d/psmouse.conf
+echo "" > /etc/modprobe.d/psmouse.conf
+
+# Set default editor for root
+update-alternatives --set editor /usr/bin/nvim
