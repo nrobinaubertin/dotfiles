@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -xe
+
+archive_name="$(basename "$1")"
+result_name="$(basename -s ".tar.xz" "$1")"
+cp "$1" "$HOME/.zig"
+cd "$HOME/.zig"
+tar Jxvf "$archive_name"
+ln -sfn "$HOME/.zig/$result_name/zig" "$HOME/.local/bin/zig"
