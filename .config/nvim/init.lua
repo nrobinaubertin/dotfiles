@@ -1,7 +1,6 @@
 -- Don't mess with 'tabstop', with 'expandtab' it isn't used.
 -- Instead set softtabstop=-1, then 'shiftwidth' is used.
 vim.o.tabstop = 2
-vim.o.softtabstop = -1
 vim.o.shiftwidth = 2
 vim.o.expandtab = true  -- Use spaces instead of tabs
 vim.o.softtabstop = 2
@@ -25,7 +24,7 @@ vim.g.editorconfig = false
 vim.o.clipboard = "unnamedplus" -- Use the clipboard for all operations
 vim.o.fillchars = "vert: ,stl: ,stlnc: "
 vim.o.showmatch = true
-vim.o.mat = 2
+vim.o.matchtime = 2
 vim.o.nu = true
 vim.o.showtabline = 2
 vim.o.laststatus = 3
@@ -95,7 +94,7 @@ vim.api.nvim_create_autocmd("TermEnter", {
 vim.api.nvim_create_autocmd("BufEnter", {
   pattern = "*",
   callback = function()
-    if vim.bo.buftype == 'terminal' and vim.b.insertMode ~= "no" then
+    if vim.bo.buftype == 'terminal' and (vim.b.insertMode or "yes") ~= "no" then
       vim.cmd("startinsert")
     end
   end
@@ -131,16 +130,21 @@ vim.diagnostic.config({
     severity_sort = false, -- default to false
 })
 
-vim.keymap.set('n', '<space>e', vim.diagnostic.open_float, opts)
+vim.keymap.set('n', '<space>e', vim.diagnostic.open_float, keymap_opts)
 vim.keymap.set("n", "]g", vim.diagnostic.goto_next)
 vim.keymap.set("n", "[g", vim.diagnostic.goto_prev)
 
 require('mason').setup({})
 require('mason-lspconfig').setup({
-  ensure_installed = {},
+  ensure_installed = {
+    "gopls",
+    "jedi-language-server",
+    "ruff",
+  },
   handlers = {
     function(server_name)
-      require('lspconfig')[server_name].setup({})
+      require('lspconfig')[server_name].setup({
+      })
     end,
   },
 })
@@ -160,10 +164,10 @@ require("gruvbox").setup({
 })
 vim.cmd("colorscheme gruvbox")
 
--- Treesitter highlighting
--- We don't install everything because of parser issues:
--- https://github.com/nvim-treesitter/nvim-treesitter/issues/3092
+-- Treesitter
 require("nvim-treesitter.configs").setup {
+  -- We don't install everything because of parser issues:
+  -- https://github.com/nvim-treesitter/nvim-treesitter/issues/3092
   ensure_installed = {
     "bash",
     "c",
@@ -184,8 +188,20 @@ require("nvim-treesitter.configs").setup {
     "terraform",
     "toml",
     "vim",
+    "vimdoc",  -- Required for Vim help files
     "yaml"
-  }, highlight = { enable = true },
+  },
+  -- Indentation doesn't work well for python
+  -- You have to disable highlighting as well for it
+  -- as they are tied together
+  highlight = {
+    enable = true,
+    disable = { "python" },
+  },
+  indent = {
+    enable = true,
+    disable = { "python" },
+  },
 }
 
 -- Telescope
