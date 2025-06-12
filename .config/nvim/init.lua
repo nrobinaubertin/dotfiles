@@ -102,11 +102,9 @@ vim.api.nvim_create_autocmd("BufEnter", {
 
 -- Plugins
 vim.call('plug#begin')
-vim.fn['plug#']('https://github.com/stevearc/oil.nvim', { ['tag'] = 'v2.13.0' }) -- navigate
-vim.fn['plug#']('https://github.com/lewis6991/gitsigns.nvim', { ['tag'] = 'v0.9.0' }) -- git
-vim.fn['plug#']('https://github.com/neovim/nvim-lspconfig', { ['tag'] = 'v1.0.0' }) --
-vim.fn['plug#']('https://github.com/williamboman/mason.nvim') -- easy install of tools
-vim.fn['plug#']('https://github.com/williamboman/mason-lspconfig.nvim')
+vim.fn['plug#']('https://github.com/stevearc/oil.nvim', { ['tag'] = 'v2.15.0' }) -- navigate
+vim.fn['plug#']('https://github.com/lewis6991/gitsigns.nvim', { ['tag'] = 'v1.0.2' }) -- git
+vim.fn['plug#']('https://github.com/mason-org/mason.nvim', { ['tag'] = 'v1.11.0' }) -- easy install of tools
 vim.fn['plug#']('https://github.com/nvim-lua/plenary.nvim', { ['tag'] = 'v0.1.4' }) -- [telescope, gitsigns]
 vim.fn['plug#']('https://github.com/nvim-telescope/telescope.nvim', { ['tag'] = '0.1.8' }) -- fuzzy finder
 vim.fn['plug#']('https://github.com/nvim-treesitter/nvim-treesitter', { ['tag'] = 'v0.9.3' }) -- syntax highlighting
@@ -134,24 +132,11 @@ vim.keymap.set('n', '<space>e', vim.diagnostic.open_float, keymap_opts)
 vim.keymap.set("n", "]g", vim.diagnostic.goto_next)
 vim.keymap.set("n", "[g", vim.diagnostic.goto_prev)
 
-require('mason').setup({})
-require('mason-lspconfig').setup({
-  ensure_installed = {
-    "gopls",
-    "jedi-language-server",
-    "ruff",
-  },
-  handlers = {
-    function(server_name)
-      require('lspconfig')[server_name].setup({
-      })
-    end,
-  },
-})
+require('mason').setup()
 
 -- Colorscheme
 -- https://gist.github.com/andersevenrud/015e61af2fd264371032763d4ed965b6
-vim.o.background = "light"
+vim.o.background = "dark"
 require("gruvbox").setup({
   italic = {
     strings = false,
@@ -231,21 +216,72 @@ vim.api.nvim_set_keymap('n', "gr", [[:lua require('telescope.builtin').lsp_refer
 -- gitsigns
 require('gitsigns').setup()
 
+-- Mason (manually installed through it)
+-- gofumpt
+-- golangci-lint
+-- gopls
+-- mypy
+-- python-lsp-server
+-- jedi-language-server
+-- ruff
+-- tflint
+
 -- Ale
-vim.g.ale_disable_lsp = 1 -- Disable ALE's built-in LSP support to avoid conflicts with nvim-lsp
+-- Only use linters with Ale, LSPs are handled manually
 vim.g.ale_use_neovim_diagnostics_api = 1 -- make ALE display errors and warnings via the Neovim diagnostics API
-vim.g.ale_fix_on_save = 1 -- Set ALE fix on save (optional)
 vim.g.ale_linters_explicit = 1 -- Only run linters named in ale_linters settings.
-
 vim.g.ale_linters = {
-  go = {'gofumpt'},
-  python = {'black'},
-  sh = {'shellcheck'},
+  go = { 'gofumpt', 'golangci-lint' },
+  sh = { 'shellcheck' },
+  python = { 'mypy', 'ruff' },
 }
 
-vim.g.ale_fixers = {
-  go = {'gofumpt'},
-}
+-- Add LSP for go files
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = { 'go', 'gomod', 'gowork', 'gotmpl' },
+    callback = function(ev)
+      vim.lsp.start({
+        name = 'gopls',
+        cmd = { vim.fn.exepath('gopls') },
+        root_dir = vim.fs.dirname(vim.fs.find(
+          {
+            'go.mod',
+            'go.sum',
+            '.git'
+          },
+          {
+            upward = true,
+            stop = vim.loop.os_homedir(),
+            path = vim.fs.dirname(vim.api.nvim_buf_get_name(0)),
+          })[1]),
+        })
+    end
+})
+
+-- Add LSP for python files
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = { "python" },
+    callback = function(ev)
+      vim.lsp.start({
+        name = 'jedi-language-server',
+        cmd = { vim.fn.exepath('jedi-language-server') },
+        root_dir = vim.fs.dirname(vim.fs.find(
+          {
+            'setup.py',
+            'pyproject.toml',
+            'setup.cfg',
+            'requirements.txt',
+            'Pipfile',
+            '.git'
+          },
+          {
+            upward = true,
+            stop = vim.loop.os_homedir(),
+            path = vim.fs.dirname(vim.api.nvim_buf_get_name(0)),
+          })[1]),
+        })
+    end
+})
 
 -- Oil
 require("oil").setup({
