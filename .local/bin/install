@@ -194,7 +194,7 @@ iptables-legacy -I DOCKER-USER -j ACCEPT
 # pipx (for python CLI tools)
 cat <<EOF | xargs -I{} su "$USERNAME" sh -c 'python3 -m pipx install --force {}'
 neovim-remote
-yt-dlp
+yt-dlp[default]
 EOF
 
 # # npm (for libraries and CLI tools)
