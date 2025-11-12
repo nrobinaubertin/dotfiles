@@ -101,9 +101,9 @@ if command -v nvim >/dev/null; then
   alias nterm='nvim -c term'
   note() {
     if [ -z "$1" ]; then
-      nvim -c 'normal Go______________________________' -c 'r!date' -c 'normal o' -c 'startinsert' "$HOME/notes/$(date +%F).md"
+      nvim -c 'startinsert' "$HOME/notes/$(date +%Y%m%d%H%M).md"
     else
-      nvim -c 'startinsert' "$HOME/notes/$(date +%F)-$1.md"
+      nvim -c 'startinsert' "$HOME/notes/$(date +%Y%m%d%H%M)-$1.md"
     fi
   }
 fi
