@@ -1,219 +1,331 @@
 #!/bin/sh
 
-# Used on 22.04 LTS (Jammy Jellyfish)
-# Used on 24.04 LTS (Noble Numbat)
-# Used on 24.10 LTS (Oracular Oriole)
-# Meant to be used with a sudoed user (it will setup things globally and for the user)
+# This script automates the setup of a development environment on Ubuntu.
+# It installs various packages, configures services, and sets up user-specific tools.
+#
+# Target OS:
+#   - Ubuntu 22.04 LTS (Jammy Jellyfish)
+#   - Ubuntu 24.04 LTS (Noble Numbat)
+#   - Ubuntu 24.10 (Oracular Oriole)
+#   - Ubuntu 25.04 (Plucky Puffin)
+#
+# Prerequisites:
+#   - The script must be run with `sudo` by a non-root user.
+#   - Internet connectivity is required for package downloads.
+#
+# Usage:
+#   - Run without arguments for a full installation: `sudo ./install`
+#   - Run with `--update` to only update existing packages: `sudo ./install --update`
+#
+# Initial setup after Ubuntu server installation (if applicable):
+#   - Extend LVM logical volume:
+#     sudo lvextend -l +100%FREE /dev/mapper/ubuntu--vg-ubuntu--lv
+#   - Resize filesystem:
+#     sudo resize2fs /dev/mapper/ubuntu--vg-ubuntu--lv
 
-# Just after installation of ubuntu server:
-# sudo lvextend -l +100%FREE /dev/mapper/ubuntu--vg-ubuntu--lv
-# sudo resize2fs /dev/mapper/ubuntu--vg-ubuntu--lv
+set -xe
 
-set -x
-
+# Ensure the script is run with root privileges
 if [ "$(id -u)" != "0" ]; then
   echo "You need to launch this script with sudo"
   exit 1
 fi
 
+# Ensure the script is not run directly as the root user
 if [ "$(id -u -n)" = "$(logname)" ]; then
   echo "You need to launch this script with sudo and not as root"
   exit 1
 fi
 
+# Check for the existence of /etc/os-release to identify the OS
 if ! [ -r /etc/os-release ]; then
     echo "/etc/os-release file cannot be read"
     exit 1
 fi
 
+# Ensure the OS is Ubuntu
 if ! grep 'ID=ubuntu' /etc/os-release >/dev/null; then
   echo "This script is meant to be executed on Ubuntu"
   exit 1
 fi
 
+# Handle --update argument for updating existing packages
 if [ "$1" = "--update" ]; then
-  apt-get update
-  apt-get upgrade -y
+  echo "Updating system packages..."
+  apt-get update          # Refresh the list of available packages
+  apt-get upgrade -y      # Upgrade all installed packages to their newest versions
 
+  # Refresh Snap packages if snap is installed
   if command -v snap >/dev/null; then
+    echo "Refreshing Snap packages..."
     snap refresh
   fi
 
+  # Update Flatpak packages if flatpak is installed
   if command -v flatpak >/dev/null; then
+    echo "Updating Flatpak packages..."
     flatpak update -y
   fi
 
+  # Upgrade all pipx-managed packages if pipx is installed
   if command -v pipx >/dev/null; then
+    echo "Upgrading pipx packages..."
     pipx upgrade-all
   fi
+  exit 0 # Exit after update, as this is a separate mode of operation
 fi
 
 USERNAME="$(logname)"
 
-# set the timezone
+# Set the system timezone
+echo "Setting timezone to America/Toronto..."
 timedatectl set-timezone America/Toronto
 
-# make some common directories
+# Create common user directories for organization and development
+echo "Creating common user directories..."
 cat <<EOF | xargs -I{} su "$USERNAME" sh -c 'mkdir -p {}'
-~/.local/bin
-~/data
-~/git
-~/projects
+~/.local/bin    # For user-specific executables
+~/data          # For general data storage
+~/git           # For Git repositories
+~/projects      # For ongoing development projects
 EOF
 
 # apt packages
+# Install core system utilities and development tools via apt
+echo "Installing apt packages..."
 apt-get update
 apt-get install -y \
-  acpi \
-  age \
-  btop \
+# Core utilities and development tools
   build-essential \
-  bzip2 \
   curl \
-  dmenu \
-  exfat-fuse \
-  eza \
-  fd-find \
-  feh \
-  ffmpeg \
-  flatpak \
-  fzf \
-  gammastep \
   git \
-  git-delta \
-  grim \
-  iproute2 \
-  isync \
+  tmux \
+  unzip \
+  bzip2 \
+  tree \
   jq \
-  keepassxc \
-  lftp \
-  libfontconfig-dev \
-  libnss3-tools \
-  mkcert \
-  mpv \
-  msmtp \
-  neomutt \
-  neovim \
-  net-tools \
-  network-manager \
-  network-manager-openvpn \
-  nodejs \
-  npm \
-  patchelf \
-  pipx \
-  prettyping \
-  python3-attr \
-  python3-pip \
-  python3-pynvim \
-  python3-venv \
-  ranger \
-  ripgrep \
-  rsync \
-  slurp \
   socat \
-  sockstat \
   sqlite3 \
+  sysstat \
+  net-tools \
+  iproute2 \
+  sockstat \
+  w3m \
+  urlscan \
+  age \
+  mkcert \
+  patchelf \
+  rsync \
+  lftp \
   sshuttle \
+  syncthing \
+  exfat-fuse \
+  \
+# Text editors and related tools
+  neovim \
+  vim \
+  neomutt \
+  git-delta \
+  fzf \
+  ripgrep \
+  fd-find \
+  eza \
+  prettyping \
+  yamllint \
+  \
+# Desktop environment and window manager related tools (Sway)
   sway \
   swaylock \
-  syncthing \
-  sysstat \
-  tmux \
-  tox \
-  tree \
-  unzip \
-  urlscan \
-  vim \
-  w3m \
+  dmenu \
+  feh \
+  grim \
+  slurp \
   wl-clipboard \
   xwayland \
-  yamllint
+  gammastep \
+  acpi \
+  \
+# Multimedia and communication
+  ffmpeg \
+  mpv \
+  msmtp \
+\
+# Python development tools
+  python3-pip \
+  python3-venv \
+  python3-pynvim \
+  python3-attr \
+  pipx \
+  tox \
+  \
+# Network management
+  network-manager \
+  network-manager-openvpn \
+  \
+# Other applications
+  keepassxc \
+  ranger \
+  nodejs \
+  npm \
+  flatpak \
+  btop \
+  libfontconfig-dev \
+  libnss3-tools \
+  
 
-# Manage some services
-# We disable network services so that NetworkManager can do it instead
+# Manage system services
+echo "Configuring network services..."
+# Disable systemd-networkd services to prevent conflicts with NetworkManager.
+# NetworkManager is generally preferred for desktop and laptop environments
+# due to its robust handling of various network connections (Wi-Fi, VPNs, etc.).
 systemctl disable systemd-networkd.socket
 systemctl disable systemd-networkd
-systemctl mask systemd-networkd
-systemctl enable NetworkManager
+systemctl mask systemd-networkd # Masking prevents it from being started manually or by other services.
+systemctl enable NetworkManager # Enable and start NetworkManager.
 
-# enable flathub
+# Flatpak setup
+echo "Setting up Flatpak and installing applications..."
+# Add Flathub remote – the primary source for Flatpak applications.
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
-# flatpaks
+# Install Flatpak applications
 cat <<EOF | xargs -n1 flatpak install -y
-com.valvesoftware.Steam
-org.localsend.localsend_app
+com.valvesoftware.Steam      # Gaming platform
+org.localsend.localsend_app  # Local file sharing utility
 EOF
 
+# Create symlinks for Flatpak applications in the user's local bin directory
+# This allows running them directly from the command line without specifying the full path.
 su "$USERNAME" sh -c 'ln -sf /var/lib/flatpak/exports/bin/com.valvesoftware.Steam ~/.local/bin/steam'
 su "$USERNAME" sh -c 'ln -sf /var/lib/flatpak/exports/bin/org.localsend.localsend_app ~/.local/bin/localsend'
 
-# snaps
+# Snap setup
+echo "Installing Snap applications..."
+# Install regular Snap applications
 cat <<EOF | xargs -n1 snap install
-chromium
-firefox
-fx
-signal-desktop
-vlc
+chromium       # Web browser
+firefox        # Web browser
+fx             # Command-line tool for JSON processing
+signal-desktop # Secure messaging app
+vlc            # Media player
 EOF
 
-# classic snaps
+# Install classic Snap applications (these run with full system access)
 cat <<EOF | xargs -n1 snap install --classic
-go
-gopls
+go    # Go programming language toolchain
+gopls # Language server for Go
 EOF
 
-# xdg-desktop-portal are necessary for screensharing and file picking in firefox
-# https://wiki.archlinux.org/title/XDG_Desktop_Portal
-# Set widget.use-xdg-desktop-portal.file-picker" from "2" to "0" in firefox about:config
-# https://support.mozilla.org/en-US/questions/1375244
+# xdg-desktop-portal for Wayland compatibility
+echo "Installing xdg-desktop-portal components..."
+# xdg-desktop-portal is crucial for desktop integration of applications,
+# especially in Wayland environments. It enables functionalities like
+# screensharing, file choosers, and other desktop services.
+# - xdg-desktop-portal-gtk: GTK backend for XDG Desktop Portal.
+# - xdg-desktop-portal-wlr: Wayland compositor backend for wlroots-based compositors (like Sway).
 apt-get install -y \
   xdg-desktop-portal \
   xdg-desktop-portal-gtk \
   xdg-desktop-portal-wlr
 
-# choose firefox snap as the default browser
+# Note on Firefox configuration:
+# To ensure proper file picking behavior in Firefox Flatpak/Snap,
+# users might need to adjust a setting in `about:config`.
+# Specifically, set `widget.use-xdg-desktop-portal.file-picker` from "2" to "0".
+# This is often necessary for older Firefox versions or specific desktop environments.
+# Reference: https://wiki.archlinux.org/title/XDG_Desktop_Portal
+# Reference: https://support.mozilla.org/en-US/questions/1375244
+
+# Set Firefox Snap as the default web browser
+echo "Setting Firefox as the default web browser..."
 su "$USERNAME" sh -c 'xdg-settings set default-web-browser firefox_firefox.desktop'
 
-# fix firefox snap user.js
-su "$USERNAME" sh -c 'ln -sf ~/.mozilla/firefox/niels/user.js snap/firefox/common/.mozilla/firefox/niels/user.js'
+# Fix for Firefox Snap's user.js
+# The Firefox Snap confines user data, which can prevent user.js from being
+# read from the standard profile location. This symlink ensures that the
+# user's custom user.js (e.g., for privacy settings) is correctly applied
+# within the Snap's confined environment.
+su "$USERNAME" sh -c "ln -sf '~/.mozilla/firefox/$USERNAME/user.js' 'snap/firefox/common/.mozilla/firefox/$USERNAME/user.js'"
 
-# docker
+# Docker setup
+echo "Installing and configuring Docker..."
+# Install Docker via Snap. Snaps provide isolated environments and easy updates.
 snap install docker
+
+# Create the 'docker' system group if it doesn't exist.
+# This group is necessary for non-root users to interact with the Docker daemon.
 addgroup --system docker
+
+# Add the current user to the 'docker' group.
+# This allows the user to run Docker commands without needing `sudo`.
+# Note: The user needs to log out and log back in for this group change to take effect.
 adduser "$USERNAME" docker
+
+# Disable and re-enable the Docker Snap.
+# This step is often necessary to ensure that the newly added user's group
+# membership is recognized by the Docker daemon running within the Snap's confinement.
 snap disable docker
 snap enable docker
 
-# lxd
+# LXD setup
+echo "Installing LXD..."
+# Install LXD (Linux Container Daemon) via Snap.
+# LXD provides a powerful system container and virtual machine manager.
 snap install lxd
 
-# bad interaction between lxd and docker snaps needs the following workaround:
+# Workaround for bad interaction between LXD and Docker Snaps.
+# Both LXD and Docker can modify iptables rules, sometimes leading to conflicts
+# that prevent network connectivity within containers or between them.
+# This specific rule ensures that traffic from Docker containers is accepted,
+# preventing it from being dropped by LXD's iptables configurations.
+# This is a common issue and this rule is a known mitigation.
 iptables-legacy -I DOCKER-USER -j ACCEPT
 
-# pipx (for python CLI tools)
+# pipx (for Python CLI tools)
+echo "Installing pipx packages..."
+# pipx installs Python applications in isolated environments to prevent dependency conflicts.
 cat <<EOF | xargs -I{} su "$USERNAME" sh -c 'python3 -m pipx install --force {}'
-neovim-remote
-yt-dlp[default]
+neovim-remote # Remote control for Neovim
+yt-dlp[default] # Download videos from YouTube and other sites
 EOF
 
-# # npm (for libraries and CLI tools)
-# su "$USERNAME" sh -c 'npm config set prefix ~/.local'
-# cat <<EOF | xargs -I{} su "$USERNAME" sh -c 'npm install --force -g {}'
-# @mermaid-js/mermaid-cli
-# EOF
+# npm (for Node.js libraries and CLI tools)
+echo "Configuring npm and installing global packages..."
+# Set npm's global package prefix to a user-local directory to avoid requiring sudo for global installs.
+su "$USERNAME" sh -c 'npm config set prefix ~/.local'
+# Install global npm packages.
+cat <<EOF | xargs -I{} su "$USERNAME" sh -c 'npm install --force -g {}'
+@google/gemini-cli@latest # Google Gemini CLI tool
+@anthropic-ai/claude-code # Anthropic Claude AI code assistant
+EOF
 
-# rustup (installs the rust toolchain)
-# following https://rustup.rs/
+# rustup (installs the Rust toolchain)
+echo "Installing Rust toolchain with rustup..."
+# rustup is the official installer for the Rust programming language and its associated tools.
+# It manages different Rust toolchain versions (stable, beta, nightly) and components.
+# --default-toolchain stable: Installs the stable release of Rust.
+# --profile default: Installs the default set of components (rustc, cargo, rustfmt, clippy, etc.).
+# -y: Non-interactive installation.
+# --no-modify-path: Prevents rustup from modifying PATH, assuming it's handled elsewhere or not needed globally yet.
 su "$USERNAME" sh -c 'curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain stable --profile default -y --no-modify-path'
 
-# cargo (for libraries and CLI tools)
+# cargo (for Rust libraries and CLI tools)
+echo "Installing Cargo packages..."
+# Cargo is Rust's package manager and build system. It's used to build Rust projects
+# and download their dependencies. Here, it's used to install global CLI tools written in Rust.
 cat <<EOF | xargs -I{} su "$USERNAME" sh -c '~/.cargo/bin/cargo install {}'
-alacritty
-zellij
+alacritty # GPU-accelerated terminal emulator
+zellij     # Terminal multiplexer
 EOF
 
-# bluetooth utils
+# Bluetooth utilities and Pipewire audio configuration
+echo "Installing Bluetooth utilities and configuring Pipewire..."
+# Install necessary packages for Bluetooth functionality and Pipewire audio server.
+# - bluez: Official Linux Bluetooth protocol stack.
+# - pipewire-audio: Pipewire audio daemon.
+# - pipewire-pulse: Compatibility layer for PulseAudio applications to use Pipewire.
+# - pulseaudio-utils: Utilities for PulseAudio (still useful with pipewire-pulse).
+# - wireplumber: Session manager for Pipewire.
 apt-get install -y \
   bluez \
   pipewire-audio \
@@ -221,19 +333,45 @@ apt-get install -y \
   pulseaudio-utils \
   wireplumber
 
-# systemctl enable wireplumber.service
+# Enable WirePlumber service (session manager for Pipewire)
+# systemctl enable wireplumber.service # This line is commented out in the original script.
 
-# mSBC for sony wh-1000xm4
-# https://www.redpill-linpro.com/techblog/2021/05/31/better-bluetooth-headset-audio-with-msbc.html
-# https://ubuntuhandbook.org/index.php/2022/04/pipewire-replace-pulseaudio-ubuntu-2204/
+# mSBC codec support for Sony WH-1000XM4 and similar Bluetooth headsets.
+# This configuration improves audio quality for voice calls (HFP profile)
+# by enabling the mSBC codec, which offers better fidelity than the default CVSD.
+# References:
+# - https://www.redpill-linpro.com/techblog/2021/05/31/better-bluetooth-headset-audio-with-msbc.html
+# - https://ubuntuhandbook.org/index.php/2022/04/pipewire-replace-pulseaudio-ubuntu-2204/
 mkdir -p /etc/pipewire/media-session.d
 echo "properties = {bluez5.msbc-support = true}" > /etc/pipewire/media-session.d/bluez-monitor.conf
 
-# handle trackpad issues when awakening from S3 sleep
-# (I don't use the touchpad)
-# https://askubuntu.com/questions/1235067/touchpad-stopped-working-20-04
-# echo "options psmouse proto=imps" > /etc/modprobe.d/psmouse.conf
+# Handle trackpad issues when awakening from S3 sleep (if applicable)
+# This configuration was historically used to address issues where some touchpads
+# (especially PS/2 compatible ones) would stop working after the system resumed
+# from suspend-to-RAM (S3 sleep). The 'psmouse proto=imps' option forces the
+# psmouse driver to use the IMPS/2 protocol, which sometimes resolved such problems.
+#
+# The line is currently empty or commented out, indicating that this specific
+# workaround is either no longer needed for the current hardware/kernel,
+# or the user does not use the touchpad.
+# Reference: https://askubuntu.com/questions/1235067/touchpad-stopped-working-20-04
 echo "" > /etc/modprobe.d/psmouse.conf
 
-# Set default editor for root
+# Trilium Notes installation
+echo "Installing Trilium Notes..."
+# Trilium Notes is a hierarchical note-taking application.
+# The version is currently hardcoded. For a more robust script, consider
+# fetching the latest version dynamically from the GitHub releases page.
+# Reference: https://github.com/TriliumNext/Trilium/releases
+TRILIUM_VERSION="0.99.5"
+curl -L "https://github.com/TriliumNext/Trilium/releases/download/v$TRILIUM_VERSION/TriliumNotes-v$TRILIUM_VERSION-linux-x64.deb" -o trilium.deb
+apt install -y ./trilium.deb # Install the downloaded .deb package.
+rm ./trilium.deb             # Clean up the downloaded .deb file.
+
+# Set default system editor
+echo "Setting Neovim as the default system editor..."
+# update-alternatives manages symbolic links to provide a common interface
+# for programs that can fulfill the same function (e.g., different text editors).
+# This command sets Neovim (/usr/bin/nvim) as the default 'editor' for the system,
+# affecting tools that respect the EDITOR environment variable or call 'editor'.
 update-alternatives --set editor /usr/bin/nvim
