@@ -115,13 +115,20 @@ get_ip() {
 
 get_ram() {
   # outputs used memory (not accounting for swap)
-  mem_buffers=$(grep -E "^Buffers:" < /proc/meminfo | awk '{print $2}')
-  mem_cached=$(grep -E "^Cached:" < /proc/meminfo | awk '{print $2}')
-  mem_sreclaimable=$(grep -E "^SReclaimable:" < /proc/meminfo | awk '{print $2}')
-  mem_shmem=$(grep -E "^Shmem:" < /proc/meminfo | awk '{print $2}')
-  mem_mapped=$(grep -E "^Mapped:" < /proc/meminfo | awk '{print $2}')
-  mem_slab=$(grep -E "^Slab:" < /proc/meminfo | awk '{print $2}')
-  mem_used=$(( mem_cached + mem_sreclaimable + mem_buffers + mem_slab + mem_mapped + mem_shmem ))
+  mem_total=$(grep -E "^MemTotal:" < /proc/meminfo | awk '{print $2}')
+  mem_available=$(grep -E "^MemAvailable:" < /proc/meminfo | awk '{print $2}')
+
+  # Calculate used memory: if MemAvailable exists, use it; otherwise fallback to old method
+  if [ -n "$mem_available" ]; then
+    mem_used=$(( mem_total - mem_available ))
+  else
+    # Fallback for older kernels without MemAvailable
+    mem_free=$(grep -E "^MemFree:" < /proc/meminfo | awk '{print $2}')
+    mem_buffers=$(grep -E "^Buffers:" < /proc/meminfo | awk '{print $2}')
+    mem_cached=$(grep -E "^Cached:" < /proc/meminfo | awk '{print $2}')
+    mem_sreclaimable=$(grep -E "^SReclaimable:" < /proc/meminfo | awk '{print $2}')
+    mem_used=$(( mem_total - mem_free - mem_buffers - mem_cached - mem_sreclaimable ))
+  fi
 
   kb=$(( mem_used ))
   mb=$(( kb / 1024 ))
