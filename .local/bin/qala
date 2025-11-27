@@ -246,15 +246,26 @@ apt-get install -y \
 # Reference: https://support.mozilla.org/en-US/questions/1375244
 
 # Set Firefox Snap as the default web browser
-echo "Setting Firefox as the default web browser..."
-su "$USERNAME" sh -c 'xdg-settings set default-web-browser firefox_firefox.desktop'
+# echo "Setting Firefox as the default web browser..."
+# su "$USERNAME" sh -c 'xdg-settings set default-web-browser firefox_firefox.desktop'
 
 # Fix for Firefox Snap's user.js
 # The Firefox Snap confines user data, which can prevent user.js from being
 # read from the standard profile location. This symlink ensures that the
 # user's custom user.js (e.g., for privacy settings) is correctly applied
 # within the Snap's confined environment.
-su "$USERNAME" sh -c "ln -sf '~/.mozilla/firefox/$USERNAME/user.js' 'snap/firefox/common/.mozilla/firefox/$USERNAME/user.js'"
+su "$USERNAME" sh -c "ln -sf '/home/$USERNAME/.mozilla/firefox/$USERNAME/user.js' '/home/$USERNAME/snap/firefox/common/.mozilla/firefox/$USERNAME/user.js'"
+
+# Workaround for bad interaction between LXD and Docker Snaps.
+# https://github.com/canonical/lxd/blob/be8a1b739896ede722b65a690dfa025a70902495/doc/howto/network_bridge_firewalld.md?plain=1#L120
+echo "net.ipv4.conf.all.forwarding=1" > /etc/sysctl.d/99-forwarding.conf
+systemctl restart systemd-sysctl
+
+# LXD setup
+echo "Installing LXD..."
+# Install LXD (Linux Container Daemon) via Snap.
+# LXD provides a powerful system container and virtual machine manager.
+snap install lxd
 
 # Docker setup
 echo "Installing and configuring Docker..."
@@ -275,20 +286,6 @@ adduser "$USERNAME" docker
 # membership is recognized by the Docker daemon running within the Snap's confinement.
 snap disable docker
 snap enable docker
-
-# LXD setup
-echo "Installing LXD..."
-# Install LXD (Linux Container Daemon) via Snap.
-# LXD provides a powerful system container and virtual machine manager.
-snap install lxd
-
-# Workaround for bad interaction between LXD and Docker Snaps.
-# Both LXD and Docker can modify iptables rules, sometimes leading to conflicts
-# that prevent network connectivity within containers or between them.
-# This specific rule ensures that traffic from Docker containers is accepted,
-# preventing it from being dropped by LXD's iptables configurations.
-# This is a common issue and this rule is a known mitigation.
-iptables-legacy -I DOCKER-USER -j ACCEPT
 
 # pipx (for Python CLI tools)
 echo "Installing pipx packages..."
