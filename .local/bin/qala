@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# qala - Ubuntu Development Environment Setup Script
+# The name "qala" comes from Zulu and means "to start" or "to begin"
+#
 # This script automates the setup of a development environment on Ubuntu.
 # It installs various packages, configures services, and sets up user-specific tools.
 #
@@ -14,8 +17,8 @@
 #   - Internet connectivity is required for package downloads.
 #
 # Usage:
-#   - Run without arguments for a full installation: `sudo ./install`
-#   - Run with `--update` to only update existing packages: `sudo ./install --update`
+#   - Run without arguments for a full installation: `sudo ./qala`
+#   - Run with `--update` to only update existing packages: `sudo ./qala --update`
 #
 # Initial setup after Ubuntu server installation (if applicable):
 #   - Extend LVM logical volume:
@@ -94,84 +97,90 @@ EOF
 # Install core system utilities and development tools via apt
 echo "Installing apt packages..."
 apt-get update
-apt-get install -y \
 # Core utilities and development tools
-  build-essential \
-  curl \
-  git \
-  tmux \
-  unzip \
-  bzip2 \
-  tree \
-  jq \
-  socat \
-  sqlite3 \
-  sysstat \
-  net-tools \
-  iproute2 \
-  sockstat \
-  w3m \
-  urlscan \
+apt-get install -y \
   age \
-  mkcert \
-  patchelf \
-  rsync \
-  lftp \
-  sshuttle \
-  syncthing \
+  build-essential \
+  bzip2 \
+  curl \
   exfat-fuse \
-  \
-# Text editors and related tools
-  neovim \
-  vim \
-  neomutt \
-  git-delta \
-  fzf \
-  ripgrep \
-  fd-find \
-  eza \
-  prettyping \
-  yamllint \
-  \
-# Desktop environment and window manager related tools (Sway)
-  sway \
-  swaylock \
-  dmenu \
-  feh \
-  grim \
-  slurp \
-  wl-clipboard \
-  xwayland \
-  gammastep \
-  acpi \
-  \
-# Multimedia and communication
-  ffmpeg \
-  mpv \
-  msmtp \
-\
-# Python development tools
-  python3-pip \
-  python3-venv \
-  python3-pynvim \
-  python3-attr \
-  pipx \
-  tox \
-  \
-# Network management
-  network-manager \
-  network-manager-openvpn \
-  \
-# Other applications
-  keepassxc \
-  ranger \
-  nodejs \
-  npm \
-  flatpak \
-  btop \
+  git \
+  iproute2 \
+  jq \
+  lftp \
   libfontconfig-dev \
   libnss3-tools \
-  
+  mkcert \
+  net-tools \
+  patchelf \
+  rsync \
+  socat \
+  sockstat \
+  sqlite3 \
+  sshuttle \
+  syncthing \
+  sysstat \
+  tmux \
+  tree \
+  unzip \
+  urlscan \
+  w3m
+
+# Text editors and related tools
+apt-get install -y \
+  eza \
+  fd-find \
+  fzf \
+  git-delta \
+  neomutt \
+  neovim \
+  prettyping \
+  ripgrep \
+  vim \
+  yamllint
+
+# Desktop environment and window manager related tools (Sway)
+apt-get install -y \
+  acpi \
+  dmenu \
+  feh \
+  gammastep \
+  grim \
+  slurp \
+  sway \
+  swaylock \
+  wl-clipboard \
+  xwayland
+
+# Multimedia and communication
+apt-get install -y \
+  ffmpeg \
+  mpv \
+  msmtp
+
+# Python development tools
+apt-get install -y \
+  pipx \
+  python3-attr \
+  python3-pip \
+  python3-pynvim \
+  python3-venv \
+  tox
+
+# Network management
+apt-get install -y \
+  network-manager \
+  network-manager-openvpn
+
+# Other applications
+apt-get install -y \
+  btop \
+  flatpak \
+  keepassxc \
+  nodejs \
+  npm \
+  ranger
+
 
 # Manage system services
 echo "Configuring network services..."
@@ -190,8 +199,8 @@ flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flat
 
 # Install Flatpak applications
 cat <<EOF | xargs -n1 flatpak install -y
-com.valvesoftware.Steam      # Gaming platform
-org.localsend.localsend_app  # Local file sharing utility
+com.valvesoftware.Steam
+org.localsend.localsend_app
 EOF
 
 # Create symlinks for Flatpak applications in the user's local bin directory
@@ -203,17 +212,17 @@ su "$USERNAME" sh -c 'ln -sf /var/lib/flatpak/exports/bin/org.localsend.localsen
 echo "Installing Snap applications..."
 # Install regular Snap applications
 cat <<EOF | xargs -n1 snap install
-chromium       # Web browser
-firefox        # Web browser
-fx             # Command-line tool for JSON processing
-signal-desktop # Secure messaging app
-vlc            # Media player
+chromium
+firefox
+fx
+signal-desktop
+vlc
 EOF
 
 # Install classic Snap applications (these run with full system access)
 cat <<EOF | xargs -n1 snap install --classic
-go    # Go programming language toolchain
-gopls # Language server for Go
+go
+gopls
 EOF
 
 # xdg-desktop-portal for Wayland compatibility
@@ -295,8 +304,9 @@ echo "Configuring npm and installing global packages..."
 su "$USERNAME" sh -c 'npm config set prefix ~/.local'
 # Install global npm packages.
 cat <<EOF | xargs -I{} su "$USERNAME" sh -c 'npm install --force -g {}'
-@google/gemini-cli@latest # Google Gemini CLI tool
-@anthropic-ai/claude-code # Anthropic Claude AI code assistant
+@google/gemini-cli@latest
+@anthropic-ai/claude-code
+@github/copilot
 EOF
 
 # rustup (installs the Rust toolchain)
