@@ -254,7 +254,10 @@ apt-get install -y \
 # read from the standard profile location. This symlink ensures that the
 # user's custom user.js (e.g., for privacy settings) is correctly applied
 # within the Snap's confined environment.
-su "$USERNAME" sh -c "ln -sf '/home/$USERNAME/.mozilla/firefox/$USERNAME/user.js' '/home/$USERNAME/snap/firefox/common/.mozilla/firefox/$USERNAME/user.js'"
+if [ -e "/home/$USERNAME/.mozilla/firefox/$USERNAME/user.js" ]; then
+	su "$USERNAME" sh -c "mkdir -p '/home/$USERNAME/snap/firefox/common/.mozilla/firefox/$USERNAME'"
+	su "$USERNAME" sh -c "ln -sf '/home/$USERNAME/.mozilla/firefox/$USERNAME/user.js' '/home/$USERNAME/snap/firefox/common/.mozilla/firefox/$USERNAME/user.js'"
+fi
 
 # Workaround for bad interaction between LXD and Docker Snaps.
 # https://github.com/canonical/lxd/blob/be8a1b739896ede722b65a690dfa025a70902495/doc/howto/network_bridge_firewalld.md?plain=1#L120
