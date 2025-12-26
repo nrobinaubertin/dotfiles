@@ -1,18 +1,27 @@
 #!/bin/sh
 
-# wrapper around xrandr to alternate output screen
+# wrapper around swaymsg to alternate output screen
 
-current=$(xrandr | grep ' co' | grep 'mm x' | awk '{print $1}' | head -n1)
+# Get list of active outputs
+outputs=$(swaymsg -t get_outputs | grep '"name"' | sed 's/.*"name": "\(.*\)",/\1/')
+
+# Get the first active output as current
+current=$(echo "$outputs" | head -n1)
+
+# Find next output in the list
 found=false
-for output in $(xrandr | grep ' co' | awk '{print $1}')
-do
+for output in $outputs; do
     if $found; then
-        xrandr --output "$current" --off && xrandr --output "$output" --auto
+        swaymsg output "$current" disable
+        swaymsg output "$output" enable
         exit
     fi
     if [ "$output" = "$current" ]; then
         found=true
     fi
 done
-output=$(xrandr | grep ' co' | awk '{print $1}' | head -n1)
-xrandr --output "$current" --off && xrandr --output "$output" --auto
+
+# If we're at the last output, wrap to the first
+next_output=$(echo "$outputs" | head -n1)
+swaymsg output "$current" disable
+swaymsg output "$next_output" enable
