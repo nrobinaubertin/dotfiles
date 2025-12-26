@@ -301,9 +301,10 @@ echo "Configuring npm and installing global packages..."
 su "$USERNAME" sh -c 'npm config set prefix ~/.local'
 # Install global npm packages.
 cat <<EOF | xargs -I{} su "$USERNAME" sh -c 'npm install --force -g {}'
-@google/gemini-cli@latest
 @anthropic-ai/claude-code
 @github/copilot
+@google/gemini-cli@latest
+opencode-ai@latest
 EOF
 
 # rustup (installs the Rust toolchain)
